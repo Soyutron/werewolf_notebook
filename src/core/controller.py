@@ -26,7 +26,9 @@ class AIPlayerController:
         self.player_graph = player_graph
 
     def act(
-        self, *, state: PlayerState,
+        self,
+        *,
+        state: PlayerState,
     ) -> Optional[PlayerOutput]:
         new_state = self.player_graph.invoke(state)
         return new_state["output"]
