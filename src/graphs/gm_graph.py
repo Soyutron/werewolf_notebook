@@ -1,4 +1,4 @@
-from src.core.types import GameDecision, GMGraphState, PlayerRequest
+from src.core.types import GameDecision, GMGraphState, PlayerRequest, GameEvent
 
 
 class DummyGMGraph:
@@ -15,6 +15,12 @@ class DummyGMGraph:
         decision = GameDecision()
 
         if phase == "night":
+            decision.events.append(
+                GameEvent(
+                    event_type="phase_start",
+                    payload={"phase": "night"}
+                )
+            )
             decision.requests = {
                 player: PlayerRequest(
                     request_type="use_ability",
@@ -27,6 +33,12 @@ class DummyGMGraph:
 
             # 夜はまだ続く（結果待ち）
             decision.next_phase = None
+        
+        elif phase == "day":
+            print("昼フェーズ")
+
+            # 昼はまだ続く（結果待ち）
+            decision.next_phase = None     
 
         else:
             decision.next_phase = "reveal"

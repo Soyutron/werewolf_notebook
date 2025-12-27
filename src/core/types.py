@@ -1,5 +1,5 @@
 from typing import List, Dict, Optional, Literal, TypeAlias
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 # =========================
 # 役職名・陣営名を Literal で固定
@@ -157,6 +157,7 @@ GameEventType = Literal[
     "speech",  # 誰かが発言した（昼フェーズの会話ログ）
     "vote",  # 投票が行われた（誰が誰に投票したか）
     "reveal",  # 全役職公開（ゲーム終了・勝敗確定）
+    "phase_start", # フェーズ開始
 ]
 
 # =========================
@@ -354,7 +355,7 @@ class WorldState(BaseModel):
 #    - requests を各 PlayerController に dispatch
 #    - next_phase を gm_state.phase に反映
 class GameDecision(BaseModel):
-    events: Optional[List[GameEvent]] = None
+    events: List[GameEvent] = Field(default_factory=list)
     # 今ターンで新たに確定した「世界で起きた事実」
     #
     # 例:
@@ -365,7 +366,7 @@ class GameDecision(BaseModel):
     #
     # ※ ここに入った時点で「過去の事実」になる
 
-    requests: Optional[dict[PlayerName, PlayerRequest]] = None
+    requests: Dict[PlayerName, PlayerRequest] = Field(default_factory=dict)
     # 各プレイヤーに対する「次の行動要求」
     #
     # 例:

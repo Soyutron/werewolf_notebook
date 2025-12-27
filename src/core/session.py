@@ -121,9 +121,8 @@ class GameSession:
 
         controller = self.controllers[player]
 
-        # --- 行動要求がある場合のみ act ---
-        if input.request is None:
-            # 行動要求がない = 待機ターン
+        if input.request is None and not input.event:
+            # 行動要求もイベントもない = 待機ターン
             self.player_states[player] = state
             return None
 
@@ -148,10 +147,6 @@ class GameSession:
 
         gm_graph_state = self.gm_graph.invoke(gm_graph_state)
 
-        # デバッグ確認用
-        print("=== GMGraph result ===")
-        print(gm_graph_state)
-
         self.world_state = gm_graph_state.world_state
 
         return gm_graph_state
@@ -161,6 +156,16 @@ class GameSession:
         GMGraph からの GameDecision を受け取り、
         各プレイヤーに実行させる。
         """
+        # event を全員に配る（思考・記憶用）
+        if decision.events: 
+            for event in decision.events:
+                for player in self.player_states:
+                    self.run_player_turn(
+                        player=player,
+                        input=PlayerInput(event=event),
+                    )
+            # 公開イベントを反映
+            self.world_state.public_events.extend(decision.events)
 
         # プレイヤーへの行動要求を dispatch
         if decision.requests:
@@ -172,10 +177,14 @@ class GameSession:
                     ),
                 )
 
-        # 公開イベントを反映
-        if decision.events:
-            self.world_state.public_events.extend(decision.events)
-
         # フェーズ遷移
         if decision.next_phase is not None:
             self.world_state.phase = decision.next_phase
+
+    def run_night_phase(self):
+        gm_graph_state = self.run_gm_step()
+        self.dispatch(gm_graph_state.decision)
+
+        # ★ 夜フェーズ固有の完了処理
+        # （全 request を処理し終えた時点で確定）
+        self.world_state.phase = "day"
