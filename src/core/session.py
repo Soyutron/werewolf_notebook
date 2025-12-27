@@ -94,16 +94,13 @@ class GameSession:
         """
 
         state = self.player_states[player]
+        state["input"] = input
 
         controller = self.controllers[player]
 
-        output = controller.act(
-            memory=state["memory"],
-            input=input,
-        )
+        output = controller.act(state=state)
 
         # state の確定保存（Session の責務）
-        state["input"] = input
         state["output"] = output
         self.player_states[player] = state
 
