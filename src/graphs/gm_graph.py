@@ -1,16 +1,16 @@
-from src.core.types import GameDecision, GMGraphState
+from src.core.types import GameDecision, WorldState, GMState
 
 
 class DummyGMGraph:
     """
     仮の GMGraph
-    ・gm_state を読む
+    ・world_state を読む
     ・1 ステップ分の GameDecision を decision に詰めて返す
     """
 
-    def invoke(self, state: GMGraphState) -> GMGraphState:
-        gm_state = state["gm_state"]
-        phase = gm_state["phase"]
+    def invoke(self, state: GMState) -> GMState:
+        world_state = state["world_state"]
+        phase = world_state["phase"]
 
         decision: GameDecision = {}
 
@@ -19,13 +19,10 @@ class DummyGMGraph:
                 player: {
                     "request_type": "use_ability",
                     "payload": {
-                        "candidates": [
-                            p for p in gm_state["players"]
-                            if p != player
-                        ]
+                        "candidates": [p for p in world_state["players"] if p != player]
                     },
                 }
-                for player in gm_state["players"]
+                for player in world_state["players"]
             }
 
             # 夜はまだ続く（結果待ち）
@@ -35,10 +32,9 @@ class DummyGMGraph:
             decision["next_phase"] = "reveal"
 
         return {
-            "gm_state": gm_state,   # immutable
+            "world_state": world_state,  # immutable
             "decision": decision,  # working memory
         }
-
 
 
 # 仮の GMGraph

@@ -9,6 +9,7 @@ dependencies = [
     "langchain-community>=0.4.1",
     "langgraph>=1.0.5",
     "notebook>=7.5.1",
+    "pydantic>=2.12.5",
 ]
 
 [dependency-groups]

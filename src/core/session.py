@@ -1,7 +1,7 @@
 from src.game.setup.gm_setup import setup_game
 from src.core.types import (
     GameDefinition,
-    GMState,
+    WorldState,
     PlayerState,
     PlayerName,
     RoleName,
@@ -28,7 +28,7 @@ class GameSession:
         self,
         *,
         definition: GameDefinition,
-        gm_state: GMState,
+        world_state: WorldState,
         player_states: Dict[PlayerName, PlayerState],
         controllers: dict[PlayerName, PlayerController],
         assigned_roles: Dict[PlayerName, RoleName],
@@ -38,7 +38,7 @@ class GameSession:
         # このゲームのルール定義（役職構成・フェーズ構成など）
         # ゲーム開始前に定義され、ゲーム中は不変（immutable）
         # setup_game や GMGraph の判断基準として参照される
-        self.gm_state = gm_state
+        self.world_state = world_state
         # GM（進行役）が管理する現在の進行状態
         # イベントによって更新される「公開可能な状態」のみを含む
         self.player_states = player_states
@@ -72,7 +72,7 @@ class GameSession:
 
         players, assigned_roles, player_states, controllers = setup_game(definition)
 
-        gm_state: GMState = {
+        world_state: WorldState = {
             "phase": "night",
             "players": players,
             "public_events": [],
@@ -80,7 +80,7 @@ class GameSession:
 
         return cls(
             definition=definition,
-            gm_state=gm_state,
+            world_state=world_state,
             player_states=player_states,
             controllers=controllers,
             assigned_roles=assigned_roles,
@@ -117,12 +117,12 @@ class GameSession:
         （まだ dispatch はしない）
         """
 
-        gm_graph_state = {
-            "gm_state": self.gm_state,
+        gm_state = {
+            "world_state": self.world_state,
             "decision": None,
         }
 
-        result = self.gm_graph.invoke(gm_graph_state)
+        result = self.gm_graph.invoke(gm_state)
 
         # デバッグ確認用
         print("=== GMGraph result ===")

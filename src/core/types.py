@@ -293,10 +293,10 @@ class PlayerState(TypedDict):
 # ・役職・陣営などの非公開情報は一切含めない
 #   （公平性・情報非対称性を保つため）
 #
-# つまり GMState は
+# つまり WorldState は
 # 「全員が同じものを見てよい世界の状態」
 # を表す。
-class GMState(TypedDict):
+class WorldState(TypedDict):
     phase: Phase
     # 現在のゲーム進行フェーズ
     # GM の進行判断の基準となる
@@ -401,8 +401,8 @@ class GameDecision(TypedDict, total=False):
 # ・gm_state は原則 immutable として扱う
 # ・decision は一時的な working memory
 # ・最終的な state 更新は GameSession の責務
-class GMGraphState(TypedDict):
-    gm_state: GMState
+class GMState(TypedDict):
+    world_state: WorldState
     # 確定済みのゲーム状態（事実）
     # GMGraph はこれを「読む」ことが主
 
