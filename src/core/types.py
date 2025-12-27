@@ -1,4 +1,5 @@
-from typing import TypedDict, List, Dict, Optional, Literal, TypeAlias
+from typing import List, Dict, Optional, Literal, TypeAlias
+from pydantic import BaseModel
 
 # =========================
 # 役職名・陣営名を Literal で固定
@@ -46,7 +47,7 @@ WinSide = Side
 # 役職（Role）の定義
 # =========================
 # 1つの役職が持つべき情報を定義する
-class RoleDefinition(TypedDict):
+class RoleDefinition(BaseModel):
     name: RoleName  # 役職名（例: "villager", "werewolf"）
     day_side: DaySide  # 昼の立場
     win_side: WinSide  # 勝利条件の帰属
@@ -75,7 +76,7 @@ Phase = Literal[
 # ゲーム全体の定義
 # =========================
 # このゲームがどんな構成・ルールを持つかを表す
-class GameDefinition(TypedDict):
+class GameDefinition(BaseModel):
     roles: Dict[RoleName, RoleDefinition]
     # 役職名 -> RoleDefinition の対応表
 
@@ -98,7 +99,7 @@ PlayerName: TypeAlias = str
 # プレイヤーの記憶（内部状態）
 # =========================
 # プレイヤーAIが内部に保持する「脳の中身」
-class PlayerMemory(TypedDict):
+class PlayerMemory(BaseModel):
     self_name: PlayerName
     # 自分自身のプレイヤー名
 
@@ -180,7 +181,7 @@ PlayerRequestType = Literal[
 # ・GM が生成する
 # ・全プレイヤーに共有される
 # ・プレイヤーの memory / history に蓄積される
-class GameEvent(TypedDict):
+class GameEvent(BaseModel):
     event_type: GameEventType
     # イベントの種類（発言・夜行動・投票・結果公開）
 
@@ -201,7 +202,7 @@ class GameEvent(TypedDict):
 #
 # ・未来の行動を指示する
 # ・GameEvent（過去の事実）とは明確に区別される
-class PlayerRequest(TypedDict):
+class PlayerRequest(BaseModel):
     request_type: PlayerRequestType
     # 求められている行動の種類
 
@@ -218,12 +219,12 @@ class PlayerRequest(TypedDict):
 # =========================
 # 外部（GMやゲーム進行）から与えられる刺激
 # total=False により、すべてのキーが必須ではない
-class PlayerInput(TypedDict, total=False):
-    event: GameEvent
+class PlayerInput(BaseModel):
+    event: Optional[GameEvent] = None
     # 起きた出来事（他人の発言、投票結果など）
     # 例: {"type": "speech", "player": "Bob", "text": "..."}
 
-    request: PlayerRequest
+    request: Optional[PlayerRequest] = None
     # 今このプレイヤーが求められている行動
     # 例: {"action": "speak"} / {"action": "vote"}
 
@@ -231,7 +232,7 @@ class PlayerInput(TypedDict, total=False):
 # =========================
 # プレイヤーからの出力
 # =========================
-class PlayerOutput(TypedDict):
+class PlayerOutput(BaseModel):
     action: PlayerRequestType
     # GM から提示された PlayerRequest に対して、
     # プレイヤー（人間 / AI）が選択した行動の種類
@@ -249,7 +250,7 @@ class PlayerOutput(TypedDict):
 # プレイヤーの状態（State）
 # =========================
 # LangGraph などでノード間を流れる状態オブジェクト
-class PlayerState(TypedDict):
+class PlayerState(BaseModel):
     memory: PlayerMemory
     # プレイヤーの内部状態（長期的に保持される記憶）
     # - 自分の役職
@@ -296,7 +297,7 @@ class PlayerState(TypedDict):
 # つまり WorldState は
 # 「全員が同じものを見てよい世界の状態」
 # を表す。
-class WorldState(TypedDict):
+class WorldState(BaseModel):
     phase: Phase
     # 現在のゲーム進行フェーズ
     # GM の進行判断の基準となる
@@ -352,8 +353,8 @@ class WorldState(TypedDict):
 #    - events を public_events に反映
 #    - requests を各 PlayerController に dispatch
 #    - next_phase を gm_state.phase に反映
-class GameDecision(TypedDict, total=False):
-    events: List[GameEvent]
+class GameDecision(BaseModel):
+    events: Optional[List[GameEvent]] = None
     # 今ターンで新たに確定した「世界で起きた事実」
     #
     # 例:
@@ -364,7 +365,7 @@ class GameDecision(TypedDict, total=False):
     #
     # ※ ここに入った時点で「過去の事実」になる
 
-    requests: dict[PlayerName, PlayerRequest]
+    requests: Optional[dict[PlayerName, PlayerRequest]] = None
     # 各プレイヤーに対する「次の行動要求」
     #
     # 例:
@@ -376,7 +377,7 @@ class GameDecision(TypedDict, total=False):
     # ※ GM は直接行動を実行しない
     # ※ あくまで「行動機会」を与えるだけ
 
-    next_phase: Optional[str]
+    next_phase: Optional[str] = None
     # 次に遷移するフェーズ
     #
     # 例:
@@ -401,7 +402,7 @@ class GameDecision(TypedDict, total=False):
 # ・gm_state は原則 immutable として扱う
 # ・decision は一時的な working memory
 # ・最終的な state 更新は GameSession の責務
-class GMState(TypedDict):
+class GMState(BaseModel):
     world_state: WorldState
     # 確定済みのゲーム状態（事実）
     # GMGraph はこれを「読む」ことが主
