@@ -1,4 +1,4 @@
-from core import RoleName
+from core.types import RoleName, GameDefinition
 
 
 ROLE_LLM_DESCRIPTIONS: dict[RoleName, str] = {
@@ -26,4 +26,45 @@ ROLE_LLM_DESCRIPTIONS: dict[RoleName, str] = {
         "During discussion, subtly support the werewolves without revealing your true role, "
         "and try to mislead villagers while appearing helpful."
     ),
+}
+
+# =========================
+# ワンナイト人狼のゲーム定義（固定）
+# =========================
+
+ONE_NIGHT_GAME_DEFINITION: GameDefinition = {
+    "roles": {
+        "villager": {
+            "name": "villager",
+            "day_side": "village",
+            "win_side": "village",
+        },
+        "seer": {
+            "name": "seer",
+            "day_side": "village",
+            "win_side": "village",
+        },
+        "werewolf": {
+            "name": "werewolf",
+            "day_side": "werewolf",
+            "win_side": "werewolf",
+        },
+        "madman": {
+            "name": "madman",
+            "day_side": "village",  # 昼は村人扱い
+            "win_side": "werewolf",  # 勝利条件は人狼側
+        },
+    },
+    "role_distribution": [
+        "villager",
+        "villager",
+        "seer",
+        "werewolf",
+        "madman",
+    ],
+    "phases": [
+        "night",
+        "day",
+        "vote",
+    ],
 }

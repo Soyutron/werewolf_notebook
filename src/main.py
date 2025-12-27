@@ -1,5 +1,5 @@
-from llm.ollama import LangChainSpeechEvaluator
-from graphs.player_graph import create_player_graph
+from src.llm.ollama import LangChainSpeechEvaluator
+from src.graphs.player_graph import create_player_graph
 
 def main():
     print("Initializing components...")

@@ -88,7 +88,9 @@ class GameDefinition(TypedDict):
     # 例: ["night", "day", "vote"]
 
 
+# =========================
 # プレイヤーを識別するための名前型
+# =========================
 PlayerName: TypeAlias = str
 
 
@@ -249,12 +251,27 @@ class PlayerOutput(TypedDict):
 # LangGraph などでノード間を流れる状態オブジェクト
 class PlayerState(TypedDict):
     memory: PlayerMemory
-    # 長期的に保持される記憶（思考・推論の基盤）
+    # プレイヤーの内部状態（長期的に保持される記憶）
+    # - 自分の役職
+    # - 他プレイヤーへの推測
+    # - 過去のイベント履歴 など
+    #
+    # ※ PlayerGraph が更新し、GM は直接変更しない
 
     input: PlayerInput
-    # 今ターンで受け取った入力（イベント / リクエスト）
+    # GM（ゲーム進行役）から与えられる入力
+    # - GameEvent: 世界で起きた事実の通知（内面更新のみ）
+    # - PlayerRequest: 今ターンの行動機会の提示
+    #
+    # ※ request が含まれない場合は「待機状態」を意味する
 
     output: Optional[PlayerOutput]
-    # プレイヤーが出力した行動
-    # 例: {"message": "..."} / {"vote": "..."}
-    # 行動しない場合は None
+    # PlayerGraph が生成する出力（request に対する応答）
+    #
+    # - input に request がある場合:
+    #     -> PlayerOutput が設定されることを期待する
+    # - input に request がない場合:
+    #     -> None（外界への行動なし）
+    #
+    # ※ GM は output を解釈・適用する側であり、
+    #    output を事前に設定することはない

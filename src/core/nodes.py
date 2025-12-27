@@ -1,74 +1,24 @@
-from typing import Callable
-from core.types import PlayerState
+from src.core.types import PlayerState
 
 
-def make_handle_event(llm) -> Callable[[PlayerState], PlayerState]:
-    def handle_event(state: PlayerState) -> PlayerState:
-        event = state["input"].get("event")
-        if not event:
-            return state
+def player_step(state: PlayerState) -> PlayerState:
+    input_ = state["input"]
 
-        memory = state["memory"]
-        memory["history"].append(event)
+    # event を受け取ったとき
+    if "event" in input_:
+        state["memory"]["history"].append(input_["event"])
 
-        if event["type"] == "speech":
-            speaker = event["speaker"]
-            content = event["content"]
+    # request を受け取ったとき
+    if "request" in input_:
+        req = input_["request"]
 
-            judgment = llm.evaluate_speech(
-                speaker=speaker,
-                content=content,
-                self_name=memory["self_name"],
-                suspicion=memory["suspicion"],
-            )
-
-            delta = judgment.get("suspicion_delta")
-
-            if delta == "increase":
-                memory["suspicion"][speaker] = (
-                    memory["suspicion"].get(speaker, 0.0) + 0.2
-                )
-            elif delta == "decrease":
-                memory["suspicion"][speaker] = max(
-                    0.0, memory["suspicion"].get(speaker, 0.0) - 0.2
-                )
-            else:
-                memory["suspicion"].setdefault(speaker, 0.1)
-
-        return state
-
-    return handle_event
-
-
-def decide_action(state: PlayerState) -> PlayerState:
-    request = state["input"].get("request")
-    if not request:
-        return state
-
-    memory = state["memory"]
-    action = request.get("action")
-
-    if action == "speak":
-        if memory["suspicion"]:
-            target = max(memory["suspicion"], key=memory["suspicion"].get)
+        if req["request_type"] == "speak":
             state["output"] = {
-                "type": "speech",
-                "speaker": memory["self_name"],
-                "content": f"I think {target} is suspicious",
-            }
-        else:
-            state["output"] = {
-                "type": "speech",
-                "speaker": memory["self_name"],
-                "content": "I have no information",
+                "action": "speak",
+                "payload": {"message": "I am villager."},
             }
 
-    elif action == "vote":
-        target = max(memory["suspicion"], key=memory["suspicion"].get)
-        state["output"] = {
-            "type": "vote",
-            "voter": memory["self_name"],
-            "target": target,
-        }
+        elif req["request_type"] == "vote":
+            state["output"] = {"action": "vote", "payload": {"target": "Bob"}}
 
     return state
