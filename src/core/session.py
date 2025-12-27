@@ -7,7 +7,7 @@ from src.core.types import (
     RoleName,
     PlayerInput,
     PlayerOutput,
-    GMState,
+    GMGraphState,
     GameDecision,
 )
 from typing import Dict
@@ -19,7 +19,7 @@ from src.graphs.gm_graph import gm_graph
 # ゲーム実行セッション
 # =========================
 # 1 回のゲームを実行するための実行コンテナ。
-# GMState / PlayerState / 真実情報（役職）を保持し、
+# worldState / PlayerState / 真実情報（役職）を保持し、
 # GMGraph と PlayerGraph を仲介する責務を持つ。
 #
 # ・state の「所有者」
@@ -66,13 +66,23 @@ class GameSession:
         - プレイヤー生成
         - 役職割り当て
         - PlayerState 初期化
-        - GMState 初期化
+        - world_state 初期化
 
         ※ このメソッド以外から
           GameSession を直接 new しない想定
         """
 
-        players, assigned_roles, player_states, controllers = setup_game(definition)
+        players, assigned_roles, player_memories, controllers = setup_game(definition)
+
+        # PlayerMemory を PlayerState にラップする
+        player_states = {
+            player: PlayerState(
+                memory=memory,
+                input=PlayerInput(),
+                output=None,
+            )
+            for player, memory in player_memories.items()
+        }
 
         world_state = WorldState(
             phase="night",
@@ -94,40 +104,78 @@ class GameSession:
         *,
         player: PlayerName,
         input: PlayerInput,
-    ) -> PlayerOutput:
+    ) -> PlayerOutput | None:
         """
         GM からの PlayerRequest を受け取り、
         対象プレイヤーに実行させ、その結果を返す。
+
+        - input は一時的な刺激
+        - output は毎ターン初期化される
         """
 
         state = self.player_states[player]
+
+        # --- 毎ターンの初期化（重要） ---
         state.input = input
+        state.output = None
 
         controller = self.controllers[player]
 
+        # --- 行動要求がある場合のみ act ---
+        if input.request is None:
+            # 行動要求がない = 待機ターン
+            self.player_states[player] = state
+            return None
+
         output = controller.act(state=state)
 
-        # state の確定保存（Session の責務）
+        # --- 結果の確定保存（Session の責務） ---
         state.output = output
         self.player_states[player] = state
 
         return output
 
-    def run_gm_step(self):
+    def run_gm_step(self) -> GMGraphState:
         """
         GMGraph が正しく invoke できるかを確認するための最小ステップ
         （まだ dispatch はしない）
         """
 
-        gm_state = GMState(
+        gm_graph_state = GMGraphState(
             world_state=self.world_state,
             decision=GameDecision(),
         )
 
-        result = self.gm_graph.invoke(gm_state)
+        gm_graph_state = self.gm_graph.invoke(gm_graph_state)
 
         # デバッグ確認用
         print("=== GMGraph result ===")
-        print(result)
+        print(gm_graph_state)
 
-        return result
+        self.world_state = gm_graph_state.world_state
+
+        return gm_graph_state
+
+    def dispatch(self, decision: GameDecision) -> None:
+        """
+        GMGraph からの GameDecision を受け取り、
+        各プレイヤーに実行させる。
+        """
+
+        # プレイヤーへの行動要求を dispatch
+        if decision.requests:
+            for player, request in decision.requests.items():
+                self.run_player_turn(
+                    player=player,
+                    input=PlayerInput(
+                        request=request,
+                    ),
+                )
+
+        # 公開イベントを反映
+        if decision.events:
+            self.world_state.public_events.extend(decision.events)
+
+        # フェーズ遷移
+        if decision.next_phase is not None:
+            self.world_state.phase = decision.next_phase

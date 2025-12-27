@@ -377,7 +377,7 @@ class GameDecision(BaseModel):
     # ※ GM は直接行動を実行しない
     # ※ あくまで「行動機会」を与えるだけ
 
-    next_phase: Optional[str] = None
+    next_phase: Optional[Phase] = None
     # 次に遷移するフェーズ
     #
     # 例:
@@ -395,14 +395,14 @@ class GameDecision(BaseModel):
 # =========================
 # GMGraph 内部で使用される合成 State。
 #
-# ・gm_state  : すでに確定した「過去と現在の事実」
+# ・world_state  : すでに確定した「過去と現在の事実」
 # ・decision  : 今ステップで導き出された「判断結果」
 #
 # 重要:
-# ・gm_state は原則 immutable として扱う
+# ・world_state は原則 immutable として扱う
 # ・decision は一時的な working memory
 # ・最終的な state 更新は GameSession の責務
-class GMState(BaseModel):
+class GMGraphState(BaseModel):
     world_state: WorldState
     # 確定済みのゲーム状態（事実）
     # GMGraph はこれを「読む」ことが主

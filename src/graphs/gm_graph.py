@@ -1,4 +1,4 @@
-from src.core.types import GameDecision, WorldState, GMState, PlayerRequest
+from src.core.types import GameDecision, GMGraphState, PlayerRequest
 
 
 class DummyGMGraph:
@@ -8,7 +8,7 @@ class DummyGMGraph:
     ・1 ステップ分の GameDecision を decision に詰めて返す
     """
 
-    def invoke(self, state: GMState) -> GMState:
+    def invoke(self, state: GMGraphState) -> GMGraphState:
         world_state = state.world_state
         phase = world_state.phase
 
@@ -31,7 +31,7 @@ class DummyGMGraph:
         else:
             decision.next_phase = "reveal"
 
-        return GMState(
+        return GMGraphState(
             world_state=world_state,  # immutable
             decision=decision,  # working memory
         )
