@@ -5,7 +5,7 @@ from src.core.types import (
     PlayerState,
     PlayerName,
     RoleName,
-    PlayerRequest,
+    PlayerInput,
     PlayerOutput,
 )
 from typing import Dict
@@ -82,11 +82,11 @@ class GameSession:
             assigned_roles=assigned_roles,
         )
 
-    def dispatch_player_request(
+    def run_player_turn(
         self,
         *,
         player: PlayerName,
-        request: PlayerRequest,
+        input: PlayerInput,
     ) -> PlayerOutput:
         """
         GM からの PlayerRequest を受け取り、
@@ -95,14 +95,16 @@ class GameSession:
 
         state = self.player_states[player]
 
-        # PlayerInput を構築
-        state["input"] = {"request": request}
-
         controller = self.controllers[player]
 
-        new_state = controller.act(state)
+        output = controller.act(
+            memory=state["memory"],
+            input=input,
+        )
 
-        # state を確定保存
-        self.player_states[player] = new_state
+        # state の確定保存（Session の責務）
+        state["input"] = input
+        state["output"] = output
+        self.player_states[player] = state
 
-        return new_state["output"]
+        return output

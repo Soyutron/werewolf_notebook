@@ -1,4 +1,4 @@
-from src.core.types import PlayerState, PlayerOutput
+from src.core.types import PlayerState
 
 
 class DummyPlayerGraph:
@@ -15,10 +15,10 @@ class DummyPlayerGraph:
             state.output = None
             return state
 
-        state.output = PlayerOutput(
-            action=request["request_type"],
-            payload=request["payload"],
-        )
+        state.output = {
+            "action": request["request_type"],
+            "payload": request["payload"],
+        }
         return state
 
 
