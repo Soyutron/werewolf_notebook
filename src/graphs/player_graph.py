@@ -9,13 +9,13 @@ class DummyPlayerGraph:
     """
 
     def invoke(self, state: PlayerState) -> PlayerState:
-        request = state.input.get("request")
+        request = state["input"].get("request")
 
         if request is None:
-            state.output = None
+            state["output"] = None
             return state
 
-        state.output = {
+        state["output"] = {
             "action": request["request_type"],
             "payload": request["payload"],
         }

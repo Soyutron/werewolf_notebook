@@ -300,3 +300,34 @@ class GMState(TypedDict):
     # 全体に公開された出来事の履歴
     # 発言、投票結果、フェーズ遷移など
     # フロントエンド表示やリプレイ用途を想定
+
+
+# =========================
+# GM の意思決定結果
+# =========================
+# GMGraph が「次に何を起こすか」を判断した結果
+#
+# ・GameSession がこれを解釈して
+#   - event を public_events に追加
+#   - request を各プレイヤーに dispatch
+#   - phase を更新
+class GameDecision(TypedDict, total=False):
+    events: List[GameEvent]
+    # 今ターンで確定した「世界で起きた事実」
+    # 例:
+    # - 夜の能力結果
+    # - 誰かの発言
+    # - 投票結果
+    # - 役職公開
+
+    requests: dict[PlayerName, PlayerRequest]
+    # 各プレイヤーに与える「次の行動機会」
+    # 例:
+    # {
+    #   "Alice": {"request_type": "speak", "payload": {...}},
+    #   "Bob": {"request_type": "wait", "payload": {}},
+    # }
+
+    next_phase: Optional[str]
+    # 次に遷移するフェーズ
+    # 例: "night" -> "day" -> "vote" -> "reveal"

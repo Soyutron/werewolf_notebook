@@ -1,5 +1,5 @@
 from typing import Protocol, Optional
-from src.core.types import PlayerMemory, PlayerInput, PlayerOutput, PlayerState
+from src.core.types import PlayerOutput, PlayerState
 
 
 class PlayerController(Protocol):
@@ -11,8 +11,7 @@ class PlayerController(Protocol):
     def act(
         self,
         *,
-        memory: PlayerMemory,
-        input: PlayerInput,
+        state: PlayerState,
     ) -> Optional[PlayerOutput]: ...
 
 
