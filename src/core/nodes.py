@@ -1,6 +1,7 @@
 from typing import Callable
 from core.types import PlayerState
 
+
 def make_handle_event(llm) -> Callable[[PlayerState], PlayerState]:
     def handle_event(state: PlayerState) -> PlayerState:
         event = state["input"].get("event")
@@ -24,7 +25,9 @@ def make_handle_event(llm) -> Callable[[PlayerState], PlayerState]:
             delta = judgment.get("suspicion_delta")
 
             if delta == "increase":
-                memory["suspicion"][speaker] = memory["suspicion"].get(speaker, 0.0) + 0.2
+                memory["suspicion"][speaker] = (
+                    memory["suspicion"].get(speaker, 0.0) + 0.2
+                )
             elif delta == "decrease":
                 memory["suspicion"][speaker] = max(
                     0.0, memory["suspicion"].get(speaker, 0.0) - 0.2
@@ -51,13 +54,13 @@ def decide_action(state: PlayerState) -> PlayerState:
             state["output"] = {
                 "type": "speech",
                 "speaker": memory["self_name"],
-                "content": f"I think {target} is suspicious"
+                "content": f"I think {target} is suspicious",
             }
         else:
             state["output"] = {
                 "type": "speech",
                 "speaker": memory["self_name"],
-                "content": "I have no information"
+                "content": "I have no information",
             }
 
     elif action == "vote":
@@ -65,7 +68,7 @@ def decide_action(state: PlayerState) -> PlayerState:
         state["output"] = {
             "type": "vote",
             "voter": memory["self_name"],
-            "target": target
+            "target": target,
         }
 
     return state

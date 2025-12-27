@@ -2,6 +2,7 @@ from langgraph.graph import StateGraph, END
 from core.nodes import make_handle_event, decide_action
 from core.types import PlayerState
 
+
 def create_player_graph(llm):
     """
     Creates and compiles the player graph with the given LLM dependency.

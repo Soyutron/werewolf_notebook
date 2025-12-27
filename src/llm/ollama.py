@@ -2,6 +2,7 @@ import json
 from langchain_community.llms import Ollama
 from typing import Dict
 
+
 class LangChainSpeechEvaluator:
     def __init__(self, model="llama3"):
         self.llm = Ollama(model=model, temperature=0.3)
@@ -13,7 +14,6 @@ class LangChainSpeechEvaluator:
         self_name: str,
         suspicion: Dict[str, float],
     ) -> Dict[str, str]:
-
         prompt = f"""
 You are a player in a one-night werewolf game.
 
