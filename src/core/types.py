@@ -280,54 +280,132 @@ class PlayerState(TypedDict):
 # =========================
 # GM が管理する進行状態
 # =========================
-# GM（進行役）がイベント駆動で管理するゲーム全体の状態。
-# ゲームの「進み具合」や「公開情報」のみを保持し、
-# 役職などの非公開な真実情報は含めない。
+# GM（進行役）がイベント駆動で管理するゲーム全体の「公開状態」。
 #
-# ・イベントによって更新される
-# ・全プレイヤーに公開してよい情報のみを持つ
-# ・議論の公平性を保つため、役職情報は含めない
+# この State は、
+# - ゲームが今どこまで進んでいるか
+# - 全プレイヤーが共通で認識してよい事実
+# のみを保持する。
+#
+# 重要な設計方針:
+# ・GMGraph / GameSession が参照・更新する
+# ・PlayerGraph からも「観測可能な世界」として参照されうる
+# ・役職・陣営などの非公開情報は一切含めない
+#   （公平性・情報非対称性を保つため）
+#
+# つまり GMState は
+# 「全員が同じものを見てよい世界の状態」
+# を表す。
 class GMState(TypedDict):
     phase: Phase
     # 現在のゲーム進行フェーズ
-    # 例: "night" / "day" / "vote"
+    # GM の進行判断の基準となる
+    #
+    # 例:
+    # - "night"   : 夜フェーズ（能力使用）
+    # - "day"     : 昼フェーズ（議論）
+    # - "vote"    : 投票フェーズ
+    # - "reveal"  : 結果公開
 
     players: List[PlayerName]
     # このゲームに参加している全プレイヤーの一覧
-    # 順序は進行順・発言順などに使用される
+    #
+    # 用途:
+    # ・発言順 / 投票順の決定
+    # ・全体人数の把握
+    #
+    # ※ 原則としてゲーム中は不変（immutable）想定
 
     public_events: List[GameEvent]
     # 全体に公開された出来事の履歴
-    # 発言、投票結果、フェーズ遷移など
-    # フロントエンド表示やリプレイ用途を想定
+    #
+    # 含まれるものの例:
+    # ・誰かの発言
+    # ・投票結果
+    # ・フェーズ遷移
+    # ・ゲーム終了時の公開情報
+    #
+    # 用途:
+    # ・PlayerMemory への入力
+    # ・フロントエンド表示
+    # ・ログ / リプレイ再生
+    #
+    # ※ GM が確定させた「過去の事実」のみを格納する
 
 
 # =========================
 # GM の意思決定結果
 # =========================
-# GMGraph が「次に何を起こすか」を判断した結果
+# GMGraph が
+# 「次にゲームで何を起こすか」
+# を判断した結果を表すデータ構造。
 #
-# ・GameSession がこれを解釈して
-#   - event を public_events に追加
-#   - request を各プレイヤーに dispatch
-#   - phase を更新
+# これは "状態" ではなく、
+# 1 ステップ分の「判断の出力（差分）」。
+#
+# GameSession がこの Decision を解釈して、
+# 実際の状態変更やプレイヤーへの通知を行う。
+#
+# 典型的な処理フロー:
+# 1. GMGraph が GameDecision を生成
+# 2. GameSession が
+#    - events を public_events に反映
+#    - requests を各 PlayerController に dispatch
+#    - next_phase を gm_state.phase に反映
 class GameDecision(TypedDict, total=False):
     events: List[GameEvent]
-    # 今ターンで確定した「世界で起きた事実」
+    # 今ターンで新たに確定した「世界で起きた事実」
+    #
     # 例:
-    # - 夜の能力結果
-    # - 誰かの発言
-    # - 投票結果
-    # - 役職公開
+    # ・夜の能力結果
+    # ・誰かの発言
+    # ・投票結果
+    # ・最終的な役職公開
+    #
+    # ※ ここに入った時点で「過去の事実」になる
 
     requests: dict[PlayerName, PlayerRequest]
-    # 各プレイヤーに与える「次の行動機会」
+    # 各プレイヤーに対する「次の行動要求」
+    #
     # 例:
     # {
     #   "Alice": {"request_type": "speak", "payload": {...}},
-    #   "Bob": {"request_type": "wait", "payload": {}},
+    #   "Bob":   {"request_type": "wait",  "payload": {}},
     # }
+    #
+    # ※ GM は直接行動を実行しない
+    # ※ あくまで「行動機会」を与えるだけ
 
     next_phase: Optional[str]
     # 次に遷移するフェーズ
-    # 例: "night" -> "day" -> "vote" -> "reveal"
+    #
+    # 例:
+    # - "night" -> "day"
+    # - "day"   -> "vote"
+    # - "vote"  -> "reveal"
+    #
+    # None の場合:
+    # ・フェーズ継続
+    # ・または GameSession 側で遷移制御
+
+
+# =========================
+# GMGraph が扱う State
+# =========================
+# GMGraph 内部で使用される合成 State。
+#
+# ・gm_state  : すでに確定した「過去と現在の事実」
+# ・decision  : 今ステップで導き出された「判断結果」
+#
+# 重要:
+# ・gm_state は原則 immutable として扱う
+# ・decision は一時的な working memory
+# ・最終的な state 更新は GameSession の責務
+class GMGraphState(TypedDict):
+    gm_state: GMState
+    # 確定済みのゲーム状態（事実）
+    # GMGraph はこれを「読む」ことが主
+
+    decision: GameDecision
+    # GMGraph がこのステップで生成する判断結果
+    # 次の状態遷移の材料

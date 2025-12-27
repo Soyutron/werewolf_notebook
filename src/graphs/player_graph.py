@@ -22,5 +22,5 @@ class DummyPlayerGraph:
         return state
 
 
-# 仮の compiled_player_graph
-compiled_player_graph = DummyPlayerGraph()
+# 仮の PlayerGraph
+player_graph = DummyPlayerGraph()

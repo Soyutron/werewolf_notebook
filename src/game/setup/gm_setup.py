@@ -8,7 +8,7 @@ from src.game.setup.memory import create_initial_player_memory
 from src.core.types import GameDefinition
 from src.core.controller import PlayerController
 from src.core.controller import AIPlayerController
-from src.graphs.player_graph import compiled_player_graph
+from src.graphs.player_graph import player_graph
 
 
 def setup_game(
@@ -52,8 +52,6 @@ def setup_game(
     }
 
     # 4. Controller 初期化（AI 5人）
-    controllers = {
-        player: AIPlayerController(compiled_player_graph) for player in players
-    }
+    controllers = {player: AIPlayerController(player_graph) for player in players}
 
     return players, assigned_roles, player_memories, controllers

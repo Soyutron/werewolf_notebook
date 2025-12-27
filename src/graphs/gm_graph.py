@@ -1,27 +1,38 @@
-# graphs/gm_graph.py
-from src.core.types import GMState
-from src.game.gm.dispatch import dispatch_vote
+from src.core.types import GameDecision
 
 
-def gm_vote_node(state: GMState) -> GMState:
+class DummyGMGraph:
     """
-    GMGraph の node
-    ・state を見て判断するだけ
-    ・「誰に投票させたいか」を state に書く
+    仮の GMGraph
+    ・gm_state を見て
+    ・次にやるべき 1 アクションだけ返す
     """
 
-    requests = []
+    def invoke(self, gm_state) -> GameDecision:
+        phase = gm_state["phase"]
 
-    for player in state["players"]:
-        candidates = [p for p in state["players"] if p != player]
-
-        requests.append(
-            {
-                "type": "vote",
-                "player": player,
-                "candidates": candidates,
+        if phase == "night":
+            # とりあえず占い師に行動させるだけ
+            return {
+                "type": "request_player",
+                "payload": {
+                    "player": "太郎",  # 仮
+                    "input": {
+                        "request": {
+                            "request_type": "use_ability",
+                            "payload": {
+                                "candidates": ["花子", "次郎"],
+                            },
+                        }
+                    },
+                },
             }
-        )
 
-    state["pending_requests"] = requests
-    return state
+        return {
+            "type": "end_game",
+            "payload": {},
+        }
+
+
+# 仮の GMGraph
+gm_graph = DummyGMGraph()
