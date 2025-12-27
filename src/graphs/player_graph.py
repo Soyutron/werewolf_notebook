@@ -1,4 +1,4 @@
-from src.core.types import PlayerState
+from src.core.types import PlayerState, PlayerOutput
 
 
 class DummyPlayerGraph:
@@ -9,16 +9,16 @@ class DummyPlayerGraph:
     """
 
     def invoke(self, state: PlayerState) -> PlayerState:
-        request = state["input"].get("request")
+        request = state.input.request
 
         if request is None:
-            state["output"] = None
+            state.output = None
             return state
 
-        state["output"] = {
-            "action": request["request_type"],
-            "payload": request["payload"],
-        }
+        state.output = PlayerOutput(
+            action=request.request_type,
+            payload=request.payload,
+        )
         return state
 
 

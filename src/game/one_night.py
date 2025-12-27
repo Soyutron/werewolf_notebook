@@ -1,4 +1,4 @@
-from src.core.types import RoleName, GameDefinition
+from src.core.types import RoleName, GameDefinition, RoleDefinition
 
 
 ROLE_LLM_DESCRIPTIONS: dict[RoleName, str] = {
@@ -32,39 +32,39 @@ ROLE_LLM_DESCRIPTIONS: dict[RoleName, str] = {
 # ワンナイト人狼のゲーム定義（固定）
 # =========================
 
-ONE_NIGHT_GAME_DEFINITION: GameDefinition = {
-    "roles": {
-        "villager": {
-            "name": "villager",
-            "day_side": "village",
-            "win_side": "village",
-        },
-        "seer": {
-            "name": "seer",
-            "day_side": "village",
-            "win_side": "village",
-        },
-        "werewolf": {
-            "name": "werewolf",
-            "day_side": "werewolf",
-            "win_side": "werewolf",
-        },
-        "madman": {
-            "name": "madman",
-            "day_side": "village",  # 昼は村人扱い
-            "win_side": "werewolf",  # 勝利条件は人狼側
-        },
+ONE_NIGHT_GAME_DEFINITION = GameDefinition(
+    roles={
+        "villager": RoleDefinition(
+            name="villager",
+            day_side="village",
+            win_side="village",
+        ),
+        "seer": RoleDefinition(
+            name="seer",
+            day_side="village",
+            win_side="village",
+        ),
+        "werewolf": RoleDefinition(
+            name="werewolf",
+            day_side="werewolf",
+            win_side="werewolf",
+        ),
+        "madman": RoleDefinition(
+            name="madman",
+            day_side="village",  # 昼は村人扱い
+            win_side="werewolf",  # 勝利条件は人狼側
+        ),
     },
-    "role_distribution": [
+    role_distribution=[
         "villager",
         "villager",
         "seer",
         "werewolf",
         "madman",
     ],
-    "phases": [
+    phases=[
         "night",
         "day",
         "vote",
     ],
-}
+)

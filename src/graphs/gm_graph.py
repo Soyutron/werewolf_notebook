@@ -1,4 +1,4 @@
-from src.core.types import GameDecision, WorldState, GMState
+from src.core.types import GameDecision, WorldState, GMState, PlayerRequest
 
 
 class DummyGMGraph:
@@ -9,32 +9,32 @@ class DummyGMGraph:
     """
 
     def invoke(self, state: GMState) -> GMState:
-        world_state = state["world_state"]
-        phase = world_state["phase"]
+        world_state = state.world_state
+        phase = world_state.phase
 
-        decision: GameDecision = {}
+        decision = GameDecision()
 
         if phase == "night":
-            decision["requests"] = {
-                player: {
-                    "request_type": "use_ability",
-                    "payload": {
-                        "candidates": [p for p in world_state["players"] if p != player]
+            decision.requests = {
+                player: PlayerRequest(
+                    request_type="use_ability",
+                    payload={
+                        "candidates": [p for p in world_state.players if p != player]
                     },
-                }
-                for player in world_state["players"]
+                )
+                for player in world_state.players
             }
 
             # 夜はまだ続く（結果待ち）
-            decision["next_phase"] = None
+            decision.next_phase = None
 
         else:
-            decision["next_phase"] = "reveal"
+            decision.next_phase = "reveal"
 
-        return {
-            "world_state": world_state,  # immutable
-            "decision": decision,  # working memory
-        }
+        return GMState(
+            world_state=world_state,  # immutable
+            decision=decision,  # working memory
+        )
 
 
 # 仮の GMGraph

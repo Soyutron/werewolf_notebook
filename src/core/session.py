@@ -7,6 +7,8 @@ from src.core.types import (
     RoleName,
     PlayerInput,
     PlayerOutput,
+    GMState,
+    GameDecision,
 )
 from typing import Dict
 from src.core.controller import PlayerController
@@ -72,11 +74,11 @@ class GameSession:
 
         players, assigned_roles, player_states, controllers = setup_game(definition)
 
-        world_state: WorldState = {
-            "phase": "night",
-            "players": players,
-            "public_events": [],
-        }
+        world_state = WorldState(
+            phase="night",
+            players=players,
+            public_events=[],
+        )
 
         return cls(
             definition=definition,
@@ -99,14 +101,14 @@ class GameSession:
         """
 
         state = self.player_states[player]
-        state["input"] = input
+        state.input = input
 
         controller = self.controllers[player]
 
         output = controller.act(state=state)
 
         # state の確定保存（Session の責務）
-        state["output"] = output
+        state.output = output
         self.player_states[player] = state
 
         return output
@@ -117,10 +119,10 @@ class GameSession:
         （まだ dispatch はしない）
         """
 
-        gm_state = {
-            "world_state": self.world_state,
-            "decision": None,
-        }
+        gm_state = GMState(
+            world_state=self.world_state,
+            decision=GameDecision(),
+        )
 
         result = self.gm_graph.invoke(gm_state)
 
