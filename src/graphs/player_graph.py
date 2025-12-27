@@ -1,22 +1,26 @@
-from langgraph.graph import StateGraph, END
-from core.nodes import make_handle_event, decide_action
-from core.types import PlayerState
+from src.core.types import PlayerState, PlayerOutput
 
 
-def create_player_graph(llm):
+class DummyPlayerGraph:
     """
-    Creates and compiles the player graph with the given LLM dependency.
+    仮の PlayerGraph
+    ・input.request をそのまま output に変換するだけ
+    ・設計検証用
     """
-    # Create the node function with the injected LLM
-    handle_event = make_handle_event(llm)
 
-    player_graph = StateGraph(PlayerState)
+    def invoke(self, state: PlayerState) -> PlayerState:
+        request = state.input.get("request")
 
-    player_graph.add_node("handle_event", handle_event)
-    player_graph.add_node("decide_action", decide_action)
+        if request is None:
+            state.output = None
+            return state
 
-    player_graph.set_entry_point("handle_event")
-    player_graph.add_edge("handle_event", "decide_action")
-    player_graph.add_edge("decide_action", END)
+        state.output = PlayerOutput(
+            action=request["request_type"],
+            payload=request["payload"],
+        )
+        return state
 
-    return player_graph.compile()
+
+# 仮の compiled_player_graph
+compiled_player_graph = DummyPlayerGraph()

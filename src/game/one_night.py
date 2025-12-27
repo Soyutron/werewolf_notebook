@@ -1,4 +1,4 @@
-from core.types import RoleName, GameDefinition
+from src.core.types import RoleName, GameDefinition
 
 
 ROLE_LLM_DESCRIPTIONS: dict[RoleName, str] = {

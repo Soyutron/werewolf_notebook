@@ -5,12 +5,21 @@ from src.core.types import PlayerName, RoleName, PlayerMemory
 from src.game.setup.players import create_players
 from src.game.setup.roles import assign_roles
 from src.game.setup.memory import create_initial_player_memory
+from src.core.types import GameDefinition
+from src.core.controller import PlayerController
+from src.core.controller import AIPlayerController
+from src.graphs.player_graph import compiled_player_graph
 
 
-def setup_game() -> Tuple[
+def setup_game(
+    definition: GameDefinition,
+    # NOTE: 現在はワンナイト人狼固定構成のため definition は未使用。
+    # 将来、player_count / role_distribution を definition から取得する。
+) -> Tuple[
     List[PlayerName],
     Dict[PlayerName, RoleName],
     Dict[PlayerName, PlayerMemory],
+    Dict[PlayerName, PlayerController],
 ]:
     """
     ワンナイト人狼のゲーム初期状態を構築する。
@@ -42,4 +51,9 @@ def setup_game() -> Tuple[
         for player in players
     }
 
-    return players, assigned_roles, player_memories
+    # 4. Controller 初期化（AI 5人）
+    controllers = {
+        player: AIPlayerController(compiled_player_graph) for player in players
+    }
+
+    return players, assigned_roles, player_memories, controllers
