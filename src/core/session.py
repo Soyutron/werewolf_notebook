@@ -10,6 +10,7 @@ from src.core.types import (
 )
 from typing import Dict
 from src.core.controller import PlayerController
+from src.graphs.gm_graph import gm_graph
 
 
 # =========================
@@ -31,6 +32,7 @@ class GameSession:
         player_states: Dict[PlayerName, PlayerState],
         controllers: dict[PlayerName, PlayerController],
         assigned_roles: Dict[PlayerName, RoleName],
+        gm_graph,
     ):
         self.definition = definition
         # このゲームのルール定義（役職構成・フェーズ構成など）
@@ -51,6 +53,8 @@ class GameSession:
         # GM（裁定者）だけが知る「真実情報」
         # 夜行動の解決や勝敗判定にのみ使用され、
         # 議論フェーズや公開 state には決して含めない
+        self.gm_graph = gm_graph
+        # GMGraph
 
     @classmethod
     def create(cls, definition: GameDefinition) -> "GameSession":
@@ -80,6 +84,7 @@ class GameSession:
             player_states=player_states,
             controllers=controllers,
             assigned_roles=assigned_roles,
+            gm_graph=gm_graph,
         )
 
     def run_player_turn(
@@ -105,3 +110,22 @@ class GameSession:
         self.player_states[player] = state
 
         return output
+
+    def run_gm_step(self):
+        """
+        GMGraph が正しく invoke できるかを確認するための最小ステップ
+        （まだ dispatch はしない）
+        """
+
+        gm_graph_state = {
+            "gm_state": self.gm_state,
+            "decision": None,
+        }
+
+        result = self.gm_graph.invoke(gm_graph_state)
+
+        # デバッグ確認用
+        print("=== GMGraph result ===")
+        print(result)
+
+        return result
