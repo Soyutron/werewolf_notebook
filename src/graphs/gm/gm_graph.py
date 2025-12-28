@@ -5,7 +5,8 @@ from src.core.types import (
     GameEvent,
 )
 from typing import Protocol
-
+from langgraph.graph import StateGraph, END
+from src.graphs.gm.node.night_phase import night_phase_node
 
 class GMGraph(Protocol):
     """
@@ -33,6 +34,20 @@ class GMGraph(Protocol):
             decision のみを更新して返すことを想定する
         """
         ...
+
+def build_night_test_graph():
+    graph = StateGraph(GMGraphState)
+
+    # ノード登録
+    graph.add_node("night_phase", night_phase_node)
+
+    # エントリポイント
+    graph.set_entry_point("night_phase")
+
+    # 1ノードで終了
+    graph.add_edge("night_phase", END)
+
+    return graph.compile()
 
 
 class DummyGMGraph:
@@ -123,4 +138,5 @@ class DummyGMGraph:
 
 # 仮の GMGraph 実体
 # GameSession などから注入して使用する
-gm_graph = DummyGMGraph()
+# gm_graph = DummyGMGraph()
+gm_graph = build_night_test_graph()

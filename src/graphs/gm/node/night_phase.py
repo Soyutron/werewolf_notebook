@@ -1,4 +1,5 @@
-from src.graphs.gm.state import GMGraphState
+
+from src.core.types import GMGraphState
 from src.core.types import PlayerRequest
 
 
@@ -27,7 +28,7 @@ def night_phase_node(state: GMGraphState) -> GMGraphState:
         # decision.requests はここで完全に上書きする
         decision.requests = {
             player: PlayerRequest(
-                request_type="night_action",
+                request_type="use_ability",
                 payload={},
             )
             for player in internal.night_pending
