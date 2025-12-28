@@ -403,7 +403,7 @@ class GameDecision(BaseModel):
 # ・world_state は原則 immutable として扱う
 # ・decision は一時的な working memory
 # ・最終的な state 更新は GameSession の責務
-class GMGraphState(BaseModel):
+class GMGraphState(TypedDict):
     world_state: WorldState
     # 確定済みのゲーム状態（事実）
     # GMGraph はこれを「読む」ことが主

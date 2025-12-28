@@ -147,7 +147,7 @@ class GameSession:
 
         gm_graph_state = self.gm_graph.invoke(gm_graph_state)
 
-        self.world_state = gm_graph_state.world_state
+        self.world_state = gm_graph_state["world_state"]
 
         return gm_graph_state
 
@@ -183,7 +183,7 @@ class GameSession:
 
     def run_night_phase(self):
         gm_graph_state = self.run_gm_step()
-        self.dispatch(gm_graph_state.decision)
+        self.dispatch(gm_graph_state["decision"])
 
         # ★ 夜フェーズ固有の完了処理
         # （全 request を処理し終えた時点で確定）

@@ -9,7 +9,7 @@ class DummyGMGraph:
     """
 
     def invoke(self, state: GMGraphState) -> GMGraphState:
-        world_state = state.world_state
+        world_state = state["world_state"]
         phase = world_state.phase
 
         decision = GameDecision()
