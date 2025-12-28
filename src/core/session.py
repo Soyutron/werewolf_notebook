@@ -276,6 +276,8 @@ class GameSession:
             # event は全員に配布し終えた後で、
             # 公開ログ（WorldState）として確定させる
             self.world_state.public_events.extend(decision.events)
+            # GM がどこまで event を配布し終えたかを示すカーソル
+            # （LangGraph 実装や再実行・再開時の安全装置として有用）
             self.world_state.gm_event_cursor = len(self.world_state.public_events)
 
         # =========================================================
@@ -292,6 +294,10 @@ class GameSession:
                         request=request,
                     ),
                 )
+                # Player の出力（発言・投票・能力使用など）を
+                # GM 視点で解釈・確定させ、世界状態に反映する
+                #
+                # ここで初めて「行動の結果」が事実になる
                 self.resolve_player_output(
                     player=player,
                     output=output,
