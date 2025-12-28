@@ -76,7 +76,7 @@ class DummyGMGraph:
 
             # 夜はプレイヤーの応答待ちなのでフェーズは進めない
             decision.next_phase = None
-
+        
         # =========================
         # 昼フェーズ
         # =========================
@@ -88,11 +88,24 @@ class DummyGMGraph:
             decision.next_phase = "vote"
 
         # =========================
-        # その他（終了処理など）
+        # 投票フェーズ
         # =========================
-        else:
+        elif phase == "vote":
+            # デバッグ用ログ
+            print("投票フェーズ")
+
+            # 議論・投票などがまだ続く想定
+            decision.next_phase = "result"
+
+        # =========================
+        # 結果フェーズ
+        # =========================
+        elif phase == "result":
+            # デバッグ用ログ
+            print("結果フェーズ")
+
             # 明示的にフェーズが終わった場合は結果公開へ
-            decision.next_phase = "reveal"
+            decision.next_phase = None
 
         # --- GMGraphState を組み立てて返却 ---
         return GMGraphState(

@@ -344,3 +344,44 @@ class GameSession:
         """
         gm_graph_state = self.run_gm_step()
         self.dispatch(gm_graph_state["decision"])
+
+    def run_vote_step(self) -> None:
+        """
+        投票フェーズ（vote フェーズ）の 1 ステップを実行する。
+
+        このメソッドの責務:
+        - 現在の WorldState を元に GMGraph を 1 回だけ実行する
+        - GMGraph が返した GameDecision を dispatch して確定反映する
+
+        設計上の重要な前提:
+        - このメソッドは world_state.phase == "vote" のときのみ呼ばれる
+        （フェーズ判定・制御は呼び出し元の責務）
+        - フェーズ遷移（vote -> result / end など）は GMGraph が
+        decision.next_phase に意思として示し、
+        実際の更新は dispatch が行う
+        - ここではループや待機は行わず、
+        常に「1 step = 1 decision」とする
+
+        将来拡張:
+        - 人間プレイヤーが投票を入力した後に 1 回だけ呼び出す
+        - AI 同士の自動進行では外側でループ制御する
+        """
+        gm_graph_state = self.run_gm_step()
+        self.dispatch(gm_graph_state["decision"])
+
+    def run_result_step(self) -> None:
+        """
+        結果フェーズ（result フェーズ）の 1 ステップを実行する。
+
+        このメソッドの責務:
+        - GMGraph を 1 回だけ実行し、
+          勝敗確定・役職公開（reveal）を行う
+        - GameDecision を dispatch して最終状態を確定させる
+
+        設計上の前提:
+        - world_state.phase == "result" のときのみ呼ばれる
+        - result フェーズでは request は一切発生しない
+        - decision.next_phase は None（ゲーム終了）
+        """
+        gm_graph_state = self.run_gm_step()
+        self.dispatch(gm_graph_state["decision"])

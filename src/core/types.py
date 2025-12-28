@@ -69,6 +69,7 @@ Phase = Literal[
     "night",  # 夜：占い師などの役職能力を実行するフェーズ
     "day",  # 昼：全プレイヤーが発言・議論を行うフェーズ
     "vote",  # 投票：1回のみ行い、吊られた役職で勝敗が決定する
+    "result",
 ]
 
 
@@ -278,6 +279,31 @@ class PlayerState(TypedDict):
     # ※ GM は output を解釈・適用する側であり、
     #    output を事前に設定することはない
 
+class GameResult(BaseModel):
+    """
+    ゲーム終了時に確定・公開される最終結果。
+
+    設計上の位置づけ:
+    - phase == "result" のときのみ意味を持つ
+    - ゲーム中は WorldState.result は常に None
+    - WorldState の中で唯一「役職」を公開する例外的な構造
+
+    注意:
+    - ゲーム進行中の思考・判断には一切使用しない
+    - PlayerGraph は result フェーズでのみ参照する想定
+    """
+
+    winner: Side
+    # 勝利した陣営
+    # 例: "village", "werewolf"
+
+    executed_player: PlayerName | None
+    # 最終的に処刑（または敗北条件に関与）したプレイヤー
+    # ワンナイト人狼等で処刑が存在しない場合は None
+
+    roles: dict[PlayerName, RoleName]
+    # 全プレイヤーの最終役職一覧（完全公開）
+    # result フェーズでのみ公開される
 
 # =========================
 # GM が管理する進行状態
@@ -307,7 +333,7 @@ class WorldState(BaseModel):
     # - "night"   : 夜フェーズ（能力使用）
     # - "day"     : 昼フェーズ（議論）
     # - "vote"    : 投票フェーズ
-    # - "reveal"  : 結果公開
+    # - "result"  : 結果フェーズ
 
     players: List[PlayerName]
     # このゲームに参加している全プレイヤーの一覧
@@ -347,6 +373,15 @@ class WorldState(BaseModel):
     # ・ログ / リプレイ再生
     #
     # ※ GM が確定させた「過去の事実」のみを格納する
+
+    result: GameResult | None = None
+    # ゲームの最終結果
+    #
+    # ・ゲーム進行中は常に None
+    # ・phase == "result" になったタイミングで設定される
+    #
+    # WorldState の原則（非公開情報を持たない）の例外だが、
+    # 「結果公開フェーズ」でのみ全情報を解禁するため問題ない
 
 
 # =========================
