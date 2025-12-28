@@ -265,7 +265,7 @@ class GameSession:
         # =========================================================
         # - 全プレイヤーに共有される「確定した出来事」
         # - プレイヤーは思考・記憶更新のみを行う（行動はしない）
-        # - request と同時に来ないことが保証されている
+        # - request と同一 step で同時に存在してよい
         if decision.events:
             for event in decision.events:
                 for player in self.player_states:
@@ -283,7 +283,7 @@ class GameSession:
         # =========================================================
         # - 特定のプレイヤーにのみ送られる
         # - 実際の行動（発言・投票・夜行動など）を発生させる
-        # - event フェーズとは排他的に扱われる
+        # - event と同一 step で同時に存在してよい
         if decision.requests:
             for player, request in decision.requests.items():
                 self.run_player_turn(
