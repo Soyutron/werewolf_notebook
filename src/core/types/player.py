@@ -44,6 +44,16 @@ class PlayerMemory(BaseModel):
     self_role: RoleName
     # 自分の役職（AIは自分の役職を知っている）
 
+    players: list[PlayerName]
+    # 全プレイヤー名のリスト
+
+    # =========================
+    # 観測した事実（公開情報）
+    # =========================
+    observed_events: list[GameEvent]
+    # public_event を「そのまま」保存
+    # 事実のみ・改変禁止
+
     beliefs: Dict[PlayerName, RoleName | Literal["unknown"]]
     # 他プレイヤーの「現在もっともそれらしい役職」の推測
     #

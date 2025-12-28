@@ -7,7 +7,7 @@ def create_initial_player_memory(
     *,
     self_name: PlayerName,
     self_role: RoleName,
-    all_players: List[PlayerName],
+    players: List[PlayerName],
 ) -> PlayerMemory:
     """
     PlayerMemory の初期状態を生成する。
@@ -24,14 +24,16 @@ def create_initial_player_memory(
     """
 
     beliefs: Dict[PlayerName, RoleName | Literal["unknown"]] = {
-        p: "unknown" for p in all_players if p != self_name
+        p: "unknown" for p in players if p != self_name
     }
 
-    suspicion: Dict[PlayerName, float] = {p: 0.5 for p in all_players if p != self_name}
+    suspicion: Dict[PlayerName, float] = {p: 0.5 for p in players if p != self_name}
 
     return PlayerMemory(
         self_name=self_name,
         self_role=self_role,
+        players=players,
+        observed_events=list(),
         beliefs=beliefs,
         suspicion=suspicion,
         history=list(),

@@ -46,7 +46,7 @@ def setup_game(
         player: create_initial_player_memory(
             self_name=player,
             self_role=assigned_roles[player],
-            all_players=players,
+            players=players,
         )
         for player in players
     }

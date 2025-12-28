@@ -32,10 +32,10 @@ def handle_use_ability(state: PlayerState) -> PlayerState:
 
 def handle_seer_ability(state: PlayerState) -> PlayerState:
     self_name = state["memory"].self_name
-    all_players = state["world_state"].players
+    players = state["memory"].players
 
     # 自分以外を候補にする
-    candidates = [p for p in all_players if p != self_name]
+    candidates = [p for p in players if p != self_name]
 
     target = random.choice(candidates) if candidates else None
 
