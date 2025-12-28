@@ -1,4 +1,4 @@
-from src.core.types import GameDecision, GMGraphState, PlayerRequest, GameEvent
+from src.core.types import GameDecision, GMGraphState, PlayerRequest, GameEvent, GMInternalState
 from typing import Protocol
 
 
@@ -48,6 +48,7 @@ class DummyGMGraph:
 
         # --- このステップで生成する意思決定 ---
         decision = GameDecision()
+        internal = state["internal"] 
 
         # =========================
         # 夜フェーズ
@@ -111,6 +112,7 @@ class DummyGMGraph:
         return GMGraphState(
             world_state=world_state,  # immutable な事実状態
             decision=decision,  # このステップの判断結果
+            internal=internal,  # このステップの内部進行状態
         )
 
 

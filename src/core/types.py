@@ -362,18 +362,6 @@ class WorldState(BaseModel):
     #
     # ※ GM が確定させた「過去の事実」のみを格納する
 
-    gm_event_cursor: int = 0
-    # GM が public_events をどこまで処理したかを示すカーソル
-    #
-    # 用途:
-    # ・GMGraph が「未処理の公開イベント」を検出するため
-    # ・イベントの二重処理を防ぐため
-    #
-    # 設計意図:
-    # ・WorldState 自体は履歴をすべて保持する
-    # ・「どこまで見たか」は cursor で管理することで
-    #   再実行・デバッグ・リプレイ耐性を高める
-
     result: GameResult | None = None
     # ゲームの最終結果
     #
@@ -439,6 +427,46 @@ class GameDecision(BaseModel):
     # ・フェーズ継続
     # ・または GameSession 側で遷移制御
 
+class GMInternalState(BaseModel):
+    """
+    GMGraph が内部的に保持する進行管理用の State。
+
+    この State は「ゲーム世界の事実」ではなく、
+    GM がフェーズ進行・待機管理を行うための補助情報を表す。
+
+    設計上の位置づけ:
+    - WorldState には含めない（＝プレイヤーからは観測不能）
+    - PlayerGraph には一切渡らない
+    - GMGraph のローカルな思考・制御用 State
+
+    主な用途:
+    - 夜フェーズで「まだ行動を返していないプレイヤー」の管理
+    - 全員の行動完了を検知して次フェーズへ遷移する判断材料
+    """
+
+    night_pending: set[PlayerName]
+    # 夜フェーズにおいて、まだ行動を完了していないプレイヤー集合
+    #
+    # 例:
+    # - 夜開始時: 全プレイヤーが含まれる
+    # - 各 PlayerOutput を処理するたびに該当プレイヤーを削除
+    # - 空集合になったら「夜フェーズ完了」と判断可能
+    #
+    # 重要:
+    # ・役職や行動内容はここには含めない
+    # ・あくまで「進行管理」のみを目的とする
+
+    gm_event_cursor: int = 0
+    # GM が public_events をどこまで処理したかを示すカーソル
+    #
+    # 用途:
+    # ・GMGraph が「未処理の公開イベント」を検出するため
+    # ・イベントの二重処理を防ぐため
+    #
+    # 設計意図:
+    # ・WorldState 自体は履歴をすべて保持する
+    # ・「どこまで見たか」は cursor で管理することで
+    #   再実行・デバッグ・リプレイ耐性を高める
 
 # =========================
 # GMGraph が扱う State
@@ -460,3 +488,15 @@ class GMGraphState(TypedDict):
     decision: GameDecision
     # GMGraph がこのステップで生成する判断結果
     # 次の状態遷移の材料
+
+    internal: GMInternalState
+    # GMGraph の内部進行状態
+    #
+    # 特徴:
+    # ・ゲーム世界の事実ではない
+    # ・プレイヤーには一切公開されない
+    # ・GMGraph がフェーズ制御を行うための補助情報
+    #
+    # 例:
+    # ・夜フェーズの未完了プレイヤー管理
+    # ・将来的な「タイムアウト」「自動スキップ」判定

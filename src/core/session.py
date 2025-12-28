@@ -9,6 +9,7 @@ from src.core.types import (
     PlayerOutput,
     GMGraphState,
     GameDecision,
+    GMInternalState,
 )
 from typing import Dict
 from src.core.controller import PlayerController
@@ -44,6 +45,7 @@ class GameSession:
         controllers: dict[PlayerName, PlayerController],
         assigned_roles: Dict[PlayerName, RoleName],
         gm_graph: GMGraph,
+        gm_internal: GMInternalState,
     ):
         self.definition = definition
         # このゲームのルール定義。
@@ -96,6 +98,11 @@ class GameSession:
         # を決定する。
         #
         # state 自体は保持せず、常に GameSession から渡される。
+        self.gm_internal = gm_internal
+        # GMInternalState（GMGraph 専用の内部進行状態）。
+        #
+        # WorldState には含められない、
+        # 「進行管理のためだけに必要な非公開情報」を保持する。
 
     @classmethod
     def create(cls, definition: GameDefinition) -> "GameSession":
@@ -145,6 +152,17 @@ class GameSession:
             public_events=[],
         )
 
+        # GMInternalState は GMGraph が進行管理のためにのみ使用する内部状態。
+        # WorldState とは異なり、プレイヤーからは観測されない。
+        #
+        # night_pending:
+        # - 夜フェーズ中に「まだ行動を完了していないプレイヤー集合」
+        # - 初期状態では全員が未完了のため、players 全員をセットする
+        # - PlayerOutput が解決されるたびに該当プレイヤーを除外していく想定
+        gm_internal = GMInternalState(
+            night_pending=set(players),
+        )
+
         # 初期化済みの要素をすべて束ねて GameSession を生成する
         return cls(
             definition=definition,
@@ -153,6 +171,7 @@ class GameSession:
             controllers=controllers,
             assigned_roles=assigned_roles,
             gm_graph=gm_graph,
+            gm_internal=gm_internal,
         )
 
     def run_player_turn(
@@ -231,6 +250,7 @@ class GameSession:
         gm_graph_state = GMGraphState(
             world_state=self.world_state,
             decision=GameDecision(),
+            internal=self.gm_internal,
         )
 
         # --- GMGraph を 1 ステップ実行 ---
@@ -278,7 +298,7 @@ class GameSession:
             self.world_state.public_events.extend(decision.events)
             # GM がどこまで event を配布し終えたかを示すカーソル
             # （LangGraph 実装や再実行・再開時の安全装置として有用）
-            self.world_state.gm_event_cursor = len(self.world_state.public_events)
+            self.gm_internal.gm_event_cursor = len(self.world_state.public_events)
 
         # =========================================================
         # 2. request の配布（今ターンの行動要求）
@@ -318,10 +338,39 @@ class GameSession:
         player: PlayerName,
         output: PlayerOutput,
     ) -> None:
-        if output.action == "speak":
-            self.resolve_speak(player, output)
-        elif output.action == "use_ability":
+        """
+        PlayerGraph / Controller が返した PlayerOutput を解釈し、
+        ゲーム世界（WorldState / PlayerState）に副作用として反映する。
+
+        このメソッドの位置づけ:
+        - 「行動の意味づけ（解釈）」と「副作用の確定」を担う
+        - PlayerGraph / PlayerController 自体は副作用を一切持たない
+        - GameSession が state の唯一の所有者である、という設計を守るため、
+          実際の状態更新は必ずここを経由する
+
+        設計上の重要な前提:
+        - output.action は GMGraph / PlayerGraph 側で正規化された値である
+        - このメソッドが呼ばれる時点で、
+          ・誰が行動したか（player）
+          ・どんな行動を選んだか（output）
+          が確定している
+        - 行動の成否判定・影響範囲の決定はこの層で行う
+
+        拡張方針:
+        - 新しい行動を追加する場合は、
+          1. PlayerOutput.action に値を追加
+          2. この resolve_* メソッドを追加
+          3. ここに分岐を追加
+        - if/elif が肥大化した場合は
+          action -> handler のディスパッチテーブル化も検討可能
+        """
+        # =========================================================
+        # 各 action ごとの解釈・副作用の確定
+        # =========================================================
+        if output.action == "use_ability":
             print("use_ability")
+        elif output.action == "speak":
+            self.resolve_speak(player, output)
         elif output.action == "vote":
             self.resolve_vote(player, output)
         elif output.action == "divine":
