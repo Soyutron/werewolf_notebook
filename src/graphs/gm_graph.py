@@ -68,9 +68,7 @@ class DummyGMGraph:
                     request_type="use_ability",
                     payload={
                         # 自分以外のプレイヤーを候補として提示
-                        "candidates": [
-                            p for p in world_state.players if p != player
-                        ]
+                        "candidates": [p for p in world_state.players if p != player]
                     },
                 )
                 for player in world_state.players
@@ -99,7 +97,7 @@ class DummyGMGraph:
         # --- GMGraphState を組み立てて返却 ---
         return GMGraphState(
             world_state=world_state,  # immutable な事実状態
-            decision=decision,        # このステップの判断結果
+            decision=decision,  # このステップの判断結果
         )
 
 

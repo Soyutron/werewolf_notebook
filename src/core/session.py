@@ -142,6 +142,7 @@ class GameSession:
         world_state = WorldState(
             phase="night",
             players=players,
+            pending_events=[],
             public_events=[],
         )
 

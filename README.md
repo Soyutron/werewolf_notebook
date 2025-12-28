@@ -1,6 +1,14 @@
 uv run ruff check src
 uv run ruff format src
 
+du -sh ~/.config/Antigravity/Cache
+du -sh ~/.config/Antigravity/CachedData
+du -sh ~/.config/Antigravity/Service\ Worker
+
+rm -rf ~/.config/Antigravity/Service\ Worker
+rm -rf ~/.config/Antigravity/Cache
+rm -rf ~/.config/Antigravity/CachedData
+
 🧠 プレイヤー側（主観・認知）
 
 PlayerMemory
