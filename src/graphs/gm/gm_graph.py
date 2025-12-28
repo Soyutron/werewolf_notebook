@@ -8,6 +8,7 @@ from typing import Protocol
 from langgraph.graph import StateGraph, END
 from src.graphs.gm.node.night_phase import night_phase_node
 
+
 class GMGraph(Protocol):
     """
     GM（進行役）の思考エンジンの共通インターフェース。
@@ -35,7 +36,16 @@ class GMGraph(Protocol):
         """
         ...
 
-def build_night_test_graph():
+
+class LangGraphGMAdapter:
+    def __init__(self, graph):
+        self.graph = graph
+
+    def invoke(self, state: GMGraphState) -> GMGraphState:
+        return self.graph.invoke(state)
+
+
+def build_gm_graph():
     graph = StateGraph(GMGraphState)
 
     # ノード登録
@@ -139,4 +149,4 @@ class DummyGMGraph:
 # 仮の GMGraph 実体
 # GameSession などから注入して使用する
 # gm_graph = DummyGMGraph()
-gm_graph = build_night_test_graph()
+gm_graph = LangGraphGMAdapter(build_gm_graph())

@@ -1,5 +1,7 @@
 from src.core.types import PlayerState, PlayerOutput
 from typing import Protocol
+from langgraph.graph import StateGraph, END
+from src.graphs.player.handle_request.use_ability import handle_use_ability
 
 
 class PlayerGraph(Protocol):
@@ -24,6 +26,24 @@ class PlayerGraph(Protocol):
         - 副作用（DB 書き込みなど）は持たない想定
         """
         ...
+
+
+class LangGraphPlayerAdapter:
+    def __init__(self, graph):
+        self.graph = graph
+
+    def invoke(self, state: PlayerState) -> PlayerState:
+        return self.graph.invoke(state)
+
+
+def build_player_graph():
+    graph = StateGraph(PlayerState)
+
+    graph.add_node("use_ability", handle_use_ability)
+    graph.set_entry_point("use_ability")
+    graph.add_edge("use_ability", END)
+
+    return graph.compile()
 
 
 class DummyPlayerGraph:
@@ -64,4 +84,5 @@ class DummyPlayerGraph:
 # 仮の PlayerGraph インスタンス
 # - Session や Controller に注入して動作確認に使う
 # - 後から LangGraph 実装に差し替える前提
-player_graph = DummyPlayerGraph()
+# player_graph = DummyPlayerGraph()
+player_graph = LangGraphPlayerAdapter(build_player_graph())
