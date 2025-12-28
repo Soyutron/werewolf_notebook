@@ -173,4 +173,3 @@ class PlayerState(TypedDict):
     #
     # ※ GM は output を解釈・適用する側であり、
     #    output を事前に設定することはない
-

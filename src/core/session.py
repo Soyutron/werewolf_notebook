@@ -10,6 +10,11 @@ from src.core.types import (
     GMGraphState,
     GameDecision,
     GMInternalState,
+    AbilityResult,
+    NoAbility,
+    SeerAbility,
+    WerewolfAbility,
+    GameEvent,
 )
 from typing import Dict
 from src.core.controller import PlayerController
@@ -369,7 +374,7 @@ class GameSession:
         # 各 action ごとの解釈・副作用の確定
         # =========================================================
         if output.action == "use_ability":
-            print("use_ability")
+            self.resolve_use_ability(player, output.payload)
         elif output.action == "speak":
             self.resolve_speak(player, output)
         elif output.action == "vote":
@@ -378,6 +383,54 @@ class GameSession:
             self.resolve_divine(player, output)
         else:
             raise ValueError(f"Unknown action: {output.action}")
+    
+    def resolve_use_ability(
+        self,
+        player: PlayerName,
+        ability: AbilityResult,
+    ) -> None:
+        """
+        Player が使用した能力を解釈し、
+        ゲーム世界への副作用を確定させる。
+
+        - GM のみが呼ぶ
+        - PlayerGraph / PlayerController からは呼ばれない
+        """
+
+        match ability:
+            case NoAbility():
+                # 能力なし（村人など）
+                self.gm_internal.night_pending.remove(player)
+                return
+
+            case SeerAbility(target=target):
+                # 占いの真実を取得
+                role = self.assigned_roles[target]
+
+                # 占い結果は「占い師本人だけ」に返す情報
+                self.run_player_turn(
+                    player=player,
+                    input=PlayerInput(
+                        event=GameEvent(
+                            event_type="divine_result",
+                            payload={
+                                "target": target,
+                                "role": role,
+                            },
+                        )
+                    ),
+                )
+                self.gm_internal.night_pending.remove(player)
+                return
+
+            case WerewolfAbility():
+                # 人狼の夜行動（将来：襲撃対象など）
+                # 今は副作用なしでもOK
+                self.gm_internal.night_pending.remove(player)
+                return
+
+            case _:
+                raise ValueError(f"Unknown AbilityResult: {ability}")
 
     def run_night_phase(self) -> None:
         # --- 夜フェーズの進行を 1 ステップ実行 ---
