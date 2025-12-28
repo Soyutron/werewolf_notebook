@@ -8,7 +8,7 @@ from src.game.setup.memory import create_initial_player_memory
 from src.core.types import GameDefinition
 from src.core.controller import PlayerController
 from src.core.controller import AIPlayerController
-from src.graphs.player_graph import player_graph
+from src.graphs.player.player_graph import player_graph
 
 
 def setup_game(

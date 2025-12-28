@@ -1,7 +1,7 @@
 from typing import Protocol
 from src.core.types import PlayerState
 from copy import deepcopy
-from src.graphs.player_graph import PlayerGraph
+from src.graphs.player.player_graph import PlayerGraph
 
 
 class PlayerController(Protocol):
