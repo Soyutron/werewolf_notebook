@@ -34,5 +34,5 @@ def create_initial_player_memory(
         self_role=self_role,
         beliefs=beliefs,
         suspicion=suspicion,
-        history=[],
+        history=list(),
     )

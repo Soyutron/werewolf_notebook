@@ -87,7 +87,7 @@ class DummyGMGraph:
             print("昼フェーズ")
 
             # 議論・投票などがまだ続く想定
-            decision.next_phase = None
+            decision.next_phase = "vote"
 
         # =========================
         # その他（終了処理など）
