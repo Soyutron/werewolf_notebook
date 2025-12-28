@@ -276,6 +276,7 @@ class GameSession:
             # event は全員に配布し終えた後で、
             # 公開ログ（WorldState）として確定させる
             self.world_state.public_events.extend(decision.events)
+            self.world_state.gm_event_cursor = len(self.world_state.public_events)
 
         # =========================================================
         # 2. request の配布（今ターンの行動要求）
@@ -285,11 +286,15 @@ class GameSession:
         # - event と同一 step で同時に存在してよい
         if decision.requests:
             for player, request in decision.requests.items():
-                self.run_player_turn(
+                output = self.run_player_turn(
                     player=player,
                     input=PlayerInput(
                         request=request,
                     ),
+                )
+                self.resolve_player_output(
+                    player=player,
+                    output=output,
                 )
 
         # =========================================================
@@ -300,6 +305,23 @@ class GameSession:
         #   event（出来事）とは区別して WorldState に直接反映する
         if decision.next_phase is not None:
             self.world_state.phase = decision.next_phase
+
+    def resolve_player_output(
+        self,
+        *,
+        player: PlayerName,
+        output: PlayerOutput,
+    ) -> None:
+        if output.action == "speak":
+            self.resolve_speak(player, output)
+        elif output.action == "use_ability":
+            print("use_ability")
+        elif output.action == "vote":
+            self.resolve_vote(player, output)
+        elif output.action == "divine":
+            self.resolve_divine(player, output)
+        else:
+            raise ValueError(f"Unknown action: {output.action}")
 
     def run_night_phase(self) -> None:
         # --- 夜フェーズの進行を 1 ステップ実行 ---

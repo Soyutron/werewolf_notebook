@@ -362,6 +362,18 @@ class WorldState(BaseModel):
     #
     # ※ GM が確定させた「過去の事実」のみを格納する
 
+    gm_event_cursor: int = 0
+    # GM が public_events をどこまで処理したかを示すカーソル
+    #
+    # 用途:
+    # ・GMGraph が「未処理の公開イベント」を検出するため
+    # ・イベントの二重処理を防ぐため
+    #
+    # 設計意図:
+    # ・WorldState 自体は履歴をすべて保持する
+    # ・「どこまで見たか」は cursor で管理することで
+    #   再実行・デバッグ・リプレイ耐性を高める
+
     result: GameResult | None = None
     # ゲームの最終結果
     #
