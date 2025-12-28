@@ -12,7 +12,7 @@ from src.core.types import (
 )
 from typing import Dict
 from src.core.controller import PlayerController
-from src.graphs.gm_graph import GMGraph, gm_graph
+from src.graphs.gm.gm_graph import GMGraph, gm_graph
 from copy import deepcopy
 
 
