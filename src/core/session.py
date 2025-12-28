@@ -116,8 +116,8 @@ class GameSession:
         state = self.player_states[player]
 
         # --- 毎ターンの初期化（重要） ---
-        state.input = input
-        state.output = None
+        state["input"] = input
+        state["output"] = None
 
         controller = self.controllers[player]
 
@@ -129,7 +129,7 @@ class GameSession:
         output = controller.act(state=state)
 
         # --- 結果の確定保存（Session の責務） ---
-        state.output = output
+        state["output"] = output
         self.player_states[player] = state
 
         return output

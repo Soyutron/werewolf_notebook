@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional, Literal, TypeAlias
+from typing import List, Dict, Optional, Literal, TypeAlias, TypedDict
 from pydantic import BaseModel, Field
 
 # =========================
@@ -251,7 +251,7 @@ class PlayerOutput(BaseModel):
 # プレイヤーの状態（State）
 # =========================
 # LangGraph などでノード間を流れる状態オブジェクト
-class PlayerState(BaseModel):
+class PlayerState(TypedDict):   
     memory: PlayerMemory
     # プレイヤーの内部状態（長期的に保持される記憶）
     # - 自分の役職

@@ -30,4 +30,4 @@ class AIPlayerController:
         state: PlayerState,
     ) -> Optional[PlayerOutput]:
         new_state = self.player_graph.invoke(state)
-        return new_state.output
+        return new_state["output"]
