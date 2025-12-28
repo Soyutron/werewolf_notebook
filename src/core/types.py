@@ -157,7 +157,7 @@ GameEventType = Literal[
     "speech",  # 誰かが発言した（昼フェーズの会話ログ）
     "vote",  # 投票が行われた（誰が誰に投票したか）
     "reveal",  # 全役職公開（ゲーム終了・勝敗確定）
-    "phase_start", # フェーズ開始
+    "phase_start",  # フェーズ開始
 ]
 
 # =========================
@@ -251,7 +251,7 @@ class PlayerOutput(BaseModel):
 # プレイヤーの状態（State）
 # =========================
 # LangGraph などでノード間を流れる状態オブジェクト
-class PlayerState(TypedDict):   
+class PlayerState(TypedDict):
     memory: PlayerMemory
     # プレイヤーの内部状態（長期的に保持される記憶）
     # - 自分の役職

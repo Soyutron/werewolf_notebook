@@ -12,7 +12,8 @@ from src.core.types import (
 )
 from typing import Dict
 from src.core.controller import PlayerController
-from src.graphs.gm_graph import gm_graph
+from src.graphs.gm_graph import GMGraph, gm_graph
+from copy import deepcopy
 
 
 # =========================
@@ -34,7 +35,7 @@ class GameSession:
         player_states: Dict[PlayerName, PlayerState],
         controllers: dict[PlayerName, PlayerController],
         assigned_roles: Dict[PlayerName, RoleName],
-        gm_graph,
+        gm_graph: GMGraph,
     ):
         self.definition = definition
         # このゲームのルール定義（役職構成・フェーズ構成など）
@@ -106,33 +107,33 @@ class GameSession:
         input: PlayerInput,
     ) -> PlayerOutput | None:
         """
-        GM からの PlayerRequest を受け取り、
-        対象プレイヤーに実行させ、その結果を返す。
+        GM からの PlayerRequest / Event を受け取り、
+        対象プレイヤーの次の状態を計算し、出力を返す。
 
-        - input は一時的な刺激
-        - output は毎ターン初期化される
+        - input はターン限定の刺激
+        - output はターン限定の結果
+        - state の所有・更新は GameSession の責務
         """
 
-        state = self.player_states[player]
-
-        # --- 毎ターンの初期化（重要） ---
-        state["input"] = input
-        state["output"] = None
-
+        old_state = self.player_states[player]
         controller = self.controllers[player]
 
-        if input.request is None and not input.event:
-            # 行動要求もイベントもない = 待機ターン
-            self.player_states[player] = state
+        # --- 待機ターン判定（state は触らない） ---
+        if input.request is None and input.event is None:
             return None
 
-        output = controller.act(state=state)
+        # --- Controller 用の working state を作る ---
+        working_state = deepcopy(old_state)
+        working_state["input"] = input
+        working_state["output"] = None
+
+        # --- 次の状態を計算 ---
+        new_state = controller.act(state=working_state)
 
         # --- 結果の確定保存（Session の責務） ---
-        state["output"] = output
-        self.player_states[player] = state
+        self.player_states[player] = new_state
 
-        return output
+        return new_state["output"]
 
     def run_gm_step(self) -> GMGraphState:
         """
@@ -157,7 +158,7 @@ class GameSession:
         各プレイヤーに実行させる。
         """
         # event を全員に配る（思考・記憶用）
-        if decision.events: 
+        if decision.events:
             for event in decision.events:
                 for player in self.player_states:
                     self.run_player_turn(

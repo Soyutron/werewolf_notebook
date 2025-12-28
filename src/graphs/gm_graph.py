@@ -1,4 +1,14 @@
 from src.core.types import GameDecision, GMGraphState, PlayerRequest, GameEvent
+from typing import Protocol
+
+
+class GMGraph(Protocol):
+    """
+    GM（進行役）の思考エンジンの共通インターフェース
+    （LangGraph / Dummy / Test 用など）
+    """
+
+    def invoke(self, state: GMGraphState) -> GMGraphState: ...
 
 
 class DummyGMGraph:
@@ -16,10 +26,7 @@ class DummyGMGraph:
 
         if phase == "night":
             decision.events.append(
-                GameEvent(
-                    event_type="phase_start",
-                    payload={"phase": "night"}
-                )
+                GameEvent(event_type="phase_start", payload={"phase": "night"})
             )
             decision.requests = {
                 player: PlayerRequest(
@@ -33,12 +40,12 @@ class DummyGMGraph:
 
             # 夜はまだ続く（結果待ち）
             decision.next_phase = None
-        
+
         elif phase == "day":
             print("昼フェーズ")
 
             # 昼はまだ続く（結果待ち）
-            decision.next_phase = None     
+            decision.next_phase = None
 
         else:
             decision.next_phase = "reveal"

@@ -1,4 +1,14 @@
 from src.core.types import PlayerState, PlayerOutput
+from typing import Protocol
+
+
+class PlayerGraph(Protocol):
+    """
+    Player の思考エンジンの共通インターフェース
+    （LangGraph / Dummy / Test 用など）
+    """
+
+    def invoke(self, state: PlayerState) -> PlayerState: ...
 
 
 class DummyPlayerGraph:

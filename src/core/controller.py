@@ -1,5 +1,7 @@
-from typing import Protocol, Optional
-from src.core.types import PlayerOutput, PlayerState
+from typing import Protocol
+from src.core.types import PlayerState
+from copy import deepcopy
+from src.graphs.player_graph import PlayerGraph
 
 
 class PlayerController(Protocol):
@@ -12,22 +14,23 @@ class PlayerController(Protocol):
         self,
         *,
         state: PlayerState,
-    ) -> Optional[PlayerOutput]: ...
+    ) -> PlayerState: ...
 
 
 class AIPlayerController:
     """
     AI プレイヤー用 Controller
-    PlayerGraph を使って思考させる
+    PlayerGraph（思考エンジン）を使って行動を決定する
     """
 
-    def __init__(self, player_graph):
+    def __init__(self, player_graph: PlayerGraph):
         self.player_graph = player_graph
 
     def act(
         self,
         *,
         state: PlayerState,
-    ) -> Optional[PlayerOutput]:
-        new_state = self.player_graph.invoke(state)
-        return new_state["output"]
+    ) -> PlayerState:
+        working_state = deepcopy(state)
+        new_state = self.player_graph.invoke(working_state)
+        return new_state
