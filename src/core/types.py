@@ -427,6 +427,7 @@ class GameDecision(BaseModel):
     # ・フェーズ継続
     # ・または GameSession 側で遷移制御
 
+
 class GMInternalState(BaseModel):
     """
     GMGraph が内部的に保持する進行管理用の State。
@@ -444,7 +445,7 @@ class GMInternalState(BaseModel):
     - 全員の行動完了を検知して次フェーズへ遷移する判断材料
     """
 
-    night_pending: set[PlayerName]
+    night_pending: list[PlayerName]
     # 夜フェーズにおいて、まだ行動を完了していないプレイヤー集合
     #
     # 例:
@@ -467,6 +468,7 @@ class GMInternalState(BaseModel):
     # ・WorldState 自体は履歴をすべて保持する
     # ・「どこまで見たか」は cursor で管理することで
     #   再実行・デバッグ・リプレイ耐性を高める
+
 
 # =========================
 # GMGraph が扱う State
