@@ -250,21 +250,39 @@ class GameSession:
 
     def dispatch(self, decision: GameDecision) -> None:
         """
-        GMGraph からの GameDecision を受け取り、
-        各プレイヤーに実行させる。
+        GMGraph から返された GameDecision を受け取り、
+        実際のゲーム世界（WorldState / PlayerState）に反映する。
+
+        設計方針:
+        - GameDecision は「判断結果」のみを表し、副作用は持たない
+        - この dispatch が state を更新する唯一の場所（state の所有者）
+        - event と request は同時には来ない運用とする
+          （= 観測フェーズと行動フェーズは明確に分離される）
         """
-        # event を全員に配る（思考・記憶用）
+        # =========================================================
+        # 1. event の配布（すでに起きた事実の通知）
+        # =========================================================
+        # - 全プレイヤーに共有される「確定した出来事」
+        # - プレイヤーは思考・記憶更新のみを行う（行動はしない）
+        # - request と同時に来ないことが保証されている
         if decision.events:
             for event in decision.events:
                 for player in self.player_states:
+                    # event は「観測情報」なので全員に配布する
                     self.run_player_turn(
                         player=player,
                         input=PlayerInput(event=event),
                     )
-            # 公開イベントを反映
+            # event は全員に配布し終えた後で、
+            # 公開ログ（WorldState）として確定させる
             self.world_state.public_events.extend(decision.events)
 
-        # プレイヤーへの行動要求を dispatch
+        # =========================================================
+        # 2. request の配布（今ターンの行動要求）
+        # =========================================================
+        # - 特定のプレイヤーにのみ送られる
+        # - 実際の行動（発言・投票・夜行動など）を発生させる
+        # - event フェーズとは排他的に扱われる
         if decision.requests:
             for player, request in decision.requests.items():
                 self.run_player_turn(
@@ -274,14 +292,29 @@ class GameSession:
                     ),
                 )
 
-        # フェーズ遷移
+        # =========================================================
+        # 3. フェーズ遷移
+        # =========================================================
+        # - event / request の処理がすべて完了した後に実行される
+        # - フェーズ自体は「進行状態」であり、
+        #   event（出来事）とは区別して WorldState に直接反映する
         if decision.next_phase is not None:
             self.world_state.phase = decision.next_phase
 
-    def run_night_phase(self):
+    def run_night_phase(self) -> None:
+        # --- 夜フェーズの進行を 1 ステップ実行 ---
+        # 現在の world_state を元に GMGraph を実行し、
+        # 夜フェーズで発生すべき「判断結果（decision）」を生成させる
         gm_graph_state = self.run_gm_step()
+
+        # --- GM の判断結果を実行フェーズに反映 ---
+        # ・events  : 全プレイヤーに共有される出来事（記憶・推論用）
+        # ・requests: 特定プレイヤーへの行動要求
+        # Session が state の所有者として、副作用を伴う処理をここで確定させる
         self.dispatch(gm_graph_state["decision"])
 
-        # ★ 夜フェーズ固有の完了処理
-        # （全 request を処理し終えた時点で確定）
+        # --- 夜フェーズ固有の完了処理 ---
+        # 夜フェーズでは、
+        # ・全ての request が処理された時点でフェーズが確定する
+        # ・フェーズ遷移の確定は GMGraph ではなく Session の責務
         self.world_state.phase = "day"
