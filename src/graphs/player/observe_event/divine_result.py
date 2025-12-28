@@ -21,6 +21,10 @@ def handle_divine_result(state: PlayerState) -> PlayerState:
 
     # 記憶更新（例）
     state["memory"].beliefs[target] = role
+    if role == "werewolf":
+        state["memory"].suspicion[target] = 1
+    else:
+        state["memory"].suspicion[target] = 0
 
     # 行動はしない
     state["output"] = None
