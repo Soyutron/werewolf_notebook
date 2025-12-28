@@ -230,6 +230,21 @@ class PlayerInput(BaseModel):
     # 今このプレイヤーが求められている行動
     # 例: {"action": "speak"} / {"action": "vote"}
 
+class NoAbility(BaseModel):
+    kind: Literal["none"]
+
+class SeerAbility(BaseModel):
+    kind: Literal["seer"]
+    target: PlayerName
+
+class WerewolfAbility(BaseModel):
+    kind: Literal["werewolf"]
+
+AbilityResult = Union[
+    NoAbility,
+    SeerAbility,
+    WerewolfAbility,
+]
 
 # =========================
 # プレイヤーからの出力
@@ -238,7 +253,7 @@ class PlayerOutput(BaseModel):
     action: PlayerRequestType
     # GM から提示された PlayerRequest に対して、
     # プレイヤー（人間 / AI）が選択した行動の種類
-    payload: dict
+    payload: AbilityResult | None = None
     # 行動に付随する具体的な情報
     # action の種類によって内容が変わる
     #
