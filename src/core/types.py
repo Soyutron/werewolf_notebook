@@ -279,6 +279,7 @@ class PlayerState(TypedDict):
     # ※ GM は output を解釈・適用する側であり、
     #    output を事前に設定することはない
 
+
 class GameResult(BaseModel):
     """
     ゲーム終了時に確定・公開される最終結果。
@@ -304,6 +305,7 @@ class GameResult(BaseModel):
     roles: dict[PlayerName, RoleName]
     # 全プレイヤーの最終役職一覧（完全公開）
     # result フェーズでのみ公開される
+
 
 # =========================
 # GM が管理する進行状態
