@@ -346,20 +346,6 @@ class WorldState(BaseModel):
     #
     # ※ 原則としてゲーム中は不変（immutable）想定
 
-    pending_events: List[GameEvent]
-    # まだ「確定」していない進行中のイベントキュー
-    #
-    # 含まれるものの例:
-    # ・GMGraph がこのステップで生成したが、
-    #   まだ全プレイヤーに配布・処理されていないイベント
-    # ・複数イベントを段階的に dispatch したい場合のバッファ
-    #
-    # 用途:
-    # ・GameSession が順に取り出して dispatch する
-    # ・dispatch 完了後に public_events へ移動される
-    #
-    # ※ プレイヤーからは原則直接参照されない想定
-
     public_events: List[GameEvent]
     # 全体に公開された出来事の履歴
     #
