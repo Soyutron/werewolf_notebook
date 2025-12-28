@@ -129,6 +129,16 @@ class GameSession:
         # - player_memories: 各プレイヤーの初期記憶
         # - controllers: 各プレイヤーに対応する Controller
 
+        # ゲーム開始時の WorldState を生成。
+        #
+        # ワンナイト人狼では必ず night フェーズから始まる想定。
+        # public_events はまだ何も起きていないため空。
+        world_state = WorldState(
+            phase="night",
+            players=players,
+            public_events=[],
+        )
+
         # PlayerMemory を PlayerState にラップする
         #
         # input / output は LangGraph 実行時に
@@ -142,16 +152,6 @@ class GameSession:
             for player, memory in player_memories.items()
         }
 
-        # ゲーム開始時の WorldState を生成。
-        #
-        # ワンナイト人狼では必ず night フェーズから始まる想定。
-        # public_events はまだ何も起きていないため空。
-        world_state = WorldState(
-            phase="night",
-            players=players,
-            public_events=[],
-        )
-
         # GMInternalState は GMGraph が進行管理のためにのみ使用する内部状態。
         # WorldState とは異なり、プレイヤーからは観測されない。
         #
@@ -161,6 +161,7 @@ class GameSession:
         # - PlayerOutput が解決されるたびに該当プレイヤーを除外していく想定
         gm_internal = GMInternalState(
             night_pending=set(players),
+            gm_event_cursor=0,
         )
 
         # 初期化済みの要素をすべて束ねて GameSession を生成する

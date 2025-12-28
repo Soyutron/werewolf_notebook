@@ -1,4 +1,4 @@
-from src.graphs.gm.state import GMGraphState
+from src.core.types import GMGraphState
 
 
 def phase_router(state: GMGraphState) -> str:

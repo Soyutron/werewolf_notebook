@@ -5,8 +5,9 @@ from src.core.types import (
     GameEvent,
 )
 from typing import Protocol
-from langgraph.graph import StateGraph, END
+from langgraph.graph import StateGraph, START, END
 from src.graphs.gm.node.night_phase import night_phase_node
+from src.graphs.gm.phase_router import phase_router
 
 
 class GMGraph(Protocol):
@@ -49,13 +50,13 @@ def build_gm_graph():
     graph = StateGraph(GMGraphState)
 
     # ノード登録
-    graph.add_node("night_phase", night_phase_node)
+    graph.add_node("night", night_phase_node)
 
-    # エントリポイント
-    graph.set_entry_point("night_phase")
+    # START から phase に応じて分岐
+    graph.add_conditional_edges(START, phase_router)
 
     # 1ノードで終了
-    graph.add_edge("night_phase", END)
+    graph.add_edge("night", END)
 
     return graph.compile()
 

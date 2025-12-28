@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional, Literal, TypeAlias, TypedDict
+from typing import List, Dict, Optional, Literal, TypeAlias, TypedDict, Union
 from pydantic import BaseModel, Field
 
 # =========================
@@ -230,21 +230,26 @@ class PlayerInput(BaseModel):
     # 今このプレイヤーが求められている行動
     # 例: {"action": "speak"} / {"action": "vote"}
 
+
 class NoAbility(BaseModel):
     kind: Literal["none"]
 
+
 class SeerAbility(BaseModel):
     kind: Literal["seer"]
-    target: PlayerName
+    # target: PlayerName
+
 
 class WerewolfAbility(BaseModel):
     kind: Literal["werewolf"]
+
 
 AbilityResult = Union[
     NoAbility,
     SeerAbility,
     WerewolfAbility,
 ]
+
 
 # =========================
 # プレイヤーからの出力
