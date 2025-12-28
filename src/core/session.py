@@ -383,7 +383,7 @@ class GameSession:
             self.resolve_divine(player, output)
         else:
             raise ValueError(f"Unknown action: {output.action}")
-    
+
     def resolve_use_ability(
         self,
         player: PlayerName,

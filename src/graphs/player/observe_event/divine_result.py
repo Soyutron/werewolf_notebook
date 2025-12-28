@@ -1,4 +1,4 @@
-from src.core.types import PlayerState, PlayerOutput
+from src.core.types import PlayerState
 
 
 def handle_divine_result(state: PlayerState) -> PlayerState:

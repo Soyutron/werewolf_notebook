@@ -1,7 +1,9 @@
 from src.core.types import PlayerState, PlayerOutput
 from typing import Protocol
-from langgraph.graph import StateGraph, END
+from langgraph.graph import StateGraph, START, END
 from src.graphs.player.handle_request.use_ability import handle_use_ability
+from src.graphs.player.observe_event.divine_result import handle_divine_result
+from src.graphs.player.phase_router import phase_router
 
 
 class PlayerGraph(Protocol):
@@ -40,8 +42,12 @@ def build_player_graph():
     graph = StateGraph(PlayerState)
 
     graph.add_node("use_ability", handle_use_ability)
-    graph.set_entry_point("use_ability")
+    graph.add_node("divine_result", handle_divine_result)
     graph.add_edge("use_ability", END)
+    graph.add_edge("divine_result", END)
+
+    # START から phase に応じて分岐
+    graph.add_conditional_edges(START, phase_router)
 
     return graph.compile()
 
