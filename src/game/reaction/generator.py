@@ -1,7 +1,7 @@
 from typing import Optional, Union
 
 from src.core.llm.client import LLMClient
-from src.core.llm.prompts import REFLECTION_SYSTEM_PROMPT
+from src.core.llm.prompts import REACTION_SYSTEM_PROMPT
 from src.core.memory.reaction import Reaction
 from src.core.types import PlayerMemory, GameEvent, PlayerRequest
 from src.config.llm import create_reaction_llm
@@ -39,7 +39,7 @@ class ReactionGenerator:
         try:
             # ★ ここで返るのは Reaction（Pydantic）
             reaction: Reaction = self.llm.generate(
-                system=REFLECTION_SYSTEM_PROMPT,
+                system=REACTION_SYSTEM_PROMPT,
                 prompt=prompt,
             )
 
