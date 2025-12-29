@@ -12,6 +12,9 @@ LLM クライアント生成に関する設定モジュール。
 from src.core.llm.langchain import LangChainClient
 from src.core.llm.dummy import DummyLLMClient
 from src.core.llm.client import LLMClient
+from src.core.memory.reflection import Reflection
+from src.core.memory.reaction import Reaction
+from src.core.memory.gm_comment import GMComment
 
 # =========================================================
 # LLM 切り替えフラグ
@@ -28,7 +31,7 @@ USE_DUMMY = False
 # =========================================================
 # 内省（Reflection）用 LLM
 # =========================================================
-def create_reflection_llm() -> LLMClient:
+def create_reflection_llm() -> LLMClient[Reflection]:
     """
     プレイヤーの「内省（reflection）」を生成するための LLM を返す。
 
@@ -48,13 +51,13 @@ def create_reflection_llm() -> LLMClient:
 
     # 実運用用
     # gemma3:12b は推論能力が高く、内省用途に向いている
-    return LangChainClient(model="gemma3:1b")
+    return LangChainClient(model="gemma3:1b",output_model=Reflection)
 
 
 # =========================================================
 # 反応（Reaction / 即時応答）用 LLM
 # =========================================================
-def create_reaction_llm() -> LLMClient:
+def create_reaction_llm() -> LLMClient[Reaction]:
     """
     プレイヤーの「即時反応・発言・軽い判断」を生成するための LLM を返す。
 
@@ -73,10 +76,10 @@ def create_reaction_llm() -> LLMClient:
 
     # 実運用用
     # gemma3:1b は軽量で応答が速く、リアクション用途に最適
-    return LangChainClient(model="gemma3:1b")
+    return LangChainClient(model="gemma3:1b",output_model=Reaction)
 
 
-def create_gm_comment_llm() -> LLMClient:
+def create_gm_comment_llm() -> LLMClient[GMComment]:
     """
     GM が観測した public_event から
     次の speaker と進行コメントを生成する。
@@ -88,4 +91,4 @@ def create_gm_comment_llm() -> LLMClient:
 
     # 実運用用
     # gemma3:12b は推論能力が高く、内省用途に向いている
-    return LangChainClient(model="gemma3:1b")
+    return LangChainClient(model="gemma3:1b",output_model=GMComment)

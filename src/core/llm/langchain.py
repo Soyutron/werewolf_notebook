@@ -1,15 +1,18 @@
 from langchain_ollama import ChatOllama
 from src.core.memory.reflection import Reflection
+from pydantic import BaseModel
+from typing import TypeVar, Generic, Type
 
+T = TypeVar("T", bound=BaseModel)
 
-class LangChainClient:
+class LangChainClient(Generic[T]):
     """
     LangChain + Ollama を用いた LLMClient の具体実装。
 
     責務:
     - Ollama 上のローカル LLM を呼び出す
     - system / prompt を受け取り、LLM に渡す
-    - 出力を Reflection 型（構造化データ）として返す
+    - 出力を指定された型（構造化データ）として返す
 
     設計上のポイント:
     - LangChain 依存はこのクラスに閉じ込める
@@ -17,7 +20,7 @@ class LangChainClient:
     - LLM の差し替え（Dummy / vLLM / OpenAI 等）を容易にする
     """
 
-    def __init__(self, model: str):
+    def __init__(self, model: str, output_model: Type[T]):
         """
         LangChainClient を初期化する。
 
@@ -33,25 +36,25 @@ class LangChainClient:
             temperature=0.3,
         )
 
-        # LLM の出力を Reflection 型として強制的に構造化するラッパー
+        # LLM の出力を指定された型（構造化データ）として強制的に構造化するラッパー
         #
         # - LLM は JSON 形式で出力することを期待される
         # - パースに失敗した場合、LangChain 側で例外が発生する
         # - 呼び出し側では「Reflection が返る」ことを前提にできる
-        self.structured_llm = self.llm.with_structured_output(Reflection)
+        self.structured_llm = self.llm.with_structured_output(output_model)
 
-    def generate(self, *, system: str, prompt: str) -> Reflection:
+    def generate(self, *, system: str, prompt: str) -> T:
         """
-        LLM に system / prompt を渡し、内省（Reflection）を生成する。
+        LLM に system / prompt を渡し、指定された型（構造化データ）を生成する。
 
         Args:
             system: system プロンプト（役割・制約・フォーマット定義など）
             prompt: human プロンプト（観測したイベントや状況）
 
         Returns:
-            Reflection:
+            T:
                 LLM が生成した内省結果。
-                with_structured_output により、必ず Reflection 型になる。
+                with_structured_output により、必ず指定された型になる。
 
         注意:
         - このメソッドは「同期的」に LLM を呼び出す
@@ -68,7 +71,7 @@ class LangChainClient:
         # 構造化 LLM を実行
         # - LLM 呼び出し
         # - JSON 出力
-        # - Reflection へのパース
+        # - 指定された型へのパース
         # をまとめて行う
         result = self.structured_llm.invoke(messages)
 

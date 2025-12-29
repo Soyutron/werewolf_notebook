@@ -3,6 +3,7 @@ from typing import Protocol
 from langgraph.graph import StateGraph, START, END
 from src.graphs.player.observe_event.night_started import handle_night_started
 from src.graphs.player.handle_request.use_ability import handle_use_ability
+from src.graphs.player.observe_event.gm_comment import handle_gm_comment
 from src.graphs.player.observe_event.divine_result import handle_divine_result
 from src.graphs.player.observe_event.day_started import handle_day_started
 from src.graphs.player.node.reflection_node import reflection_node
@@ -49,12 +50,14 @@ def build_player_graph():
     graph.add_node("use_ability", handle_use_ability)
     graph.add_node("divine_result", handle_divine_result)
     graph.add_node("day_started", handle_day_started)
+    graph.add_node("gm_comment", handle_gm_comment)
     graph.add_node("reflection", reflection_node)
     graph.add_node("reaction", reaction_node)
     graph.add_edge("night_started", "reaction")
     graph.add_edge("day_started", "reaction")
     graph.add_edge("use_ability", "reaction")
     graph.add_edge("divine_result", "reflection")
+    graph.add_edge("gm_comment", END)
     graph.add_edge("reflection", END)
     graph.add_edge("reaction", END)
 

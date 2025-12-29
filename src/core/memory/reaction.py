@@ -1,7 +1,7 @@
-from typing import TypedDict
+from pydantic import BaseModel
 
 
-class Reaction(TypedDict):
+class Reaction(BaseModel):
     """
     プレイヤーの反応ログ（LLM由来）。
 

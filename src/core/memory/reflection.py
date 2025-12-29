@@ -1,7 +1,7 @@
-from typing import TypedDict
+from pydantic import BaseModel
 
 
-class Reflection(TypedDict):
+class Reflection(BaseModel):
     """
     プレイヤーの内省ログ（LLM由来）。
 

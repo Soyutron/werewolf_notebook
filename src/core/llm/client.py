@@ -1,7 +1,9 @@
-from typing import Protocol
+from typing import Protocol, TypeVar
+from pydantic import BaseModel
 
+T = TypeVar("T", bound=BaseModel)
 
-class LLMClient(Protocol):
+class LLMClient(Protocol[T]):
     """
     LLM 呼び出しのための抽象インターフェース（Protocol）。
 
@@ -28,9 +30,9 @@ class LLMClient(Protocol):
     - DummyLLMClient（テスト・デバッグ用の固定応答）
     """
 
-    def generate(self, *, system: str, prompt: str) -> str:
+    def generate(self, *, system: str, prompt: str) -> T:
         """
-        LLM に system / prompt を渡し、生成結果を文字列として返す。
+        LLM に system / prompt を渡し、生成結果を指定された型（構造化データ）として返す。
 
         引数:
         - system:
@@ -42,6 +44,7 @@ class LLMClient(Protocol):
 
         戻り値:
         - LLM が生成したテキスト（加工前の生文字列）
+          指定された型（構造化データ）にパースして返す
 
         注意:
         - 例外処理・リトライ・タイムアウト制御は
