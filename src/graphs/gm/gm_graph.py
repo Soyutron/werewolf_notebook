@@ -7,6 +7,7 @@ from src.core.types import (
 from typing import Protocol
 from langgraph.graph import StateGraph, START, END
 from src.graphs.gm.node.night_phase import night_phase_node
+from src.graphs.gm.node.day_phase import day_phase_node
 from src.graphs.gm.phase_router import phase_router
 
 
@@ -51,12 +52,14 @@ def build_gm_graph():
 
     # ノード登録
     graph.add_node("night", night_phase_node)
+    graph.add_node("day", day_phase_node)
 
     # START から phase に応じて分岐
     graph.add_conditional_edges(START, phase_router)
 
     # 1ノードで終了
     graph.add_edge("night", END)
+    graph.add_edge("day", END)
 
     return graph.compile()
 

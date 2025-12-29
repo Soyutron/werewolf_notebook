@@ -48,7 +48,7 @@ def create_reflection_llm() -> LLMClient:
 
     # 実運用用
     # gemma3:12b は推論能力が高く、内省用途に向いている
-    return LangChainClient(model="gemma3:12b")
+    return LangChainClient(model="gemma3:1b")
 
 
 # =========================================================
@@ -73,4 +73,19 @@ def create_reaction_llm() -> LLMClient:
 
     # 実運用用
     # gemma3:1b は軽量で応答が速く、リアクション用途に最適
+    return LangChainClient(model="gemma3:1b")
+
+
+def create_gm_comment_llm() -> LLMClient:
+    """
+    GM が観測した public_event から
+    次の speaker と進行コメントを生成する。
+    """
+
+    if USE_DUMMY:
+        # テスト・デバッグ用
+        return DummyLLMClient()
+
+    # 実運用用
+    # gemma3:12b は推論能力が高く、内省用途に向いている
     return LangChainClient(model="gemma3:1b")

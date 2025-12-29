@@ -15,6 +15,9 @@ def phase_router(state: PlayerState) -> str:
         if player_input.event.event_type == "night_started":
             return "night_started"
 
+        if player_input.event.event_type == "day_started":
+            return "day_started"
+
         if player_input.event.event_type == "divine_result":
             return "divine_result"
 
@@ -27,5 +30,5 @@ def phase_router(state: PlayerState) -> str:
     # -------------------------
     raise RuntimeError(
         player_input,
-        "phase_router: neither event nor request is present in PlayerInput"
+        "phase_router: neither event nor request is present in PlayerInput",
     )

@@ -97,6 +97,9 @@ class GMInternalState(BaseModel):
     night_started: bool = False
     # 夜フェーズ開始を示すフラグ
 
+    day_started: bool = False
+    # 日フェーズ開始を示すフラグ
+
     night_pending: list[PlayerName]
     # 夜フェーズにおいて、まだ行動を完了していないプレイヤー集合
     #
@@ -108,6 +111,9 @@ class GMInternalState(BaseModel):
     # 重要:
     # ・役職や行動内容はここには含めない
     # ・あくまで「進行管理」のみを目的とする
+
+    discussion_turn: int = 0  # 発言回数
+    max_discussion_turn: int = 10  # 上限
 
     gm_event_cursor: int = 0
     # GM が public_events をどこまで処理したかを示すカーソル

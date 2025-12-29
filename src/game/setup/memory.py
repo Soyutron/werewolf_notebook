@@ -3,6 +3,7 @@ from typing import Dict, List
 from collections import Counter
 from src.core.types import PlayerName, RoleName, PlayerMemory, GameDefinition, RoleProb
 
+
 def make_prior_role_prob(definition: GameDefinition) -> dict[RoleName, float]:
     """
     role_distribution から役職の事前確率分布を作る。
@@ -12,10 +13,8 @@ def make_prior_role_prob(definition: GameDefinition) -> dict[RoleName, float]:
     counter = Counter(definition.role_distribution)
     total = len(definition.role_distribution)
 
-    return {
-        role: counter.get(role, 0) / total
-        for role in all_roles
-    }
+    return {role: counter.get(role, 0) / total for role in all_roles}
+
 
 def create_initial_player_memory(
     *,
@@ -42,18 +41,12 @@ def create_initial_player_memory(
         if player == self_name:
             # 自分自身の役職は確定
             role_beliefs[player] = RoleProb(
-                probs={
-                    role: (1.0 if role == self_role else 0.0)
-                    for role in all_roles
-                }
+                probs={role: (1.0 if role == self_role else 0.0) for role in all_roles}
             )
         else:
             # 他プレイヤーは role_distribution 由来の事前分布
             role_beliefs[player] = RoleProb(
-                probs={
-                    role: prior_probs[role]
-                    for role in all_roles
-                }
+                probs={role: prior_probs[role] for role in all_roles}
             )
 
     return PlayerMemory(
