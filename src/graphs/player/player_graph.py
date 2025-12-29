@@ -9,6 +9,7 @@ from src.graphs.player.observe_event.day_started import handle_day_started
 from src.graphs.player.node.reflection_node import reflection_node
 from src.graphs.player.node.reaction_node import reaction_node
 from src.graphs.player.phase_router import phase_router
+from src.graphs.player.handle_request.speak import handle_speak
 
 
 class PlayerGraph(Protocol):
@@ -53,11 +54,13 @@ def build_player_graph():
     graph.add_node("gm_comment", handle_gm_comment)
     graph.add_node("reflection", reflection_node)
     graph.add_node("reaction", reaction_node)
+    graph.add_node("speak", handle_speak)
     graph.add_edge("night_started", "reaction")
     graph.add_edge("day_started", "reaction")
     graph.add_edge("use_ability", "reaction")
     graph.add_edge("divine_result", "reflection")
     graph.add_edge("gm_comment", END)
+    graph.add_edge("speak", END)
     graph.add_edge("reflection", END)
     graph.add_edge("reaction", END)
 

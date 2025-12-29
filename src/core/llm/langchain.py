@@ -1,9 +1,9 @@
 from langchain_ollama import ChatOllama
-from src.core.memory.reflection import Reflection
 from pydantic import BaseModel
 from typing import TypeVar, Generic, Type
 
 T = TypeVar("T", bound=BaseModel)
+
 
 class LangChainClient(Generic[T]):
     """

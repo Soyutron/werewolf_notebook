@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 T = TypeVar("T", bound=BaseModel)
 
+
 class LLMClient(Protocol[T]):
     """
     LLM 呼び出しのための抽象インターフェース（Protocol）。

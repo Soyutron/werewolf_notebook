@@ -20,7 +20,7 @@ def phase_router(state: PlayerState) -> str:
 
         if player_input.event.event_type == "divine_result":
             return "divine_result"
-        
+
         if player_input.event.event_type == "gm_comment":
             return "gm_comment"
 
@@ -28,6 +28,9 @@ def phase_router(state: PlayerState) -> str:
     if player_input.request is not None:
         if player_input.request.request_type == "use_ability":
             return "use_ability"
+
+        if player_input.request.request_type == "speak":
+            return "speak"
 
     # -------------------------
     # どれにも当てはまらないのは設計ミス

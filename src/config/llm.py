@@ -51,7 +51,7 @@ def create_reflection_llm() -> LLMClient[Reflection]:
 
     # 実運用用
     # gemma3:12b は推論能力が高く、内省用途に向いている
-    return LangChainClient(model="gemma3:1b",output_model=Reflection)
+    return LangChainClient(model="gemma3:1b", output_model=Reflection)
 
 
 # =========================================================
@@ -76,7 +76,7 @@ def create_reaction_llm() -> LLMClient[Reaction]:
 
     # 実運用用
     # gemma3:1b は軽量で応答が速く、リアクション用途に最適
-    return LangChainClient(model="gemma3:1b",output_model=Reaction)
+    return LangChainClient(model="gemma3:1b", output_model=Reaction)
 
 
 def create_gm_comment_llm() -> LLMClient[GMComment]:
@@ -91,4 +91,4 @@ def create_gm_comment_llm() -> LLMClient[GMComment]:
 
     # 実運用用
     # gemma3:12b は推論能力が高く、内省用途に向いている
-    return LangChainClient(model="gemma3:1b",output_model=GMComment)
+    return LangChainClient(model="gemma3:12b", output_model=GMComment)
