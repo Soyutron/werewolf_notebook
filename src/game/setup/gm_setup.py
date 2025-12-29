@@ -44,6 +44,7 @@ def setup_game(
     # 3. PlayerMemory 初期化
     player_memories: Dict[PlayerName, PlayerMemory] = {
         player: create_initial_player_memory(
+            definition=definition,
             self_name=player,
             self_role=assigned_roles[player],
             players=players,

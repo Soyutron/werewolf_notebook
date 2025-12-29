@@ -9,13 +9,14 @@
 """
 
 from typing import List, Dict, Optional, Literal, TypeAlias, TypedDict, Union
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, model_validator
 
 from src.core.types.roles import RoleName
 from src.core.types.events import GameEvent, PlayerRequest, PlayerRequestType
 
 __all__ = [
     "PlayerName",
+    "RoleProb",
     "PlayerMemory",
     "PlayerInput",
     "PlayerOutput",
@@ -31,6 +32,43 @@ __all__ = [
 # プレイヤーを識別するための名前型
 # =========================
 PlayerName: TypeAlias = str
+
+
+class RoleProb(BaseModel):
+    """
+    1人のプレイヤーに対する役職確率分布。
+
+    - key   : RoleName
+    - value : 確率（0.0〜1.0）
+    - 合計は 1.0 でなければならない
+    """
+
+    probs: Dict[RoleName, float] = Field(default_factory=dict)
+    # 役職ごとの確率分布
+    # 例: {"villager": 0.5, "seer": 0.2, "werewolf": 0.3}
+
+    @model_validator(mode="after")
+    def validate_probs(self) -> "RoleProb":
+        """
+        確率分布の妥当性チェック。
+
+        - 確率の総和が 1.0（誤差許容）であること
+        - 各確率が 0.0〜1.0 の範囲内であること
+
+        推論・更新ロジックのバグを早期に検出するため、
+        モデルレベルで強制する。
+        """
+        total = sum(self.probs.values())
+
+        # 浮動小数誤差を考慮して ±0.001 まで許容
+        if not (0.999 <= total <= 1.001):
+            raise ValueError(f"RoleProb total must be 1.0, got {total}")
+
+        for role, p in self.probs.items():
+            if p < 0.0 or p > 1.0:
+                raise ValueError(f"Invalid probability for {role}: {p}")
+
+        return self
 
 
 # =========================
@@ -54,36 +92,28 @@ class PlayerMemory(BaseModel):
     # public_event を「そのまま」保存
     # 事実のみ・改変禁止
 
-    beliefs: Dict[PlayerName, RoleName | Literal["unknown"]]
-    # 他プレイヤーの「現在もっともそれらしい役職」の推測
-    #
-    # ・現段階では「最尤の役職」だけを保持する簡易表現
-    # ・確証が持てない場合は "unknown" を入れる
-    #
-    # 将来的な拡張案:
-    # - 各役職の確率分布を保持する形式に拡張する想定
-    #   例: Dict[player, Dict[RoleName, float]]
-    #
-    # 例（現在）:
-    # {"Bob": "villager", "Charlie": "werewolf"}
-    #
-    # 例（将来）:
-    # {"Bob": {"villager": 0.6, "seer": 0.2, "werewolf": 0.2}}
+    role_beliefs: Dict[PlayerName, RoleProb]
+    """
+    各プレイヤーが各役職であると考える確率分布。
 
-    suspicion: Dict[PlayerName, float]
-    # 他プレイヤーが「敵陣営（人狼側）である可能性」の強さ
-    #
-    # ・現段階では「人狼である疑い」を 1 次元の数値で表現
-    # ・役職の違い（占い師・狂人など）は直接は区別しない
-    #
-    # スケール定義:
-    # 0.0 = 完全に白（人狼である可能性がほぼない）
-    # 0.5 = 中立
-    # 1.0 = ほぼ黒（人狼である可能性が非常に高い）
-    #
-    # 将来的な拡張案:
-    # - 陣営ごとの確率（village / werewolf）に分解
-    # - beliefs（役職分布）から派生的に計算する設計も想定
+    - key   : プレイヤー名
+    - value : RoleProb（そのプレイヤーの役職確率分布）
+
+    例:
+    {
+        "Bob": RoleProb(
+            probs={
+                "villager": 0.5,
+                "seer": 0.2,
+                "werewolf": 0.3,
+            }
+        )
+    }
+
+    この構造により、
+    - 「Bob は怪しい」という単一ラベルではなく
+    - 不確実性を含んだ信念表現が可能になる
+    """
 
     history: List[dict]
     # 観測・推論・内省の履歴ログ

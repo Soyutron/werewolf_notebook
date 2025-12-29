@@ -1,10 +1,11 @@
 # game/setup/memory.py
-from typing import Dict, Literal, List
-from src.core.types import PlayerName, RoleName, PlayerMemory
+from typing import Dict, List
+from src.core.types import PlayerName, RoleName, PlayerMemory, GameDefinition, RoleProb
 
 
 def create_initial_player_memory(
     *,
+    definition: GameDefinition,
     self_name: PlayerName,
     self_role: RoleName,
     players: List[PlayerName],
@@ -18,23 +19,34 @@ def create_initial_player_memory(
     - GM は初期化後、この中身を直接変更しない
 
     初期状態の考え方:
-    - 自分以外の役職はすべて unknown
-    - 疑い度は全員 0.5（中立）からスタート
-    - history は空
+    - 自分の役職は確定（確率 1.0）
+    - 他プレイヤーは役職の事前分布（均等）
+    - observed_events / history は空
     """
 
-    beliefs: Dict[PlayerName, RoleName | Literal["unknown"]] = {
-        p: "unknown" for p in players if p != self_name
-    }
+    all_roles = definition.roles
 
-    suspicion: Dict[PlayerName, float] = {p: 0.5 for p in players if p != self_name}
+    uniform_prob = 1.0 / len(all_roles)
+
+    role_beliefs: Dict[PlayerName, RoleProb] = {}
+
+    for player in players:
+        if player == self_name:
+            # 自分自身の役職は確定（他は 0.0 で明示）
+            role_beliefs[player] = RoleProb(
+                probs={role: (1.0 if role == self_role else 0.0) for role in all_roles}
+            )
+        else:
+            # 他プレイヤーは事前分布（均等）
+            role_beliefs[player] = RoleProb(
+                probs={role: uniform_prob for role in all_roles}
+            )
 
     return PlayerMemory(
         self_name=self_name,
         self_role=self_role,
         players=players,
         observed_events=list(),
-        beliefs=beliefs,
-        suspicion=suspicion,
+        role_beliefs=role_beliefs,
         history=list(),
     )

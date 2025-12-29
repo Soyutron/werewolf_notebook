@@ -32,6 +32,7 @@ from src.core.types.events import (
 # プレイヤー関連
 from src.core.types.player import (
     PlayerName,
+    RoleProb,
     PlayerMemory,
     PlayerInput,
     PlayerOutput,
@@ -60,6 +61,7 @@ from src.core.types.gm import (
 __all__ = [
     # roles
     "RoleName",
+    "RoleProb",
     "Side",
     "DaySide",
     "WinSide",
