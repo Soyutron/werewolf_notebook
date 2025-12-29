@@ -12,6 +12,9 @@ def phase_router(state: PlayerState) -> str:
 
     # event が来ている場合（GM → Player の一方通行通知）
     if player_input.event is not None:
+        if player_input.event.event_type == "night_started":
+            return "night_started"
+
         if player_input.event.event_type == "divine_result":
             return "divine_result"
 
@@ -19,5 +22,10 @@ def phase_router(state: PlayerState) -> str:
     if player_input.request is not None:
         return "use_ability"
 
-    # どちらでもない場合はデフォルト
-    return "use_ability"
+    # -------------------------
+    # どれにも当てはまらないのは設計ミス
+    # -------------------------
+    raise RuntimeError(
+        player_input,
+        "phase_router: neither event nor request is present in PlayerInput"
+    )

@@ -94,6 +94,9 @@ class GMInternalState(BaseModel):
     - 全員の行動完了を検知して次フェーズへ遷移する判断材料
     """
 
+    night_started: bool = False
+    # 夜フェーズ開始を示すフラグ
+
     night_pending: list[PlayerName]
     # 夜フェーズにおいて、まだ行動を完了していないプレイヤー集合
     #

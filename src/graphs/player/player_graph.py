@@ -1,6 +1,7 @@
 from src.core.types import PlayerState, PlayerOutput
 from typing import Protocol
 from langgraph.graph import StateGraph, START, END
+from src.graphs.player.observe_event.night_started import handle_night_started
 from src.graphs.player.handle_request.use_ability import handle_use_ability
 from src.graphs.player.observe_event.divine_result import handle_divine_result
 from src.graphs.player.node.reflection_node import reflection_node
@@ -43,10 +44,12 @@ class LangGraphPlayerAdapter:
 def build_player_graph():
     graph = StateGraph(PlayerState)
 
+    graph.add_node("night_started", handle_night_started)
     graph.add_node("use_ability", handle_use_ability)
     graph.add_node("divine_result", handle_divine_result)
     graph.add_node("reflection", reflection_node)
     graph.add_node("reaction", reaction_node)
+    graph.add_edge("night_started", "reaction")
     graph.add_edge("use_ability", "reaction")
     graph.add_edge("divine_result", "reflection")
     graph.add_edge("reflection", END)

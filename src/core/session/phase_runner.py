@@ -56,12 +56,6 @@ class PhaseRunner:
         # Session が state の所有者として、副作用を伴う処理をここで確定させる
         session.dispatch(gm_graph_state["decision"])
 
-        # --- 夜フェーズ固有の完了処理 ---
-        # 夜フェーズでは、
-        # ・全ての request が処理された時点でフェーズが確定する
-        # ・フェーズ遷移の確定は GMGraph ではなく Session の責務
-        session.world_state.phase = "day"
-
     def run_day_step(self, session: "GameSession") -> None:
         """
         昼フェーズ（議論フェーズ）の 1 ステップを実行する。

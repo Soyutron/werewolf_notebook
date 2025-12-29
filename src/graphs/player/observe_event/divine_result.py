@@ -1,6 +1,18 @@
 from src.core.types import PlayerState, RoleName, PlayerName, RoleProb
 
 
+def normalize_divine_role(role: RoleName) -> RoleName:
+    """
+    占い結果として見える役職に正規化する。
+
+    - madman は villager として見える
+    - それ以外はそのまま
+    """
+    if role == "madman":
+        return "villager"
+    return role
+
+
 def handle_divine_result(state: PlayerState) -> PlayerState:
     """
     占い結果を受け取り、占い師の記憶（role_beliefs）を更新するノード。
@@ -19,6 +31,8 @@ def handle_divine_result(state: PlayerState) -> PlayerState:
     target: PlayerName = event.payload["target"]
     revealed_role: RoleName = event.payload["role"]
 
+    visible_role = normalize_divine_role(revealed_role)
+
     memory = state["memory"]
 
     # -------------------------
@@ -29,7 +43,7 @@ def handle_divine_result(state: PlayerState) -> PlayerState:
     probs: dict[RoleName, float] = {}
 
     for role in memory.role_beliefs[target].probs.keys():
-        probs[role] = 1.0 if role == revealed_role else 0.0
+        probs[role] = 1.0 if role == visible_role else 0.0
 
     memory.role_beliefs[target] = RoleProb(probs=probs)
 

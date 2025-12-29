@@ -1,5 +1,4 @@
-from src.core.types import GMGraphState
-from src.core.types import PlayerRequest
+from src.core.types import GMGraphState, GameEvent, PlayerRequest
 
 
 def night_phase_node(state: GMGraphState) -> GMGraphState:
@@ -19,6 +18,18 @@ def night_phase_node(state: GMGraphState) -> GMGraphState:
 
     decision = state["decision"]
     internal = state["internal"]
+
+    # 夜フェーズ開始イベント（最初の1回だけ）
+    if not internal.night_started:
+        decision.events.append(
+            GameEvent(
+                event_type="night_started",
+                payload={},
+            )
+        )
+        internal.night_started = True
+        # NOTE:
+        # night_started を True にするのは GameSession 側の責務
 
     # --- 夜行動が未完了のプレイヤーがいる場合 ---
     if internal.night_pending:

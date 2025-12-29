@@ -27,6 +27,7 @@ __all__ = [
 #   夜 → 議論 → 投票 → 結果公開
 #   の最小構成のみを定義している
 GameEventType = Literal[
+    "night_started",  # 夜フェーズ開始
     "night_action",  # 夜に能力が使われた（占い・役職確認など）
     "divine_result",  # 占い結果
     "speech",  # 誰かが発言した（昼フェーズの会話ログ）
