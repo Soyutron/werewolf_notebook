@@ -3,7 +3,7 @@ from typing import Optional, Union
 from src.core.llm.client import LLMClient
 from src.core.llm.prompts import REFLECTION_SYSTEM_PROMPT
 from src.core.memory.reaction import Reaction
-from src.core.types import PlayerMemory, GameEvent, PlayerRequest   
+from src.core.types import PlayerMemory, GameEvent, PlayerRequest
 from src.config.llm import create_reaction_llm
 
 Observed = Union[GameEvent, PlayerRequest]
@@ -37,15 +37,15 @@ class ReactionGenerator:
         prompt = self._build_prompt(memory, observed)
 
         try:
-            # ★ ここで返るのは Reflection（Pydantic）
-            reflection: Reflection = self.llm.generate(
+            # ★ ここで返るのは Reaction（Pydantic）
+            reaction: Reaction = self.llm.generate(
                 system=REFLECTION_SYSTEM_PROMPT,
                 prompt=prompt,
             )
 
-            print(reflection)
+            print(reaction)
 
-            return reflection
+            return reaction
 
         except Exception:
             # LLM / validation が壊れてもゲームは止めない

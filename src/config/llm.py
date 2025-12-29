@@ -11,6 +11,7 @@ def create_reflection_llm() -> LLMClient:
         return DummyLLMClient()
     return LangChainClient(model="gemma3:12b")
 
+
 def create_reaction_llm() -> LLMClient:
     if USE_DUMMY:
         return DummyLLMClient()
