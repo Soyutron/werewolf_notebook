@@ -40,23 +40,6 @@ def handle_divine_result(state: PlayerState) -> PlayerState:
     # 「自分が観測した事実」としては保存してよい
     memory.observed_events.append(event)
 
-    # -------------------------
-    # 3. 内省（LLM）
-    # -------------------------
-    reflection = reflection_generator.generate(
-        memory=memory,
-        observed=event,
-    )
-
-    print(reflection)
-
-    # -------------------------
-    # 4. ログ（軽量・決定論）
-    # -------------------------
-
-    if reflection is not None:
-        memory.history.append(reflection)
-
     # 行動はしない
     state["output"] = None
     return state

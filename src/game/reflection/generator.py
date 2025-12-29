@@ -36,30 +36,17 @@ class ReflectionGenerator:
         """
         prompt = self._build_prompt(memory, observed)
 
-        print(prompt)
-
         try:
-            raw = self.llm.generate(
+            # ★ ここで返るのは Reflection（Pydantic）
+            reflection: Reflection = self.llm.generate(
                 system=REFLECTION_SYSTEM_PROMPT,
                 prompt=prompt,
             )
+            return reflection
 
-            data = json.loads(raw)
-
-            # 最小限の構造チェック
-            if not isinstance(data, dict):
-                return None
-
-            if "kind" not in data or "text" not in data:
-                return None
-
-            return {
-                "kind": data["kind"],
-                "text": data["text"],
-            }
-
-        except Exception:
-            # LLM / JSON が壊れてもゲームは止めない
+        except Exception as e:
+            # LLM / validation が壊れてもゲームは止めない
+            # 必要なら logging.debug(e)
             return None
 
     def _build_prompt(

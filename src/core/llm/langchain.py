@@ -1,4 +1,5 @@
 from langchain_ollama import ChatOllama
+from src.core.memory.reflection import Reflection
 
 
 class LangChainClient:
@@ -12,11 +13,13 @@ class LangChainClient:
             temperature=0.3,
         )
 
-    def generate(self, *, system: str, prompt: str) -> str:
+        self.structured_llm = self.llm.with_structured_output(Reflection)
+
+    def generate(self, *, system: str, prompt: str) -> Reflection:
         messages = [
             ("system", system),
             ("human", prompt),
         ]
 
-        result = self.llm.invoke(messages)
-        return result.content
+        result = self.structured_llm.invoke(messages)
+        return result

@@ -1,4 +1,4 @@
-from typing import TypedDict, Literal
+from typing import TypedDict
 
 
 class Reflection(TypedDict):
@@ -11,5 +11,5 @@ class Reflection(TypedDict):
     - いつでも破棄・無効化できる
     """
 
-    kind: Literal["reflection", "inference", "meta"]
+    kind: str
     text: str
