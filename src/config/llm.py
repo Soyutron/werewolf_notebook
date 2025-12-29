@@ -9,4 +9,4 @@ USE_DUMMY = False
 def create_reflection_llm() -> LLMClient:
     if USE_DUMMY:
         return DummyLLMClient()
-    return LangChainClient(model="nemotron-3-nano:30b")
+    return LangChainClient(model="gemma3:12b")

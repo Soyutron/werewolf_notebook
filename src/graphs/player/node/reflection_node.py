@@ -1,6 +1,7 @@
 from src.game.reflection.generator import reflection_generator
 from src.core.types import PlayerState
 
+
 def reflection_node(state: PlayerState) -> PlayerState:
     event = state["input"].event
     request = state["input"].request
@@ -13,7 +14,7 @@ def reflection_node(state: PlayerState) -> PlayerState:
         )
         if reflection is not None:
             memory.history.append(reflection)
-    
+
     if request is not None:
         reflection = reflection_generator.generate(
             memory=memory,

@@ -45,7 +45,7 @@ def build_player_graph():
     graph.add_node("use_ability", handle_use_ability)
     graph.add_node("divine_result", handle_divine_result)
     graph.add_node("reflection", reflection_node)
-    graph.add_edge("use_ability", "reflection")
+    graph.add_edge("use_ability", END)
     graph.add_edge("divine_result", "reflection")
     graph.add_edge("reflection", END)
 

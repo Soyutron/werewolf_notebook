@@ -1,5 +1,5 @@
 from src.core.types import PlayerState, RoleName, PlayerName, RoleProb
-from src.game.reflection.generator import reflection_generator
+
 
 def handle_divine_result(state: PlayerState) -> PlayerState:
     """

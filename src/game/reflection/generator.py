@@ -1,4 +1,3 @@
-import json
 from typing import Optional, Union
 
 from src.core.llm.client import LLMClient
@@ -8,6 +7,7 @@ from src.core.types import PlayerMemory, GameEvent, PlayerRequest
 from src.config.llm import create_reflection_llm
 
 Observed = Union[GameEvent, PlayerRequest]
+
 
 class ReflectionGenerator:
     """
@@ -42,9 +42,12 @@ class ReflectionGenerator:
                 system=REFLECTION_SYSTEM_PROMPT,
                 prompt=prompt,
             )
+
+            print(reflection)
+
             return reflection
 
-        except Exception as e:
+        except Exception:
             # LLM / validation が壊れてもゲームは止めない
             # 必要なら logging.debug(e)
             return None
