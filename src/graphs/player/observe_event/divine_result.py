@@ -25,6 +25,7 @@ def handle_divine_result(state: PlayerState) -> PlayerState:
         state["memory"].suspicion[target] = 1
     else:
         state["memory"].suspicion[target] = 0
+    state["memory"].observed_events.append(event)
 
     # 行動はしない
     state["output"] = None

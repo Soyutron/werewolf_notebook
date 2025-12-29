@@ -106,16 +106,61 @@ class PlayerInput(BaseModel):
     # 例: {"action": "speak"} / {"action": "vote"}
 
 
+# =========================
+# 能力結果（AbilityResult）
+# =========================
+# 夜フェーズにおいて「プレイヤーが実行した行動の結果」を表す型群。
 class NoAbility(BaseModel):
+    """
+    行動なしを表す能力結果。
+
+    主に以下の役職で使用される:
+    - 村人
+    - 狂人（現時点では夜行動を持たない）
+
+    ポイント:
+    - 「何も起こらなかった」ことを明示的に表すための型
+    - role（役職）そのものを Ability に含めないことで、
+      AbilityResult の責務を「行動結果」に限定している
+    """
+
     kind: Literal["none"]
 
 
 class SeerAbility(BaseModel):
+    """
+    占い師の夜行動結果。
+
+    - target に指定されたプレイヤーを占った、という事実のみを表す
+    - 占い結果（役職の真実）は GM / Session 側で解決される
+
+    注意:
+    - ここでは「誰を占ったか」までしか持たない
+    - 「占い結果を知った」というイベントは別途 GameEvent として通知される
+    """
+
     kind: Literal["seer"]
     target: PlayerName
 
 
+# =========================
+# AbilityResult 型
+# =========================
+# 夜フェーズで PlayerGraph が返す「能力使用結果」の共用型。
+#
+# GM / Session はこの型を解釈し、
+# - ゲーム世界への副作用（WorldState 更新）
+# - 個別プレイヤーへのイベント通知
+# を確定させる。
 class WerewolfAbility(BaseModel):
+    """
+    人狼の夜行動結果。
+
+    - ワンナイト人狼では「何もしない／相談のみ」の場合が多いため、
+      現時点では追加情報を持たない
+    - 将来、襲撃対象や相談内容を扱う場合はフィールドを拡張する想定
+    """
+
     kind: Literal["werewolf"]
 
 
