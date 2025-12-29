@@ -1,0 +1,108 @@
+import json
+from typing import Optional, Union
+
+from src.core.llm.client import LLMClient
+from src.core.llm.prompts import REFLECTION_SYSTEM_PROMPT
+from src.core.memory.reflection import Reflection
+from src.core.types import PlayerMemory, GameEvent, PlayerRequest
+from src.config.llm import create_reflection_llm
+
+Observed = Union[GameEvent, PlayerRequest]
+
+class ReflectionGenerator:
+    """
+    PlayerMemory と新しく観測した GameEvent / PlayerRequest から
+    内省（Reflection）を生成するクラス。
+
+    設計方針:
+    - ゲームロジックに影響しない
+    - 副作用を持たない（state を直接変更しない）
+    - LLM が失敗しても None を返すだけ
+    """
+
+    def __init__(self, llm: LLMClient):
+        self.llm = llm
+
+    def generate(
+        self,
+        *,
+        memory: PlayerMemory,
+        observed: Observed,
+    ) -> Optional[Reflection]:
+        """
+        内省を1件生成する。
+
+        失敗した場合は None を返す。
+        """
+        prompt = self._build_prompt(memory, observed)
+
+        print(prompt)
+
+        try:
+            raw = self.llm.generate(
+                system=REFLECTION_SYSTEM_PROMPT,
+                prompt=prompt,
+            )
+
+            data = json.loads(raw)
+
+            # 最小限の構造チェック
+            if not isinstance(data, dict):
+                return None
+
+            if "kind" not in data or "text" not in data:
+                return None
+
+            return {
+                "kind": data["kind"],
+                "text": data["text"],
+            }
+
+        except Exception:
+            # LLM / JSON が壊れてもゲームは止めない
+            return None
+
+    def _build_prompt(
+        self,
+        memory: PlayerMemory,
+        observed: Observed,
+    ) -> str:
+        """
+        内省用の user prompt を構築する。
+
+        ここでは:
+        - 新しいイベント
+        - 現在の役職確率
+        - 直近の内省
+        だけを渡す
+        """
+        observed_type = observed.__class__.__name__
+
+        role_beliefs_text = "\n".join(
+            f"- {player}: {belief.probs}"
+            for player, belief in memory.role_beliefs.items()
+        )
+
+        recent_history = memory.history[-3:]
+
+        return f"""
+You are {memory.self_name}.
+Your role is {memory.self_role}.
+
+New observation you perceived:
+Type: {observed_type}
+Details:
+{observed.model_dump()}
+
+Current role beliefs:
+{role_beliefs_text}
+
+Recent reflections:
+{recent_history}
+
+Write a new reflection in JSON.
+"""
+
+
+# --- グローバルに1つだけ ---
+reflection_generator = ReflectionGenerator(llm=create_reflection_llm())

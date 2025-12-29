@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field, model_validator
 
 from src.core.types.roles import RoleName
 from src.core.types.events import GameEvent, PlayerRequest, PlayerRequestType
+from src.core.memory import Reflection
 
 __all__ = [
     "PlayerName",
@@ -118,7 +119,7 @@ class PlayerMemory(BaseModel):
     - 不確実性を含んだ信念表現が可能になる
     """
 
-    history: List[dict]
+    history: List[Reflection] = Field(default_factory=list)
     # 観測・推論・内省の履歴ログ
     # - 基本的には GameEvent 相当の dict（発言・投票結果など）
     # - 将来的に自己思考や推論ログも混在する想定

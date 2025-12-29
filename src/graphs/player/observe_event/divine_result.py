@@ -1,5 +1,5 @@
 from src.core.types import PlayerState, RoleName, PlayerName, RoleProb
-
+from src.game.reflection.generator import reflection_generator
 
 def handle_divine_result(state: PlayerState) -> PlayerState:
     """
@@ -41,16 +41,21 @@ def handle_divine_result(state: PlayerState) -> PlayerState:
     memory.observed_events.append(event)
 
     # -------------------------
-    # 3. 履歴ログ（説明可能性・デバッグ用）
+    # 3. 内省（LLM）
     # -------------------------
-    memory.history.append(
-        {
-            "type": "divine_result",
-            "target": target,
-            "revealed_role": revealed_role,
-            "note": "role probability collapsed to certainty",
-        }
+    reflection = reflection_generator.generate(
+        memory=memory,
+        observed=event,
     )
+
+    print(reflection)
+
+    # -------------------------
+    # 4. ログ（軽量・決定論）
+    # -------------------------
+
+    if reflection is not None:
+        memory.history.append(reflection)
 
     # 行動はしない
     state["output"] = None
