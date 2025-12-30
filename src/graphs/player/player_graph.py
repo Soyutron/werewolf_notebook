@@ -63,6 +63,7 @@ def build_player_graph():
     graph.add_edge("gm_comment", END)
     graph.add_edge("speak", END)
     graph.add_edge("reaction", END)
+    graph.add_edge("reflection", END)
 
     # START から phase に応じて分岐
     graph.add_conditional_edges(START, phase_router)

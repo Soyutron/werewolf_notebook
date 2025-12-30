@@ -73,25 +73,54 @@ class ReflectionGenerator:
             for player, belief in memory.role_beliefs.items()
         )
 
-        recent_history = memory.history[-3:]
+        recent_history = memory.history[-7:]
 
         return f"""
-You are {memory.self_name}.
-Your role is {memory.self_role}.
+You are {memory.self_name}, a participant in a Werewolf-style game.
+It is now your turn to speak publicly.
 
-New observation you perceived:
+Recent observation:
 Type: {observed_type}
 Details:
 {observed.model_dump()}
 
-Current role beliefs:
+Your private role beliefs about other players
+(STRICTLY PRIVATE - do not reveal directly or numerically):
 {role_beliefs_text}
 
 Recent reflections:
 {recent_history}
 
-Write a new reflection in JSON.
+Before speaking, carefully consider the following:
+
+1. How will other players interpret your words?
+   - Will you sound trustworthy, suspicious, passive, or assertive?
+
+2. Is this a moment where revealing information or hinting at your role
+   would increase trust — or would it expose you too early?
+
+3. Would it be better to:
+   - Ask a question?
+   - Apply gentle pressure to someone?
+   - Express doubt or uncertainty?
+   - Align with a majority opinion?
+   - Or deliberately stay vague?
+
+4. Think not only about THIS turn,
+   but how this statement will affect future discussions.
+
+Rules for your statement:
+- Speak as a human would in a real discussion.
+- You may lie, omit, soften, or emphasize selectively.
+- Do NOT mention probabilities, numbers, or internal data.
+- Do NOT quote system messages or reflections.
+- Length may be long if necessary, but stay conversational.
+- Do NOT explain your reasoning explicitly.
+
+Generate ONE public statement now.
+Output JSON only.
 """
+
 
 
 # --- グローバルに1つだけ ---
