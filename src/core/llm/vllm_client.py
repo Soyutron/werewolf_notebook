@@ -1,7 +1,5 @@
 from typing import TypeVar, Generic, Type
 from pydantic import BaseModel
-import json
-
 from langchain_openai import ChatOpenAI
 
 T = TypeVar("T", bound=BaseModel)
@@ -39,43 +37,34 @@ class VLLMLangChainClient(Generic[T]):
             base_url=base_url,
             api_key=api_key,
             temperature=0.3,
-            model_kwargs={
-                "extra_body": {
-                    "guided_json": self.output_model.model_json_schema()
-                }
-            }
+            # extra_body={
+            #     "guided_json": self.output_model.model_json_schema(),
+            # },
         )
+        # LLM の出力を指定された型（構造化データ）として強制的に構造化するラッパー
+        #
+        # - LLM は JSON 形式で出力することを期待される
+        # - パースに失敗した場合、LangChain 側で例外が発生する
+        # - 呼び出し側では「Reflection が返る」ことを前提にできる
+        self.structured_llm = self.llm.with_structured_output(output_model)
 
     def generate(self, *, system: str, prompt: str) -> T:
         """
         system / prompt を渡し、構造化データを生成する。
         """
 
-        # JSON出力を強制する system prompt を合成
-        schema_json = self.output_model.model_json_schema()
-
-        structured_system = f"""
-{system}
-
-You MUST output valid JSON.
-The JSON MUST conform to the following schema:
-{json.dumps(schema_json, ensure_ascii=False, indent=2)}
-
-Do not include any extra text.
-"""
-
+        # LangChain が期待する message 形式
+        # ("system", "..."), ("human", "...") のタプルで渡す
         messages = [
-            ("system", structured_system),
+            ("system", system),
             ("human", prompt),
         ]
 
-        result = self.llm.invoke(messages)
+        # 構造化 LLM を実行
+        # - LLM 呼び出し
+        # - JSON 出力
+        # - 指定された型へのパース
+        # をまとめて行う
+        result = self.structured_llm.invoke(messages)
 
-        # vLLM は text として返るので自前パース
-        try:
-            data = json.loads(result.content)
-            return self.output_model.model_validate(data)
-        except Exception as e:
-            raise ValueError(
-                f"Failed to parse structured output: {result.content}"
-            ) from e
+        return result

@@ -9,6 +9,13 @@ rm -rf ~/.config/Antigravity/Service\ Worker
 rm -rf ~/.config/Antigravity/Cache
 rm -rf ~/.config/Antigravity/CachedData
 
+
+vllm serve google/gemma-3-12b-it \
+  --dtype bfloat16 \
+  --max-model-len 8192 \
+  --gpu-memory-utilization 0.9
+
+
 🧠 プレイヤー側（主観・認知）
 
 PlayerMemory

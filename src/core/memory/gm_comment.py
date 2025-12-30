@@ -1,9 +1,9 @@
 # src/core/memory/gm_comment.py
-from typing import TypedDict
+from pydantic import BaseModel
 from src.core.types import PlayerName
 
 
-class GMComment(TypedDict):
+class GMComment(BaseModel):
     """
     GM が生成する公開コメント。
 

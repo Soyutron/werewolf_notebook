@@ -10,6 +10,7 @@ LLM クライアント生成に関する設定モジュール。
 """
 
 from src.core.llm.langchain import LangChainClient
+from src.core.llm.vllm_client import VLLMLangChainClient
 from src.core.llm.dummy import DummyLLMClient
 from src.core.llm.client import LLMClient
 from src.core.memory.reflection import Reflection
@@ -26,6 +27,7 @@ from src.core.memory.gm_comment import GMComment
 # False の場合:
 #   - 実際のローカル / 外部 LLM を使用する
 USE_DUMMY = False
+USE_VLLM = True
 
 
 # =========================================================
@@ -48,6 +50,13 @@ def create_reflection_llm() -> LLMClient[Reflection]:
         # テスト・デバッグ用
         # 内省ロジックの流れだけを確認したい場合に使用
         return DummyLLMClient()
+
+    if USE_VLLM:
+        # 実運用用
+        # gemma3:12b は推論能力が高く、内省用途に向いている
+        return VLLMLangChainClient(
+            model="google/gemma-3-12b-it", output_model=Reflection
+        )
 
     # 実運用用
     # gemma3:12b は推論能力が高く、内省用途に向いている
@@ -74,6 +83,11 @@ def create_reaction_llm() -> LLMClient[Reaction]:
         # テスト・デバッグ用
         return DummyLLMClient()
 
+    if USE_VLLM:
+        # 実運用用
+        # gemma3:12b は推論能力が高く、内省用途に向いている
+        return VLLMLangChainClient(model="google/gemma-3-12b-it", output_model=Reaction)
+
     # 実運用用
     # gemma3:1b は軽量で応答が速く、リアクション用途に最適
     return LangChainClient(model="gemma3:1b", output_model=Reaction)
@@ -88,6 +102,13 @@ def create_gm_comment_llm() -> LLMClient[GMComment]:
     if USE_DUMMY:
         # テスト・デバッグ用
         return DummyLLMClient()
+
+    if USE_VLLM:
+        # 実運用用
+        # gemma3:12b は推論能力が高く、内省用途に向いている
+        return VLLMLangChainClient(
+            model="google/gemma-3-12b-it", output_model=GMComment
+        )
 
     # 実運用用
     # gemma3:12b は推論能力が高く、内省用途に向いている
