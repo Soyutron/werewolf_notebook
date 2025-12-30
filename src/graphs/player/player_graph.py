@@ -10,6 +10,7 @@ from src.graphs.player.node.reflection_node import reflection_node
 from src.graphs.player.node.reaction_node import reaction_node
 from src.graphs.player.phase_router import phase_router
 from src.graphs.player.handle_request.speak import handle_speak
+from src.graphs.player.post_reflection_action_router import post_reflection_action_router
 
 
 class PlayerGraph(Protocol):
@@ -61,11 +62,11 @@ def build_player_graph():
     graph.add_edge("divine_result", "reflection")
     graph.add_edge("gm_comment", END)
     graph.add_edge("speak", END)
-    graph.add_edge("reflection", END)
     graph.add_edge("reaction", END)
 
     # START から phase に応じて分岐
     graph.add_conditional_edges(START, phase_router)
+    graph.add_conditional_edges("reflection", post_reflection_action_router)
 
     return graph.compile()
 

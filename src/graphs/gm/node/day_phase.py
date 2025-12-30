@@ -53,8 +53,8 @@ def day_phase_node(state: GMGraphState) -> GMGraphState:
         public_events=public_events,
         players=players,
     )
-    speaker = gm_comment["speaker"]
-    text = gm_comment["text"]
+    speaker = gm_comment.speaker
+    text = gm_comment.text
     internal.discussion_turn += 1
 
     # ★ GMコメント（全員に公開）

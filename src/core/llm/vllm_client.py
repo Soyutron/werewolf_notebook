@@ -36,7 +36,7 @@ class VLLMLangChainClient(Generic[T]):
             model=model,
             base_url=base_url,
             api_key=api_key,
-            temperature=0.3,
+            temperature=0.5,
             # extra_body={
             #     "guided_json": self.output_model.model_json_schema(),
             # },

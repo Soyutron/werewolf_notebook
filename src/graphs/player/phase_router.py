@@ -30,7 +30,7 @@ def phase_router(state: PlayerState) -> str:
             return "use_ability"
 
         if player_input.request.request_type == "speak":
-            return "speak"
+            return "reflection"
 
     # -------------------------
     # どれにも当てはまらないのは設計ミス
