@@ -9,7 +9,7 @@ LLM クライアント生成に関する設定モジュール。
 - テストやデバッグ時に DummyLLM へ一括切り替えできるようにする
 """
 
-from src.core.llm.langchain import LangChainClient
+from src.core.llm.ollama_client import OllamaLangChainClient
 from src.core.llm.vllm_client import VLLMLangChainClient
 from src.core.llm.dummy import DummyLLMClient
 from src.core.llm.client import LLMClient
@@ -61,7 +61,7 @@ def create_reflection_llm() -> LLMClient[Reflection]:
 
     # 実運用用
     # gemma3:12b は推論能力が高く、内省用途に向いている
-    return LangChainClient(model="gemma3:1b", output_model=Reflection)
+    return OllamaLangChainClient(model="gemma3:1b", output_model=Reflection)
 
 
 # =========================================================
@@ -91,7 +91,7 @@ def create_reaction_llm() -> LLMClient[Reaction]:
 
     # 実運用用
     # gemma3:1b は軽量で応答が速く、リアクション用途に最適
-    return LangChainClient(model="gemma3:1b", output_model=Reaction)
+    return OllamaLangChainClient(model="gemma3:1b", output_model=Reaction)
 
 
 def create_gm_comment_llm() -> LLMClient[GMComment]:
@@ -113,7 +113,7 @@ def create_gm_comment_llm() -> LLMClient[GMComment]:
 
     # 実運用用
     # gemma3:12b は推論能力が高く、内省用途に向いている
-    return LangChainClient(model="gemma3:12b", output_model=GMComment)
+    return OllamaLangChainClient(model="gemma3:12b", output_model=GMComment)
 
 def create_speak_llm() -> LLMClient[Speak]:
     """
@@ -134,4 +134,4 @@ def create_speak_llm() -> LLMClient[Speak]:
 
     # 実運用用
     # gemma3:12b は推論能力が高く、内省用途に向いている
-    return LangChainClient(model="gemma3:12b", output_model=Speak)
+    return OllamaLangChainClient(model="gemma3:12b", output_model=Speak)

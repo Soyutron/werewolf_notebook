@@ -27,7 +27,7 @@ class LLMClient(Protocol[T]):
       （ストリーミング・トークン列・メタ情報は扱わない）
 
     想定する実装例:
-    - LangChainClient（Ollama / OpenAI / vLLM 等のラッパ）
+    - OllamaLangChainClient（Ollama のラッパ）
     - DummyLLMClient（テスト・デバッグ用の固定応答）
     """
 

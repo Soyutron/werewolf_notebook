@@ -5,7 +5,7 @@ from typing import TypeVar, Generic, Type
 T = TypeVar("T", bound=BaseModel)
 
 
-class LangChainClient(Generic[T]):
+class OllamaLangChainClient(Generic[T]):
     """
     LangChain + Ollama を用いた LLMClient の具体実装。
 
@@ -22,7 +22,7 @@ class LangChainClient(Generic[T]):
 
     def __init__(self, model: str, output_model: Type[T]):
         """
-        LangChainClient を初期化する。
+        OllamaLangChainClient を初期化する。
 
         Args:
             model: Ollama で使用するモデル名
