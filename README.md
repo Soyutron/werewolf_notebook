@@ -43,6 +43,8 @@ Phase 5: GMGraph化
 Phase 6: 戦略・推論を賢くする
 Phase 7: UI / 人間参加 / 評価
 
+LLM が「自分なりに考え、迷い、振る舞っているように見える」マルチエージェントゲームを成立させること
+
 game/
  ├─ one_night.py          # ⭐ 起動点（main）
  ├─ setup/
