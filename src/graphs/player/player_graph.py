@@ -10,7 +10,9 @@ from src.graphs.player.node.reflection_node import reflection_node
 from src.graphs.player.node.reaction_node import reaction_node
 from src.graphs.player.phase_router import phase_router
 from src.graphs.player.handle_request.speak import handle_speak
-from src.graphs.player.post_reflection_action_router import post_reflection_action_router
+from src.graphs.player.post_reflection_action_router import (
+    post_reflection_action_router,
+)
 
 
 class PlayerGraph(Protocol):

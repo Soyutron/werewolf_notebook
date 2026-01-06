@@ -44,7 +44,7 @@ class SpeakGenerator:
             )
 
             print(speak)
-            
+
             return speak
 
         except Exception:
@@ -94,6 +94,7 @@ Rules:
 
 Generate a public statement.
 """
+
 
 # --- グローバルに1つだけ ---
 speak_generator = SpeakGenerator(llm=create_speak_llm())

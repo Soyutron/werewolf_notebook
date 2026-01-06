@@ -133,6 +133,12 @@ class ActionResolver:
                 # 占いの真実を取得
                 role = self.assigned_roles[target]
 
+                # 狂人の占いは必ず「村人」に見える
+                if self.assigned_roles[player] == "madman":
+                    visible_role = "villager"
+                else:
+                    visible_role = role
+
                 # 占い結果は「占い師本人だけ」に返す情報
                 session.run_player_turn(
                     player=player,
@@ -141,7 +147,7 @@ class ActionResolver:
                             event_type="divine_result",
                             payload={
                                 "target": target,
-                                "role": role,
+                                "role": visible_role,
                             },
                         )
                     ),

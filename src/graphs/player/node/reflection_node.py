@@ -6,7 +6,7 @@ def reflection_node(state: PlayerState) -> PlayerState:
     event = state["input"].event
     request = state["input"].request
     memory = state["memory"]
-    
+
     print("reflection_node")
 
     if event is not None:

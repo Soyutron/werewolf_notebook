@@ -122,6 +122,5 @@ Output JSON only.
 """
 
 
-
 # --- グローバルに1つだけ ---
 reflection_generator = ReflectionGenerator(llm=create_reflection_llm())

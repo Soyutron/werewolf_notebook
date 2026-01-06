@@ -115,6 +115,7 @@ def create_gm_comment_llm() -> LLMClient[GMComment]:
     # gemma3:12b は推論能力が高く、内省用途に向いている
     return OllamaLangChainClient(model="gemma3:12b", output_model=GMComment)
 
+
 def create_speak_llm() -> LLMClient[Speak]:
     """
     GM が観測した public_event から
@@ -128,9 +129,7 @@ def create_speak_llm() -> LLMClient[Speak]:
     if USE_VLLM:
         # 実運用用
         # gemma3:12b は推論能力が高く、内省用途に向いている
-        return VLLMLangChainClient(
-                model="google/gemma-3-12b-it", output_model=Speak
-            )
+        return VLLMLangChainClient(model="google/gemma-3-12b-it", output_model=Speak)
 
     # 実運用用
     # gemma3:12b は推論能力が高く、内省用途に向いている

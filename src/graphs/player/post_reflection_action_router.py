@@ -1,5 +1,6 @@
 from src.core.types import PlayerState
 
+
 def post_reflection_action_router(state: PlayerState) -> str:
     """
     reflection 後にどの行動に進むかを決める router。

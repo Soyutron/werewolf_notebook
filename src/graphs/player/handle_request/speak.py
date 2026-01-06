@@ -7,7 +7,7 @@ def handle_speak(state: PlayerState) -> PlayerState:
     話すことを受け取り、話す内容を決定するノード。
     """
     print("handle_speak")
-    
+
     request = state["input"].request
     memory = state["memory"]
 
