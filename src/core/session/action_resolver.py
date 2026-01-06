@@ -172,10 +172,18 @@ class ActionResolver:
     ) -> None:
         """
         発言アクションを解釈する。
-        （現時点では未実装のプレースホルダ）
         """
-        # 将来実装予定
-        pass
+        print("output", output)
+        event = GameEvent(
+            event_type="speak",
+            payload={
+                "player": player,
+                "text": output.payload["text"],
+            },
+        )
+        print("_resolve_speak")
+        session.world_state.pending_events.append(event)
+        return
 
     def _resolve_vote(
         self,

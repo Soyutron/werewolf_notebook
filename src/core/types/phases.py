@@ -138,6 +138,9 @@ class WorldState(BaseModel):
     #
     # ※ GM が確定させた「過去の事実」のみを格納する
 
+    pending_events: list[GameEvent] = []
+    # 確定したが、まだ配布されていない公開イベント
+
     result: GameResult | None = None
     # ゲームの最終結果
     #

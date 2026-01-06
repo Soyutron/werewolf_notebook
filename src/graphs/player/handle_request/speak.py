@@ -22,7 +22,9 @@ def handle_speak(state: PlayerState) -> PlayerState:
     # 行動はしない
     state["output"] = PlayerOutput(
         action="speak",
-        payload=None,
+        payload={
+            "text": speak.text,
+        },
     )
     print(state)
     return state

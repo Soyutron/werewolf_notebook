@@ -212,7 +212,7 @@ class PlayerOutput(BaseModel):
     action: PlayerRequestType
     # GM から提示された PlayerRequest に対して、
     # プレイヤー（人間 / AI）が選択した行動の種類
-    payload: AbilityResult | None = None
+    payload: AbilityResult | dict | None = None
     # 行動に付随する具体的な情報
     # action の種類によって内容が変わる
     #

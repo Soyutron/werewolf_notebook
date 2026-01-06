@@ -80,6 +80,20 @@ class Dispatcher:
             session.gm_internal.gm_event_cursor = len(session.world_state.public_events)
 
         # =========================================================
+        # 2. pending_events の配布（Player 行動の内省）
+        # =========================================================
+        if session.world_state.pending_events:
+            for event in session.world_state.pending_events:
+                for player in session.player_states:
+                    session.run_player_turn(
+                        player=player,
+                        input=PlayerInput(event=event),
+                    )
+            # 配布が終わったら「過去の事実」に昇格
+            session.world_state.public_events.extend(session.world_state.pending_events)
+            session.world_state.pending_events.clear()
+
+        # =========================================================
         # 2. request の配布（今ターンの行動要求）
         # =========================================================
         # - 特定のプレイヤーにのみ送られる

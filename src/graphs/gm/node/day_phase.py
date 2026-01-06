@@ -17,6 +17,8 @@ def day_phase_node(state: GMGraphState) -> GMGraphState:
     - 1 step = 1 decision を厳守する
     """
     public_events = state["world_state"].public_events
+    pending_events = state["world_state"].pending_events
+    context = public_events + pending_events
     players = state["world_state"].players
     decision = state["decision"]
     internal = state["internal"]
@@ -50,7 +52,7 @@ def day_phase_node(state: GMGraphState) -> GMGraphState:
     # 次の発言者を指名
     # -------------------------
     gm_comment = gm_comment_generator.generate(
-        public_events=public_events,
+        public_events=context,
         players=players,
     )
     speaker = gm_comment.speaker

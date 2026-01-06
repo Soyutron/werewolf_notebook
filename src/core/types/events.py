@@ -32,7 +32,7 @@ GameEventType = Literal[
     "divine_result",  # 占い結果
     "day_started",  # 昼フェーズ開始
     "gm_comment",  # GMコメント
-    "speech",  # 誰かが発言した（昼フェーズの会話ログ）
+    "speak",  # 誰かが発言した（昼フェーズの会話ログ）
     "vote",  # 投票が行われた（誰が誰に投票したか）
     "reveal",  # 全役職公開（ゲーム終了・勝敗確定）
     "phase_start",  # フェーズ開始
