@@ -240,18 +240,12 @@ class PlayerInternalState(BaseModel):
     """
     PlayerGraph 内でのみ使用される一時的な進行状態。
 
-    戦略生成→レビュー→発言生成→レビューのループで
+    戦略生成→発言生成→レビューのフローで
     中間状態を保持するために使用する。
     """
 
     pending_strategy: Optional[Strategy] = None
     # 生成中の戦略（まだ確定していない）
-
-    last_strategy_review: Optional[StrategyReview] = None
-    # 最後の戦略レビュー結果
-
-    strategy_review_count: int = 0
-    # 戦略レビューの回数（無限ループ防止用）
 
     pending_speak: Optional[Speak] = None
     # 生成中の発言（まだ確定していない）

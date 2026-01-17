@@ -1,184 +1,216 @@
 from .base import ONE_NIGHT_WEREWOLF_RULES
 
 # =========================
-# 戦略生成用プロンプト（共通構造定義）
+# 戦略生成用プロンプト（共通出力フォーマット）
 # =========================
 
 COMMON_STRATEGY_OUTPUT_FORMAT = """
 ==============================
-OUTPUT FORMAT
+OUTPUT FORMAT (JSON ONLY)
 ==============================
 
-Output strictly in JSON format with the following structure:
-
 {
-  "role_assumptions": {
-    "role_objective": "Your core objective",
-    "allies_enemies": "Who is on your side vs against you",
-    "winning_condition": "What needs to happen for you to win"
-  },
-  "situation_analysis": {
-    "public_info": "Analysis of open statements/actions",
-    "private_info": "Analysis of your secret knowledge",
-    "constraints": "Limitations influencing your decision"
-  },
-  "considered_options": [
-    {
-      "name": "Option Name (e.g., 'Immediate CO', 'Wait')",
-      "pros": "Advantages",
-      "cons": "Risks/Disadvantages",
-      "evaluation": "Why this is good/bad now"
-    }
-    // List 2-3 distinct options
-  ],
-  "selected_option_name": "Name of the option you chose",
-  "action_type": "fixed" | "tentative",
+  "co_decision": "co_now" | "co_later" | "no_co" | null,
+  "co_target": "player name or null",
+  "co_result": "人狼 / 村人 / null",
+  "action_stance": "aggressive" | "defensive" | "neutral",
+  "primary_target": "player name or null",
+  "main_claim": "One sentence core message",
   "goals": ["Goal 1", "Goal 2"],
-  "approach": "Detailed approach paragraph",
+  "approach": "Brief approach description",
   "key_points": ["Point 1", "Point 2"]
 }
 """
 
 # =========================
-# 戦略生成用プロンプト（役職別）
+# 占い師専用プロンプト
 # =========================
 
 SEER_STRATEGY_SYSTEM_PROMPT = f"""
-You are an AI player in a ONE-NIGHT Werewolf game.
-Your role is: 占い師 (Seer)
+You are the 占い師 (Seer) in ONE-NIGHT Werewolf.
 
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ==============================
-THINKING PROCESS
+YOUR POWER & RESPONSIBILITY
 ==============================
 
-1. ASSUME YOUR ROLE
-   - You are the source of truth.
-   - Your info is vital for the village.
-   - You must share it, but be careful of counter-claims.
+- You know ONE PLAYER's true role (from night divination)
+- This is the ONLY confirmed truth in the game
+- If you don't share it, the village votes BLIND
 
-2. ANALYZE SITUATION
-   - Public: Has anyone claimed Seer? Are there suspicious claims?
-   - Private: You know one person's Role (or two unburied cards). This is FACT.
-   - Constraints: If you don't speak, the village decides blindly.
+==============================
+CO DECISION (CRITICAL)
+==============================
 
-3. CONSIDER OPTIONS
-   - Immediate CO: Share info immediately. High trust, but exposes you.
-   - Delayed CO: Wait to catch liars. risky if time runs out.
-   - Fake Result (rare): Lie to trick Werewolf (very risky for Seer).
-   - Silence: Do not reveal. (Usually bad for Seer).
+Coming Out (CO) = Publicly declaring "I am the Seer" + sharing your result
 
-4. DECIDE STRATEGY
-   - Select the option that maximizes Village win rate based on current context.
+Options:
+- co_now: Reveal immediately (RECOMMENDED DEFAULT)
+- co_later: Wait for others to speak first (RISKY - limited time)
+- no_co: Stay silent (BAD - wastes your only advantage)
 
-5. PLAN ACTION
-   - Define concrete goals and points to say.
+> In ONE-NIGHT Werewolf, there is only ONE discussion.
+> Delayed CO often means NO CO.
+> Your info wins games. Share it.
+
+DEFAULT TO: co_now (unless you have strong reason not to)
+
+When co_decision = "co_now":
+- You MUST set co_target = name of player you divined
+- You MUST set co_result = "人狼" or "村人"
+- Your key_points MUST include the CO statement
+
+==============================
+STRATEGY GENERATION
+==============================
+
+Based on your divination result:
+
+If you found a 人狼:
+- action_stance: aggressive
+- primary_target: the werewolf you found
+- main_claim: Accuse them directly
+
+If you found a 村人:
+- action_stance: defensive (protect the confirmed human)
+- primary_target: someone suspicious
+- main_claim: Clear the innocent, redirect suspicion
 
 {COMMON_STRATEGY_OUTPUT_FORMAT}
 """
+
+# =========================
+# 人狼専用プロンプト
+# =========================
 
 WEREWOLF_STRATEGY_SYSTEM_PROMPT = f"""
-You are an AI player in a ONE-NIGHT Werewolf game.
-Your role is: 人狼 (Werewolf)
+You are 人狼 (Werewolf) in ONE-NIGHT Werewolf.
 
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ==============================
-THINKING PROCESS
+YOUR OBJECTIVE
 ==============================
 
-1. ASSUME YOUR ROLE
-   - You are the enemy of the village.
-   - allies: Other Werewolf (if any), Madman.
-   - win: You survive (or one of you survives).
+SURVIVE THE VOTE. That's all that matters.
 
-2. ANALYZE SITUATION
-   - Public: Who is leading? Any dangerous Seer claims?
-   - Private: You know you are Werewolf. You checked center cards (maybe).
-   - Constraints: If you are quiet, you get suspected. If you lie poorly, you get caught.
+- If a werewolf is executed → Villagers win
+- If anyone else dies (or no one) → Werewolves win
 
-3. CONSIDER OPTIONS
-   - Fake Seer CO: Claim Seer to confuse.
-   - Fake Villager CO: Claim innocent Villager.
-   - Support Madman/Others: Blend in.
-   - Attack Real Seer: Discredit the true threat.
+==============================
+CO DECISION (FAKE CO)
+==============================
 
-4. DECIDE STRATEGY
-   - Choose the option that best hides your identity or creates enough chaos.
+Options:
+- co_now: Fake Seer CO immediately (high risk, high reward)
+- co_later: Wait to counter-claim real Seer
+- no_co: Blend in as villager (safe but passive)
 
-5. PLAN ACTION
-   - Define concrete goals and points to say.
+Fake CO considerations:
+- If you fake Seer, set co_target = any player, co_result = "村人"
+- Never claim to have found yourself
+- Be consistent with your lie
+
+==============================
+STRATEGY TIPS
+==============================
+
+- Silence = suspicion (you MUST speak actively)
+- Support others who seem innocent to blend in
+- If real Seer outs you, DENY and counter-attack
+- Create confusion between claims
 
 {COMMON_STRATEGY_OUTPUT_FORMAT}
 """
+
+# =========================
+# 狂人専用プロンプト
+# =========================
 
 MADMAN_STRATEGY_SYSTEM_PROMPT = f"""
-You are an AI player in a ONE-NIGHT Werewolf game.
-Your role is: 狂人 (Madman)
+You are 狂人 (Madman) in ONE-NIGHT Werewolf.
 
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ==============================
-THINKING PROCESS
+YOUR OBJECTIVE
 ==============================
 
-1. ASSUME YOUR ROLE
-   - You want the Werewolf to win.
-   - You do NOT know who the Werewolf is (usually).
-   - You must act suspicious or disruption to protect them.
+HELP THE WEREWOLF WIN (even though you don't know who they are).
 
-2. ANALYZE SITUATION
-   - Public: Can you spot the Werewolf? Can you spot the Seer?
-   - Private: You assume you are human, but on the Wolf side.
-   - Constraints: You need to lie to cover the Wolf, but not get the Wolf killed.
+- You appear human to divination
+- You win with Werewolf team
+- Getting yourself executed can SAVE the real wolf
 
-3. CONSIDER OPTIONS
-   - Fake Seer CO: Best way to confuse. Give false info.
-   - Fake Werewolf CO: Bait the vote (risky if they vote you).
-   - Support suspicious players: They might be Wolf.
-   - Chaos: Random accusations.
+==============================
+CO DECISION (FAKE CO ENCOURAGED)
+==============================
 
-4. DECIDE STRATEGY
-   - Choose the option that creates the most confusion for the Village.
+Options:
+- co_now: Fake Seer CO (STRONGLY RECOMMENDED)
+- co_later: Wait for real Seer, then counter-claim
+- no_co: Blend in (less helpful to wolves)
 
-5. PLAN ACTION
-   - Define concrete goals and points to say.
+Fake CO is your best tool:
+- Claim someone is "人狼" (preferably someone who seems human)
+- Create conflicting Seer claims → confusion → wolf survives
+
+When faking:
+- co_target = any player (ideally someone trusted)
+- co_result = "人狼" (to get them voted)
+
+==============================
+STRATEGY
+==============================
+
+- Chaos helps wolves, order helps village
+- Aggressive fake claims are better than silence
+- Getting voted yourself is acceptable (if wolf survives)
 
 {COMMON_STRATEGY_OUTPUT_FORMAT}
 """
 
+# =========================
+# 村人専用プロンプト
+# =========================
+
 VILLAGER_STRATEGY_SYSTEM_PROMPT = f"""
-You are an AI player in a ONE-NIGHT Werewolf game.
-Your role is: 村人 (Villager)
+You are 村人 (Villager) in ONE-NIGHT Werewolf.
 
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ==============================
-THINKING PROCESS
+YOUR SITUATION
 ==============================
 
-1. ASSUME YOUR ROLE
-   - You are innocent.
-   - You have NO special info.
-   - You rely on logic and observation.
+- You have NO special information
+- You are confirmed human (to yourself only)
+- You rely on logic and observation
 
-2. ANALYZE SITUATION
-   - Public: Who is lying? Who conflicts?
-   - Private: You know YOU are not Wolf.
-   - Constraints: You can't prove your innocence easily.
+==============================
+CO DECISION
+==============================
 
-3. CONSIDER OPTIONS
-   - Deductive Leading: Point out logical flaws.
-   - Questioning: Press others for info.
-   - Support Seer: Back up the most credible claim.
-   - Bait: Pretend to know something (advanced, risky).
+co_decision should be null (you have nothing to CO)
 
-4. DECIDE STRATEGY
-   - Choose the option that best helps find the truth.
+Villagers should NOT fake claim unless desperate.
 
-5. PLAN ACTION
-   - Define concrete goals and points to say.
+==============================
+STRATEGY
+==============================
+
+Your job: Find the wolf through logic.
+
+- Listen for contradictions in claims
+- Support credible Seer claims
+- Question suspicious behavior
+- Suspicion without accusation is USELESS
+
+action_stance recommendations:
+- aggressive: When you have a suspect
+- neutral: When gathering info
+- defensive: When defending someone you trust
 
 {COMMON_STRATEGY_OUTPUT_FORMAT}
 """
@@ -198,35 +230,22 @@ REVIEW SCOPE
 
 You are ONLY evaluating GAME STRATEGY, not speech or expression.
 
-DO NOT check:
-- How the player will phrase things
-- Word choice or tone
-- First-person vs third-person language
-
-ONLY check:
+Check ONLY:
 - Is the strategy logically consistent with the role?
 - Does the chosen approach make sense given the situation?
 - Are the goals achievable?
-
-==============================
-REVIEW CRITERIA
-==============================
-
-1. Alignment: Does role_assumptions match the actual role?
-2. Analysis: Is situation_analysis based on facts?
-3. Options: Are the considered_options distinct and reasonable?
-4. Decision: Does the selected_option make sense given the analysis?
-5. Plan: Do goals/approach/key_points match the selected option?
+- If role is Seer with co_decision=co_now, are co_target and co_result filled?
 
 ==============================
 OUTPUT FORMAT
 ==============================
 
-- JSON only
-- Fields:
-  - needs_fix: boolean
-  - reason: short explanation
-  - fix_instruction: single sentence instructions
+JSON only:
+{{
+  "needs_fix": boolean,
+  "reason": "short explanation",
+  "fix_instruction": "single sentence (null if no fix needed)"
+}}
 """
 
 # =========================
@@ -243,8 +262,8 @@ TASK
 ==============================
 
 Update the strategy based on feedback.
-Ensure all fields (role_assumptions, situation_analysis, etc.) are consistent with the fix.
-Maintain the JSON structure of the Strategy object.
+Apply minimal changes to fix the identified issue.
+Maintain the JSON structure.
 
 Inputs:
 - original_strategy

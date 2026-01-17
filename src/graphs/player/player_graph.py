@@ -53,8 +53,6 @@ def build_player_graph():
     # Lazy imports to avoid circular import chain
     # (player_graph -> nodes -> game components -> core.__init__ -> session -> controller -> player_graph)
     from src.graphs.player.node.strategy_generate import strategy_generate_node
-    from src.graphs.player.node.strategy_review_router import strategy_review_router_node
-    from src.graphs.player.node.strategy_refine import strategy_refine_node
     from src.graphs.player.node.speak_generate import speak_generate_node
     from src.graphs.player.node.speak_review_router import speak_review_router_node
     from src.graphs.player.node.speak_refine import speak_refine_node
@@ -74,9 +72,8 @@ def build_player_graph():
     graph.add_node("reflection", reflection_node)
     graph.add_node("reaction", reaction_node)
 
-    # === 新しい戦略→発言フローのノード ===
+    # === 戦略→発言フローのノード ===
     graph.add_node("strategy_generate", strategy_generate_node)
-    graph.add_node("strategy_refine", strategy_refine_node)
     graph.add_node("speak_generate", speak_generate_node)
     graph.add_node("speak_refine", speak_refine_node)
     graph.add_node("speak_commit", speak_commit_node)
@@ -94,25 +91,8 @@ def build_player_graph():
     graph.add_edge("vote", END)
 
     # === 戦略→発言フローのエッジ ===
-    # strategy_generate → strategy_review_router
-    graph.add_conditional_edges(
-        "strategy_generate",
-        strategy_review_router_node,
-        {
-            "commit": "speak_generate",  # 戦略確定 → 発言生成へ
-            "refine": "strategy_refine",  # 戦略修正
-        },
-    )
-
-    # strategy_refine → strategy_review_router（ループ）
-    graph.add_conditional_edges(
-        "strategy_refine",
-        strategy_review_router_node,
-        {
-            "commit": "speak_generate",
-            "refine": "strategy_refine",
-        },
-    )
+    # strategy_generate → speak_generate（直接接続、レビューループ削除）
+    graph.add_edge("strategy_generate", "speak_generate")
 
     # speak_generate → speak_review_router
     graph.add_conditional_edges(

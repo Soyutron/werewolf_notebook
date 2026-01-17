@@ -65,6 +65,7 @@ class SpeakGenerator:
         発言生成用の user prompt を構築する。
 
         戦略が与えられた場合は、戦略のコンテキストをプロンプトに含める。
+        co_decision が co_now の場合は CO を強制する。
         """
         observed_type = observed.__class__.__name__
 
@@ -73,23 +74,44 @@ class SpeakGenerator:
             for player, belief in memory.role_beliefs.items()
         )
 
-        recent_reflections_list = memory.history[-15:]
-        # Reverse to show newest first
+        recent_reflections_list = memory.history[-10:]
         recent_reflections = "\n".join(
             str(r) for r in reversed(recent_reflections_list)
         )
 
         # 戦略コンテキストの構築
+        strategy_section = ""
+        co_enforcement_section = ""
+        
         if strategy is not None:
+            # CO強制セクション（co_now の場合）
+            if strategy.co_decision == "co_now":
+                co_enforcement_section = f"""
+==============================
+MANDATORY CO (YOU MUST DO THIS)
+==============================
+
+Your strategy requires you to CO (Come Out) NOW.
+
+Your speech MUST include ALL of the following:
+1. 「私は占い師です」or equivalent CO statement
+2. Target: {strategy.co_target}
+3. Result: {strategy.co_result}
+
+Example format:
+「私は占い師です。{strategy.co_target}さんを占いました。結果は{strategy.co_result}でした。」
+
+DO NOT skip the CO. DO NOT hint. STATE IT CLEARLY.
+"""
+            
             strategy_section = f"""
 ==============================
-STRATEGY TO FOLLOW (CRITICAL)
+STRATEGY TO FOLLOW
 ==============================
 
-You have already decided on a strategy. Your speech MUST align with this strategy.
-
-Selected Strategy: {strategy.selected_option_name}
-Action Type: {strategy.action_type}
+Action Stance: {strategy.action_stance}
+Main Claim: {strategy.main_claim}
+Primary Target: {strategy.primary_target or "(none)"}
 
 Goals:
 {chr(10).join(f"- {goal}" for goal in strategy.goals)}
@@ -97,53 +119,37 @@ Goals:
 Approach:
 {strategy.approach}
 
-Key Points (MUST be reflected in your speech):
+Key Points:
 {chr(10).join(f"- {point}" for point in strategy.key_points)}
-
-IMPORTANT: Your speech must follow the above strategy exactly.
-Do NOT contradict the key points.
-Do NOT take actions that conflict with the approach.
 """
-        else:
-            strategy_section = ""
 
-        # 自己言及禁止のガード（最上位に配置）
+        # 自己言及禁止のガード
         self_name = memory.self_name
         anti_self_ref_section = f"""
 ==============================
-CRITICAL: YOU ARE {self_name}
+YOU ARE {self_name}
 ==============================
 
-- You are speaking as {self_name}
 - Use first-person (私/俺/僕)
 - NEVER say "{self_name}さん" or refer to yourself in third person
-- This is YOUR OWN statement
 """
 
         return f"""
 {anti_self_ref_section}
-
-You are speaking publicly in a Werewolf-style game.
+{co_enforcement_section}
 {strategy_section}
+
 Recent observation:
 Type: {observed_type}
-Details:
-{observed.model_dump()}
+Details: {observed.model_dump()}
 
-Your current beliefs (private, do not reveal directly):
+Your beliefs (private):
 {role_beliefs_text}
 
-Your recent internal reflections:
+Recent thoughts:
 {recent_reflections}
 
-Rules:
-- Speak naturally, as a human player.
-- Do NOT reveal your exact role unless forced.
-- If a strategy is provided above, your speech MUST follow it exactly.
-- Do NOT mention probabilities or internal state.
-- Output JSON only.
-
-Generate a public statement.
+Generate a public statement. Output JSON only.
 """
 
 

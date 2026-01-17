@@ -73,7 +73,7 @@ class StrategyGenerator:
             for player, belief in memory.role_beliefs.items()
         )
 
-        recent_history = memory.history[-15:]
+        recent_history = memory.history[-10:]
         history_text = "\n".join(
             f"- [{h.kind}] {h.text if hasattr(h, 'text') else str(h)}"
             for h in reversed(recent_history)
@@ -81,15 +81,35 @@ class StrategyGenerator:
 
         observed_events_text = "\n".join(
             f"- {e.event_type}: {e.payload}"
-            for e in reversed(memory.observed_events[-15:])
+            for e in reversed(memory.observed_events[-10:])
         )
+
+        # 占い師の場合、占い結果を明示的に抽出
+        divine_result_section = ""
+        if memory.self_role == "seer":
+            for event in memory.observed_events:
+                if event.event_type == "divine_result":
+                    divine_result_section = f"""
+==============================
+YOUR DIVINATION RESULT (CRITICAL)
+==============================
+
+You divined: {event.payload.get('target', 'unknown')}
+Result: {event.payload.get('result', 'unknown')}
+
+This is CONFIRMED TRUTH. Use it in your strategy.
+If you decide to CO (co_decision = "co_now"), set:
+- co_target = "{event.payload.get('target', '')}"
+- co_result = "{event.payload.get('result', '')}"
+"""
+                    break
 
         return f"""
 You are {memory.self_name}.
 Your role is: {memory.self_role}
 
 Players in this game: {', '.join(memory.players)}
-
+{divine_result_section}
 Recent game events:
 {observed_events_text if observed_events_text else "(none yet)"}
 
@@ -99,7 +119,7 @@ Your current beliefs about other players:
 Your recent internal thoughts:
 {history_text if history_text else "(none yet)"}
 
-Based on this situation, generate a strategy for your next public statement.
+Generate a strategy for your next public statement.
 Output JSON only.
 """
 
