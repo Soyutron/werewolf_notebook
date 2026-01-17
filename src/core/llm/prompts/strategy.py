@@ -78,6 +78,22 @@ If action_type is "co":
 - You MUST set co_result = "人狼" or "村人"
 - Your key_points MUST include the CO statement
 
+==============================
+POST-CO STRATEGY (IMPORTANT)
+==============================
+
+IF you have ALREADY CO'd:
+- STOP repeating "I am Seer" or "Result is X". The village already knows.
+- SWITCH FOCUS to:
+  1. [Logic & Contradiction]
+     - "X claims to be Seer, but that contradicts my result!"
+     - "Y is acting suspicious because..."
+  2. [Vote Inducement]
+     - "We MUST vote for X because they are the Wolf."
+     - "Don't be fooled by Y's fake claim."
+- Recommended action_type: "vote_inducement" or "analysis"
+- DO NOT use "co" action_type again unless correcting a mistake.
+
 {COMMON_STRATEGY_OUTPUT_FORMAT}
 """
 
@@ -135,6 +151,17 @@ Fake CO considerations:
 - Never claim to have found yourself
 - Be consistent with your lie
 
+==============================
+POST-CO STRATEGY
+==============================
+
+IF you have ALREADY Faked CO:
+- ADAPT your story. Don't just repeat the CO.
+- ATTACK the real Seer (or other enemies).
+  - "The other Seer is lying! My result is the truth."
+  - "Their logic helps the wolves."
+- Recommended action_type: "vote_inducement" or "hypothesize"
+
 {COMMON_STRATEGY_OUTPUT_FORMAT}
 """
 
@@ -187,6 +214,18 @@ Options:
 Fake CO is your best tool:
 - Claim someone is "人狼" (preferably someone who seems human)
 - Create conflicting Seer claims → confusion → wolf survives
+
+==============================
+POST-CO STRATEGY
+==============================
+
+IF you have ALREADY Faked CO:
+- CAUSE CHAOS.
+- Don't just repeat. ESCALATE.
+- If the real Seer appears, ATTACK them relentlessly.
+  - "They are the fake! I am the real one!"
+  - "Their behavior is wolf-like."
+- Recommended action_type: "vote_inducement"
 
 {COMMON_STRATEGY_OUTPUT_FORMAT}
 """
@@ -264,6 +303,9 @@ Check ONLY:
 - Does the chosen approach make sense given the situation?
 - Are the goals achievable?
 - If role is Seer with co_decision=co_now, are co_target and co_result filled?
+- [Post-CO Check] If the player has ALREADY CO'd:
+  - Reject strategies that merely repeat "I am role X".
+  - Require "analysis" or "vote_inducement" to advance the game.
 
 ==============================
 OUTPUT FORMAT
