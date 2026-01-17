@@ -24,12 +24,12 @@ def speak_generate_node(state: PlayerState) -> PlayerState:
         print("[speak_generate_node] No request found, skipping")
         return state
 
-    # 戦略があれば発言生成に渡す（将来拡張用）
-    # 現時点では speak_generator は strategy を直接受け取らないため、
-    # observed として request を渡す
+    # 戦略を発言生成に渡す
+    # 戦略がない場合も動作するようにOptionalとして渡す
     speak = speak_generator.generate(
         memory=memory,
         observed=request,
+        strategy=internal.pending_strategy,
     )
 
     if speak is None:
@@ -39,4 +39,5 @@ def speak_generate_node(state: PlayerState) -> PlayerState:
     internal.pending_speak = speak
 
     return state
+
 

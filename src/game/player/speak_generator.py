@@ -4,6 +4,7 @@ from typing import Optional, Union
 from src.core.llm.client import LLMClient
 from src.core.llm.prompts import SPEAK_SYSTEM_PROMPT
 from src.core.memory.speak import Speak
+from src.core.memory.strategy import Strategy
 from src.core.types import PlayerMemory, GameEvent, PlayerRequest
 from src.config.llm import create_speak_llm
 
@@ -17,6 +18,7 @@ class SpeakGenerator:
 
     設計方針:
     - 発言内容のみを生成する（state は変更しない）
+    - 戦略（Strategy）が与えられた場合は、戦略に従った発言を生成する
     - 内省（Reflection）とは責務を分離
     - LLM が失敗しても None を返す
     """
@@ -29,13 +31,15 @@ class SpeakGenerator:
         *,
         memory: PlayerMemory,
         observed: Observed,
+        strategy: Optional[Strategy] = None,
     ) -> Optional[Speak]:
         """
         発言を1件生成する。
 
+        strategy が与えられた場合は、戦略に従った発言を生成する。
         失敗した場合は None を返す。
         """
-        prompt = self._build_prompt(memory, observed)
+        prompt = self._build_prompt(memory, observed, strategy)
 
         try:
             speak: Speak = self.llm.generate(
@@ -55,11 +59,12 @@ class SpeakGenerator:
         self,
         memory: PlayerMemory,
         observed: Observed,
+        strategy: Optional[Strategy] = None,
     ) -> str:
         """
         発言生成用の user prompt を構築する。
 
-        Reflection よりも「外向き」情報に限定する。
+        戦略が与えられた場合は、戦略のコンテキストをプロンプトに含める。
         """
         observed_type = observed.__class__.__name__
 
@@ -74,10 +79,38 @@ class SpeakGenerator:
             str(r) for r in reversed(recent_reflections_list)
         )
 
+        # 戦略コンテキストの構築
+        if strategy is not None:
+            strategy_section = f"""
+==============================
+STRATEGY TO FOLLOW (CRITICAL)
+==============================
+
+You have already decided on a strategy. Your speech MUST align with this strategy.
+
+Selected Strategy: {strategy.selected_option_name}
+Action Type: {strategy.action_type}
+
+Goals:
+{chr(10).join(f"- {goal}" for goal in strategy.goals)}
+
+Approach:
+{strategy.approach}
+
+Key Points (MUST be reflected in your speech):
+{chr(10).join(f"- {point}" for point in strategy.key_points)}
+
+IMPORTANT: Your speech must follow the above strategy exactly.
+Do NOT contradict the key points.
+Do NOT take actions that conflict with the approach.
+"""
+        else:
+            strategy_section = ""
+
         return f"""
 You are {memory.self_name}.
 You are speaking publicly in a Werewolf-style game.
-
+{strategy_section}
 Recent observation:
 Type: {observed_type}
 Details:
@@ -92,7 +125,7 @@ Your recent internal reflections:
 Rules:
 - Speak naturally, as a human player.
 - Do NOT reveal your exact role unless forced.
-- Provide a moderately detailed reflection, allowing enough length to explore reasoning, doubts, and strategy, but keep it to a short paragraph.
+- If a strategy is provided above, your speech MUST follow it exactly.
 - Do NOT mention probabilities or internal state.
 - Output JSON only.
 
