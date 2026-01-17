@@ -65,9 +65,10 @@ SPEAKER IDENTITY CHECK
 The speaker is: {self_name}
 
 Check for SELF-REFERENCE violations:
-- Does the speech contain "{self_name}さん" or "{self_name}は"?
+- Does the speech contain "{self_name}さん" or "{self_name}は"? (Your OWN name)
 - Does the speech refer to the speaker in third person?
 - If YES to any, this is INVALID and needs_fix = true
+- NOTE: Using OTHER players' names is CORRECT and NOT a violation.
 
 Check for AMBIGUOUS PRONOUNS:
 - Does the speech use "彼", "彼女", "あの人", "そいつ"?

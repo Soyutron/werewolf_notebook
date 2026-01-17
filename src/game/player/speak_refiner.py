@@ -62,6 +62,7 @@ class SpeakRefiner:
         """
         # 自己言及禁止のガード（最上位に配置）
         self_name = memory.self_name
+        valid_partners = [p for p in memory.players if p != self_name]
         
         return f"""
 ==============================
@@ -75,6 +76,7 @@ CRITICAL: YOU ARE {self_name}
 
 Player: {self_name}
 Role: {memory.self_role}
+Valid Partners: {valid_partners}
 
 Strategy to follow:
 - Goals: {strategy.goals}

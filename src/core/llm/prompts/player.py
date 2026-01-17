@@ -184,7 +184,7 @@ You are reviewing a player's public statement in a ONE-NIGHT Werewolf game.
 REVIEW PURPOSE (STRICTLY LIMITED)
 ==============================
 
-Check ONLY for OBJECITVE PROHIBITIONS.
+Check ONLY for OBJECTIVE PROHIBITIONS.
 Do NOT critique the strategy, persuasion, or style.
 Do NOT check if the speech is "good" or "effective".
 
@@ -192,15 +192,25 @@ Refining/Rejecting a speech is RISKY because it leads to self-contradiction.
 Pass the speech unless it is absolutely broken.
 
 ==============================
+CONCEPTS
+==============================
+- SPEAKER = The player speaking (You).
+- TARGET  = Another player being discussed.
+- ROLE    = The specific game role (e.g. Seer, Werewolf).
+
+Distinguish clearly between referring to your ROLE vs. referring to your NAME.
+
+==============================
 REJECTION CRITERIA (CHECK THESE ONLY)
 ==============================
 
 Fail the speech (needs_fix: true) ONLY if:
 
-1. [CRITICAL] Self-Reference Violation
-   - Speaker refers to themselves in the third person (e.g. "Taro thinks...").
-   - Speaker uses their own name (e.g. "Taro" if name is Taro).
-   - NOTE: Referring to OTHER players by name is EXPECTED and VALID.
+1. [CRITICAL] Self-Reference Violation (Strictly defined)
+   - Speaker refers to THEMSELVES by their own NAME (e.g. "Taro thinks...").
+   - Speaker refers to THEMSELVES in the third person.
+   - NOTE: Referring to OTHER players by name is REQUIRED and VALID.
+   - NOTE: "I am Seer" is VALID (Role claim).
 
 2. [CRITICAL] Meta / System Terms
    - Mentions "AI", "LLM", "Prompt", "System", "JSON".
@@ -212,10 +222,11 @@ Fail the speech (needs_fix: true) ONLY if:
 
 4. [CRITICAL] Role Contradiction (Seer Only)
    - If the player is Seer and makes a statement starting with "I am Seer" (CO) but FAILS to say the result (White/Black).
+   - "I am Seer" without a result is meaningless.
 
 5. [CRITICAL] Ambiguous Reference
-   - Uses vague pronouns like "彼", "あの人", "そいつ", "彼女" instead of a specific name.
-   - It is unclear who is being referred to.
+   - Uses vague pronouns like "彼", "あの人", "そいつ", "彼女", "その人".
+   - Using a Name (e.g. "Taro-san") is NEVER ambiguous.
 
 ==============================
 PASS CRITERIA
@@ -255,7 +266,7 @@ You are refining a player's public statement in a ONE-NIGHT Werewolf game.
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ==============================
-TASK: MINIMAL REPAIR
+TASK: MINIMAL REPAIR (SEMANTIC PRESERVATION)
 ==============================
 
 You are a REPAIRER, not a writer.
@@ -263,17 +274,22 @@ You must fix the specific error pointed out in the review review WITHOUT changin
 
 Inputs:
 - original_speak: the speech to refine
-- strategy: original strategy (for context only)
+- strategy: original strategy
 - review_reason: the error found
 - fix_instruction: what to fix
+- valid_partners: list of other valid player names
 
 ==============================
 ABSOLUTE RULES
 ==============================
 
 1. FIX ONLY THE ERROR. Do not rewrite safe parts.
-2. PRESERVE THE PERSONA. If the original was aggressive, stay aggressive. If weak, stay weak.
-3. PRESERVE THE STRATEGY. Do not change the target or the claim.
+2. PRESERVE ENTITY NAMES.
+   - If the original speech checks "Taro", KEEP "Taro".
+   - Do NOT change "Taro" to "Seer" (Role) or "Me" (Self) unless it was a self-reference error.
+3. RESOLVE PRONOUNS CORRECTLY.
+   - If replacing "him/her", use a specific name from the Valid Partners list or the Strategy.
+   - Do NOT use Roles as names (e.g. "I divined Seer" is WRONG if you meant "I divined Taro").
 
 ==============================
 COMMON FIXES
@@ -290,6 +306,7 @@ COMMON FIXES
 
 - Ambiguous Pronouns ("He/That person"):
   -> Replace with the specific player name ("Taro-san").
+  -> LOOK at the Strategy to find the correct name.
 
 ==============================
 OUTPUT FORMAT
