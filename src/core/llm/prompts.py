@@ -418,11 +418,9 @@ VALIDITY CHECK AXES
 
 A GM comment is INVALID if ANY of the following apply:
 
-1) 日本語として自己完結していない
-- 主語・対象が不明確すぎる
-- 「それ」「さっき」「今の流れ」など、
-  public_events から参照できない表現を使っている
-- 文として意味が破綻している
+1) 日本語として意味が通じない
+- 文法的に破綻している
+- 必須の文脈が欠落しており、プレイヤーが理解できない
 
 2) public_events に存在しない前提を使っている
 - 実際に起きていない「具体的な行為・発言・結果」を
@@ -433,9 +431,9 @@ A GM comment is INVALID if ANY of the following apply:
   前提としている
 
 4) GMの立場を逸脱している
-- GMがプレイヤーのように推論・判断している
-- 特定のプレイヤーを怪しい／安全だと示唆している
-- 擁護・断定・結論付けを行っている
+- 特定のプレイヤーを理由なく「クロだ」と断定する
+- プレイヤーを無視して独り言を話している
+- （※注意: 矛盾の指摘や、回答を迫る強いプレッシャーは「正当なGMの責務」であり、逸脱ではない）
 
 ==============================
 WHAT YOU MUST NOT DO
@@ -454,10 +452,12 @@ VALIDITY CHECK AXES
 ==============================
 
 NOTE:
-The following are NOT considered invalid by themselves:
-- 一般的な進行上の表現（例：「まずは」「ここから」「今は」）
-- 状況の抽象的な言及（例：「意見が出ていない」「判断材料が少ない」）
-As long as they do NOT assert specific unobserved events.
+The following are VALUD and should be ACCEPTED:
+- 指示語（「それ」「その発言」）が、直前の議論から明らかな場合
+- 矛盾の指摘 ("You said X, but now Y")
+- 沈黙への言及 ("Why are you silent?")
+- 強い回答の要求 ("Answer yes or no")
+- 一般的な進行上の表現
 
 ==============================
 OUTPUT FORMAT (STRICT)
@@ -515,9 +515,9 @@ ABSOLUTE RULES
 
 - Apply MINIMAL DIFF only:
   - Fix ONLY what review_reason requires
-  - Do NOT change meaning or discussion direction
   - Do NOT rewrite unrelated sentences
-  - Rephrasing is allowed ONLY if meaning is identical
+  - However, if the review says the Logic/Meaning is invalid, you MAY rewrite the sentence structure significantly to fix it.
+  - Prioritize satisfying the review over preserving the original phrasing.
 
 ==============================
 ALLOWED FIXES (ONLY IF REQUIRED)
