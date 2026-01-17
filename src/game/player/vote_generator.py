@@ -74,7 +74,7 @@ class VoteGenerator:
             for player, belief in memory.role_beliefs.items()
         )
 
-        discussion_history = "\n".join(f"- {e}" for e in memory.history)
+        discussion_history = "\n".join(f"- {e}" for e in reversed(memory.history))
 
         return f"""
 You are an AI player in a ONE-NIGHT Werewolf game.

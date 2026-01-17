@@ -73,15 +73,15 @@ class StrategyGenerator:
             for player, belief in memory.role_beliefs.items()
         )
 
-        recent_history = memory.history[-10:]
+        recent_history = memory.history[-15:]
         history_text = "\n".join(
             f"- [{h.kind}] {h.text if hasattr(h, 'text') else str(h)}"
-            for h in recent_history
+            for h in reversed(recent_history)
         )
 
         observed_events_text = "\n".join(
             f"- {e.event_type}: {e.payload}"
-            for e in memory.observed_events[-10:]
+            for e in reversed(memory.observed_events[-15:])
         )
 
         return f"""

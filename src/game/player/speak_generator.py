@@ -68,7 +68,11 @@ class SpeakGenerator:
             for player, belief in memory.role_beliefs.items()
         )
 
-        recent_reflections = memory.history[-7:]
+        recent_reflections_list = memory.history[-15:]
+        # Reverse to show newest first
+        recent_reflections = "\n".join(
+            str(r) for r in reversed(recent_reflections_list)
+        )
 
         return f"""
 You are {memory.self_name}.

@@ -25,7 +25,8 @@ class GMMaturityJudge:
         public_events: list[GameEvent],
     ) -> Optional[GMMaturityDecision]:
         recent_events = public_events[-15:]  # 少し多めでもOK
-        events_text = format_events_for_maturity(recent_events)
+        # Reverse to show newest first
+        events_text = format_events_for_maturity(list(reversed(recent_events)))
 
         prompt = self._build_prompt(events_text=events_text)
 
