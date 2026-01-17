@@ -3,7 +3,7 @@
 from src.core.types import GMGraphState
 from src.game.gm.gm_comment_reviewer import gm_comment_reviewer
 
-MAX_REVIEW_COUNT = 3
+MAX_REVIEW_COUNT = 2
 
 
 def gm_comment_review_router_node(state: GMGraphState) -> str:
@@ -20,6 +20,9 @@ def gm_comment_review_router_node(state: GMGraphState) -> str:
 
     pending_comment = internal.pending_gm_comment
 
+    if internal.gm_comment_review_count >= MAX_REVIEW_COUNT:
+        return "commit"
+
     # コメントが存在しない場合は安全側に倒す
     if pending_comment is None:
         return "commit"
@@ -33,9 +36,6 @@ def gm_comment_review_router_node(state: GMGraphState) -> str:
 
     internal.last_gm_review = review_result
     internal.gm_comment_review_count += 1
-
-    if internal.gm_comment_review_count >= MAX_REVIEW_COUNT:
-        return "commit"
 
     if review_result.needs_fix:
         return "refine"

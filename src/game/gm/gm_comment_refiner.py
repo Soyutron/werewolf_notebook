@@ -1,4 +1,5 @@
 from typing import Optional
+import traceback
 
 from src.core.llm.client import LLMClient
 from src.core.llm.prompts import GM_COMMENT_REFINE_SYSTEM_PROMPT
@@ -34,21 +35,31 @@ class GMCommentRefiner:
         players: list[PlayerName],
     ) -> Optional[GMComment]:
         combined_review = f"主要な指摘:\n{review.reason}\n\n補足:\n{review.fix_instruction}"
-        prompt = {
-            "players": ", ".join(players),
-            "original_comment": original.text,
-            "review_reason": combined_review,
-        }
+        context_str = format_events(public_events)
+        user_prompt = f"""
+Context (Public Events):
+{context_str}
+
+Current Players: {", ".join(players)}
+
+Original GM Comment:
+{original.text}
+
+Review Feedback:
+{combined_review}
+
+Please refine the GM comment based on the feedback.
+"""
 
         try:
             response = self.llm.generate(
-                system_prompt=GM_COMMENT_REFINE_SYSTEM_PROMPT,
-                user_input=prompt,
-                output_type=GMComment,
+                system=GM_COMMENT_REFINE_SYSTEM_PROMPT,
+                prompt=user_prompt,
             )
             print(response)
             return response
         except Exception:
+            traceback.print_exc()
             return None
 
 
