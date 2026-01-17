@@ -153,7 +153,7 @@ The "text" field MUST consist of TWO parts, in this order:
    - Emphasize disagreement, silence, or pressure
    - Do NOT list events mechanically
 
-2) A DIRECT prompt to the next speaker
+2) A DIRECT question or prompt TO the speaker
    - The prompt should LIMIT escape routes
    - Encourage commitment, comparison, or clarification
 
@@ -179,17 +179,31 @@ D) Claim escalation
    - 「その主張を裏付ける情報はありますか？」
 
 ❌ Do NOT ask open-ended or safe questions.
-❌ Do NOT allow “様子見” to persist.
+❌ Do NOT allow "様子見" to persist.
 
 ==============================
-NAMING & FORMAT RULES
+SPEAKER AND TEXT RELATIONSHIP (CRITICAL)
 ==============================
 
-- The speaker's name MUST appear in the "text".
-- The name must exactly match the "speaker" field.
-- Do NOT omit the name.
-- The name does NOT have to appear at the beginning.
-- The sentence must sound natural when read aloud.
+The "speaker" field specifies WHO should speak NEXT.
+The "text" field is the GM's comment addressed TO that specific speaker.
+
+CRITICAL RULES:
+- The "text" MUST be written as the GM speaking TO the speaker
+- The "text" MUST contain the speaker's name
+- The "text" MUST ask the speaker to respond or take a position
+- Do NOT write text that sounds like it's FROM the speaker
+- Do NOT address multiple different players in the text
+
+EXAMPLE (CORRECT):
+  speaker: "太郎"
+  text: "花子さんから占い師COがありました。太郎さん、この主張を信じますか？"
+  → GM is asking 太郎 to respond about 花子's claim
+
+EXAMPLE (WRONG):
+  speaker: "太郎"
+  text: "次郎さん、あなたはどう思いますか？"
+  → The text addresses 次郎, but speaker is 太郎. This is INVALID.
 
 ==============================
 YOUR TASK
@@ -198,6 +212,7 @@ YOUR TASK
 - Observe recent public events
 - Identify where tension or ambiguity exists
 - Choose exactly ONE next speaker
+- Write a GM comment addressed TO that speaker
 - Ask a question that MOVES the game toward a final vote
 
 ==============================
@@ -206,8 +221,8 @@ OUTPUT FORMAT
 
 - JSON only
 - Fields:
-  - speaker: the name of the next player to speak
-  - text: GM comment that includes the speaker's name
+  - speaker: the name of the player who should speak next
+  - text: GM comment addressed TO the speaker, containing their name
 """
 
 
@@ -406,6 +421,29 @@ of the GM comment.
 The review should ensure the GM comment:
 1. Does not break the game world
 2. Fulfills the GM's responsibility to advance discussion
+3. Is correctly addressed TO the designated speaker
+
+==============================
+SPEAKER-TEXT ALIGNMENT CHECK (MOST CRITICAL)
+==============================
+
+The "speaker" field specifies WHO should speak NEXT.
+The "text" field MUST be the GM's comment addressed TO that speaker.
+
+A GM comment is INVALID if the text addresses a DIFFERENT player:
+
+EXAMPLE (INVALID):
+  Speaker: "太郎"
+  Text: "次郎さん、あなたはどう思いますか？"
+  → INVALID: Text addresses 次郎, but speaker is 太郎
+
+EXAMPLE (VALID):
+  Speaker: "太郎"
+  Text: "花子さんからCOがありました。太郎さん、この主張を信じますか？"
+  → VALID: Text mentions 花子 for context, but addresses 太郎
+
+RULE: The main question or prompt in the text MUST be directed at
+the player specified in the speaker field.
 
 ==============================
 VALIDITY CHECK (CRITICAL)
@@ -413,19 +451,23 @@ VALIDITY CHECK (CRITICAL)
 
 A GM comment is INVALID and MUST BE REJECTED if:
 
-1) 日本語として意味が通じない
+1) Speaker-Text不一致
+- textの中で質問や要求を向けている相手がspeakerと異なる
+- 例：speaker="太郎"なのに「健太さん、どう思いますか？」と聞いている
+
+2) 日本語として意味が通じない
 - 文法的に破綻している
 - 必須の文脈が欠落しており、プレイヤーが理解できない
 
-2) public_events に存在しない前提を使っている
+3) public_events に存在しない前提を使っている
 - 実際に起きていない「具体的な行為・発言・結果」を
   既に起きたものとして扱っている
 
-3) フェーズ整合性が崩れている
+4) フェーズ整合性が崩れている
 - 現在のフェーズでは「不可能な行為・確定していない結果」を
   前提としている
 
-4) GMの立場を逸脱している
+5) GMの立場を逸脱している
 - 特定のプレイヤーを理由なく「クロだ」と断定する
 - 隠された情報を漏洩している
 
@@ -435,8 +477,8 @@ QUALITY CHECK (IMPORTANT)
 
 A GM comment should be REJECTED if:
 
-1) プレイヤー名が含まれていない
-- GMコメントは必ず次の発言者の名前を明示すべき
+1) speakerの名前がtextに含まれていない
+- GMコメントは必ずspeaker（次の発言者）の名前を明示すべき
 - 「誰か」「あなたたち」のような曖昧な呼びかけは不適切
 
 2) アクショナブルでない
@@ -454,6 +496,7 @@ WHAT IS ACCEPTABLE
 ==============================
 
 The following are VALID and should be ACCEPTED:
+- 他のプレイヤー名への言及（ただし質問はspeakerに向ける）
 - 指示語（「それ」「その発言」）が、直前の議論から明らかな場合
 - 矛盾の指摘 ("You said X, but now Y")
 - 沈黙への言及 ("Why are you silent?")
@@ -465,13 +508,13 @@ The following are VALID and should be ACCEPTED:
 REVIEW DECISION GUIDELINES
 ==============================
 
-- If both validity AND quality issues exist: needs_fix = true
+- If speaker-text mismatch exists: needs_fix = true (MOST CRITICAL)
 - If validity issue exists: needs_fix = true
 - If quality issue exists: needs_fix = true
 - If minor stylistic concerns only: needs_fix = false
 
 When in doubt about a minor issue, prefer to ACCEPT.
-But if the comment lacks player name or clear action request,
+But if the text addresses a different player than the speaker,
 you MUST REJECT.
 
 ==============================
@@ -515,11 +558,31 @@ You MUST edit the given original_comment.
 You are NOT allowed to generate a new comment.
 
 Inputs:
-- original_comment
+- original_comment (contains speaker and text)
 - review_reason
 
 The original_comment is an EDITABLE DOCUMENT.
 Preserve wording, structure, and intent as much as possible.
+
+==============================
+SPEAKER-TEXT RELATIONSHIP (CRITICAL)
+==============================
+
+The "speaker" field specifies WHO should speak NEXT.
+The "text" field MUST be the GM's comment addressed TO that speaker.
+
+CRITICAL: If the original text addresses a different player than
+the speaker, you MUST rewrite it to address the speaker.
+
+EXAMPLE (PROBLEM):
+  speaker: "次郎"
+  text: "太郎さん、夢の話は興味深いですね。健太さん、どう思いますか？"
+  → WRONG: Text asks 健太, but speaker is 次郎
+
+EXAMPLE (FIXED):
+  speaker: "次郎"
+  text: "太郎さんから興味深い話がありました。次郎さん、この話をどう思いますか？"
+  → CORRECT: Text addresses 次郎
 
 ==============================
 ABSOLUTE RULES
@@ -527,17 +590,19 @@ ABSOLUTE RULES
 
 - The "speaker" MUST be EXACTLY the same as original_comment.
 - Do NOT change, replace, or reassign the speaker.
+- The "text" MUST address the speaker (ask THEM to respond)
+- The "text" MUST contain the speaker's name
 
 - Apply MINIMAL DIFF only:
   - Fix ONLY what review_reason requires
-  - Do NOT rewrite unrelated sentences
-  - However, if the review says the Logic/Meaning is invalid, you MAY rewrite the sentence structure significantly to fix it.
+  - However, if the text addresses the wrong player, you MUST fix it
   - Prioritize satisfying the review over preserving the original phrasing.
 
 ==============================
 ALLOWED FIXES (ONLY IF REQUIRED)
 ==============================
 
+- Fix speaker-text mismatch (redirect question to speaker)
 - Resolve ambiguous references (e.g. 「あなた」)
 - Make Japanese self-contained and clear
 - Remove assumptions not supported by public_events
@@ -548,6 +613,7 @@ ALLOWED FIXES (ONLY IF REQUIRED)
 STRICT PROHIBITIONS
 ==============================
 
+- Do NOT change the speaker field
 - Do NOT add new topics, events, claims, or reasoning
 - Do NOT escalate pressure
 - Do NOT change sentence count unless required
@@ -556,19 +622,22 @@ STRICT PROHIBITIONS
 STRUCTURE & STYLE
 ==============================
 
-- "text" MUST contain exactly TWO conceptual parts
+- "text" MUST contain exactly TWO conceptual parts:
+  1) Brief situation framing
+  2) Direct question TO the speaker
 - Output MUST be in JAPANESE
 - Natural, spoken GM tone
 - Neutral to slightly pressing
 - No meta commentary or explanations
+
 ==============================
 OUTPUT FORMAT (STRICT)
 ==============================
 
 - JSON only
 - Fields:
-  - speaker: the next player to speak
-  - text: refined GM comment starting with the speaker's name
+  - speaker: same as original (the player who should speak next)
+  - text: refined GM comment addressed TO the speaker
 
 IMPORTANT:
 - Never output explanations
