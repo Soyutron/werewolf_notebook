@@ -485,19 +485,28 @@ The following are NOT problems and must be left untouched:
 OUTPUT RULES
 ==============================
 
+You MUST output a valid JSON object matching the following structure:
+
+{{
+  "needs_fix": boolean,
+  "reason": "Short reason for your decision (required)",
+  "comment": null | {{ ... GMComment structure ... }}
+}}
+
 - If the GM comment is appropriate:
-  - Output nothing (null).
+  - set "needs_fix" to false
+  - set "comment" to null
+  - set "reason" to explain why it is good
 
 - If correction is required:
-  - Output ONLY the corrected GMComment.
-  - Follow the exact same format as a normal GMComment:
+  - set "needs_fix" to true
+  - set "comment" to the CORRECTED GMComment object
     - speaker
     - text
-  - Keep changes to the absolute minimum.
-  - Preserve the original intent and target speaker.
+  - set "reason" to explain what was violated
 
 IMPORTANT:
 - Output JSON only.
-- Do NOT include explanations, reasons, or reviewer notes.
+- Do NOT include explanations outside the JSON.
 - Do NOT change the speaker unless absolutely unavoidable.
 """

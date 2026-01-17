@@ -50,7 +50,6 @@ class GMCommentReviewer:
             comment=comment,
             events_text=events_text,
         )
-        print(prompt)
 
         try:
             response = self.llm.generate(
@@ -59,19 +58,8 @@ class GMCommentReviewer:
             )
             print(response)
 
-            # Reviewer が「修正不要」と判断した場合
-            if response is None:
-                return GMCommentReviewResult(
-                    needs_fix=False,
-                    reason="no_fix_needed",
-                )
-
-            # 修正案が返ってきた場合
-            return GMCommentReviewResult(
-                needs_fix=True,
-                comment=response,
-                reason="fixed_by_reviewer",
-            )
+            # レスポンスは既に GMCommentReviewResult 型としてパースされている
+            return response
 
         except Exception:
             return GMCommentReviewResult(
