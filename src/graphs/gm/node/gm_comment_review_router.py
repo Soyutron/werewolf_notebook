@@ -13,6 +13,7 @@ def gm_comment_review_router_node(state: GMGraphState) -> str:
     - "commit": コメントを確定して公開する
     - "refine": コメントを作り直す
     """
+    print("gm_comment_review_router_node")
 
     internal = state["internal"]
     world = state["world_state"]
@@ -21,16 +22,19 @@ def gm_comment_review_router_node(state: GMGraphState) -> str:
 
     # コメントが存在しない場合は安全側に倒す
     if pending_comment is None:
-        return "refine"
+        return "commit"
 
-    reviewed_comment = gm_comment_reviewer.review(
+    review_result = gm_comment_reviewer.review(
         comment=pending_comment,
         public_events=world.public_events,
     )
 
-    internal.last_gm_review = reviewed_comment
+    print(review_result)
 
-    if reviewed_comment is None:
+    # デバッグ・追跡用（worldには出さない）
+    internal.last_gm_review = review_result
+
+    if review_result.needs_fix:
         return "refine"
 
     return "commit"

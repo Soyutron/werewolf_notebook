@@ -20,6 +20,7 @@ from src.core.memory.speak import Speak
 from src.core.memory.belief import RoleBeliefsOutput
 from src.core.memory.gm_maturity import GMMaturityDecision
 from src.core.memory.vote import VoteOutput
+from src.core.memory.gm_comment_review import GMCommentReviewResult
 
 # =========================================================
 # LLM 切り替えフラグ
@@ -189,4 +190,20 @@ def create_vote_llm() -> LLMClient[VoteOutput]:
     return OllamaLangChainClient(
         model="gemma3:12b",
         output_model=RoleBeliefsOutput,
+    )
+
+
+def create_gm_comment_reviewer_llm() -> LLMClient[GMCommentReviewResult]:
+    if USE_DUMMY:
+        return DummyLLMClient(output=GMCommentReviewResult)
+
+    if USE_VLLM:
+        return VLLMLangChainClient(
+            model="google/gemma-3-12b-it",
+            output_model=GMCommentReviewResult,
+        )
+
+    return OllamaLangChainClient(
+        model="gemma3:12b",
+        output_model=GMCommentReviewResult,
     )

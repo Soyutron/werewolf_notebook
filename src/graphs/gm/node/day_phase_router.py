@@ -35,9 +35,7 @@ def day_phase_router_node(state: GMGraphState) -> str:
     # 2. ソフト判定（成熟度）
     # -----------------------------
     if internal.discussion_turn >= internal.min_discussion_turn:
-        maturity = gm_maturity_judge.judge(
-            public_events=public_events
-        )
+        maturity = gm_maturity_judge.judge(public_events=public_events)
 
         if maturity is not None and maturity.is_mature:
             decision.events.append(

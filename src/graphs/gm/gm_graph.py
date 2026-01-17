@@ -12,6 +12,8 @@ from src.graphs.gm.node.day_phase_router import day_phase_router_node
 from src.graphs.gm.node.vote_phase import vote_phase_node
 from src.graphs.gm.phase_router import phase_router
 from src.graphs.gm.node.gm_generate import gm_generate_node
+from src.graphs.gm.node.gm_commit import gm_commit_node
+from src.graphs.gm.node.gm_comment_review_router import gm_comment_review_router_node
 
 
 class GMGraph(Protocol):
@@ -57,6 +59,7 @@ def build_gm_graph():
     graph.add_node("night", night_phase_node)
     graph.add_node("day", day_phase_entry_node)
     graph.add_node("gm_generate", gm_generate_node)
+    graph.add_node("gm_commit", gm_commit_node)
     graph.add_node("vote", vote_phase_node)
     # graph.add_node("result", result_phase_node)
 
@@ -68,13 +71,21 @@ def build_gm_graph():
         {
             "continue": "gm_generate",
             "vote": END,
-        }
+        },
+    )
+    graph.add_conditional_edges(
+        "gm_generate",
+        gm_comment_review_router_node,
+        {
+            "commit": "gm_commit",
+            "refine": "gm_generate",
+        },
     )
 
     # 1ノードで終了
     graph.add_edge("night", END)
     graph.add_edge("vote", END)
-    graph.add_edge("gm_generate", END)
+    graph.add_edge("gm_commit", END)
 
     return graph.compile()
 

@@ -13,6 +13,8 @@ from pydantic import BaseModel, Field
 from src.core.types.phases import Phase, WorldState
 from src.core.types.events import GameEvent, PlayerRequest
 from src.core.types.player import PlayerName
+from src.core.memory.gm_comment_review import GMCommentReviewResult
+from src.core.memory.gm_comment import GMComment
 
 __all__ = [
     "GameDecision",
@@ -142,6 +144,9 @@ class GMInternalState(BaseModel):
     # ・WorldState 自体は履歴をすべて保持する
     # ・「どこまで見たか」は cursor で管理することで
     #   再実行・デバッグ・リプレイ耐性を高める
+    pending_gm_comment: Optional[GMComment] = None
+
+    last_gm_review: Optional[GMCommentReviewResult] = None
 
 
 # =========================

@@ -15,18 +15,14 @@ def day_phase_entry_node(state: GMGraphState) -> GMGraphState:
     - フェーズ遷移の判断は行わない
     - プレイヤー発言や GM コメント生成は行わない
     """
+    print("day_phase_entry_node")
 
     decision = state["decision"]
     internal = state["internal"]
 
     # 昼フェーズ開始（1回だけ）
     if not internal.day_started:
-        decision.events.append(
-            GameEvent(
-                event_type="day_started",
-                payload={}
-            )
-        )
+        decision.events.append(GameEvent(event_type="day_started", payload={}))
         internal.day_started = True
 
     return state

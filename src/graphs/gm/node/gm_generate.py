@@ -1,5 +1,6 @@
-from src.core.types import GameEvent, GMGraphState
+from src.core.types import GMGraphState
 from src.game.gm.gm_comment_generator import gm_comment_generator
+
 
 def gm_generate_node(state: GMGraphState) -> GMGraphState:
     """
@@ -10,9 +11,10 @@ def gm_generate_node(state: GMGraphState) -> GMGraphState:
     - 生成結果を decision.events に追加する
     - フェーズ遷移や成熟判定は行わない
     """
+    print("gm_generate_node")
 
     world = state["world_state"]
-    decision = state["decision"]
+    internal = state["internal"]
 
     # GM が観測できる文脈
     context = world.public_events + world.pending_events
@@ -27,15 +29,6 @@ def gm_generate_node(state: GMGraphState) -> GMGraphState:
     if gm_comment is None:
         return state
 
-    # GM コメントは GameEvent として公開イベントに流す
-    decision.events.append(
-        GameEvent(
-            event_type="gm_comment",
-            payload={
-                "speaker": gm_comment.speaker,
-                "text": gm_comment.text,
-            },
-        )
-    )
+    internal.pending_gm_comment = gm_comment
 
     return state
