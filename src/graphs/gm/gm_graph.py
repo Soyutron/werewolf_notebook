@@ -53,6 +53,8 @@ def build_gm_graph():
     # ノード登録
     graph.add_node("night", night_phase_node)
     graph.add_node("day", day_phase_node)
+    graph.add_node("vote", vote_phase_node)
+    # graph.add_node("result", result_phase_node)
 
     # START から phase に応じて分岐
     graph.add_conditional_edges(START, phase_router)

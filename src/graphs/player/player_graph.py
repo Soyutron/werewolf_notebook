@@ -11,6 +11,7 @@ from src.graphs.player.node.reflection_node import reflection_node
 from src.graphs.player.node.reaction_node import reaction_node
 from src.graphs.player.phase_router import phase_router
 from src.graphs.player.handle_request.speak import handle_speak
+from src.graphs.player.handle_request.vote import handle_vote
 from src.graphs.player.post_reflection_action_router import (
     post_reflection_action_router,
 )
@@ -57,11 +58,14 @@ def build_player_graph():
     graph.add_node("day_started", handle_day_started)
     graph.add_node("gm_comment", handle_gm_comment)
     graph.add_node("interpret_speech", handle_interpret_speech)
+    graph.add_node("vote_started", handle_vote_started)
+    graph.add_node("vote", handle_vote)
     graph.add_node("reflection", reflection_node)
     graph.add_node("reaction", reaction_node)
     graph.add_node("speak", handle_speak)
     graph.add_edge("night_started", "reaction")
     graph.add_edge("day_started", "reaction")
+    graph.add_edge("vote_started", "reaction")
     graph.add_edge("use_ability", "reaction")
     graph.add_edge("divine_result", "reflection")
     graph.add_edge("gm_comment", END)
@@ -69,6 +73,7 @@ def build_player_graph():
     graph.add_edge("reaction", END)
     graph.add_edge("reflection", END)
     graph.add_edge("interpret_speech", END)
+    graph.add_edge("vote", END)
 
     # START から phase に応じて分岐
     graph.add_conditional_edges(START, phase_router)

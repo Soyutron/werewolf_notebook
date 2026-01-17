@@ -100,6 +100,9 @@ class GMInternalState(BaseModel):
     day_started: bool = False
     # 日フェーズ開始を示すフラグ
 
+    vote_started: bool = False
+    # 投票フェーズ開始を示すフラグ
+
     night_pending: list[PlayerName]
     # 夜フェーズにおいて、まだ行動を完了していないプレイヤー集合
     #
@@ -107,6 +110,18 @@ class GMInternalState(BaseModel):
     # - 夜開始時: 全プレイヤーが含まれる
     # - 各 PlayerOutput を処理するたびに該当プレイヤーを削除
     # - 空集合になったら「夜フェーズ完了」と判断可能
+    #
+    # 重要:
+    # ・役職や行動内容はここには含めない
+    # ・あくまで「進行管理」のみを目的とする
+
+    vote_pending: list[PlayerName]
+    # 投票フェーズにおいて、まだ投票していないプレイヤー集合
+    #
+    # 例:
+    # - 投票開始時: 全プレイヤーが含まれる
+    # - 各 PlayerOutput を処理するたびに該当プレイヤーを削除
+    # - 空集合になったら「投票完了」と判断可能
     #
     # 重要:
     # ・役職や行動内容はここには含めない

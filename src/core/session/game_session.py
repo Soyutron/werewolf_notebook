@@ -195,6 +195,7 @@ class GameSession:
         # - PlayerOutput が解決されるたびに該当プレイヤーを除外していく想定
         gm_internal = GMInternalState(
             night_pending=set(players),
+            vote_pending=list(players),
             gm_event_cursor=0,
         )
 

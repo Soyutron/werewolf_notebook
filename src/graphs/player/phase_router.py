@@ -34,6 +34,9 @@ def phase_router(state: PlayerState) -> str:
 
         if player_input.request.request_type == "speak":
             return "reflection"
+        
+        if player_input.request.request_type == "vote":
+            return "vote"
 
     # -------------------------
     # どれにも当てはまらないのは設計ミス
