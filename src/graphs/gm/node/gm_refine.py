@@ -34,8 +34,6 @@ def gm_refine_node(state: GMGraphState) -> GMGraphState:
         players=players,
     )
 
-    print(gm_comment)
-
     # 再生成に失敗した場合は state をそのまま返す
     if gm_comment is None:
         return state

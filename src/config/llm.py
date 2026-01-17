@@ -32,7 +32,7 @@ from src.core.memory.gm_comment_review import GMCommentReviewResult
 # False の場合:
 #   - 実際のローカル / 外部 LLM を使用する
 USE_DUMMY = False
-USE_VLLM = False
+USE_VLLM = True
 
 
 # =========================================================

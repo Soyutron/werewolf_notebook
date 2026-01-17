@@ -185,9 +185,10 @@ D) Claim escalation
 NAMING & FORMAT RULES
 ==============================
 
-- The "text" MUST start with the speaker's name.
-- The speaker's name must exactly match the "speaker" field.
+- The speaker's name MUST appear in the "text".
+- The name must exactly match the "speaker" field.
 - Do NOT omit the name.
+- The name does NOT have to appear at the beginning.
 - The sentence must sound natural when read aloud.
 
 ==============================
@@ -206,7 +207,7 @@ OUTPUT FORMAT
 - JSON only
 - Fields:
   - speaker: the name of the next player to speak
-  - text: GM comment starting with the speaker's name
+  - text: GM comment that includes the speaker's name
 """
 
 

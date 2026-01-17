@@ -56,7 +56,6 @@ class GMCommentReviewer:
                 system=GM_COMMENT_REVIEW_SYSTEM_PROMPT,
                 prompt=prompt,
             )
-            print(response)
 
             # レスポンスは既に GMCommentReviewResult 型としてパースされている
             return response

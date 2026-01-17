@@ -3,7 +3,7 @@
 from src.core.types import GMGraphState
 from src.game.gm.gm_comment_reviewer import gm_comment_reviewer
 
-MAX_REVIEW_COUNT = 1
+MAX_REVIEW_COUNT = 3
 
 
 def gm_comment_review_router_node(state: GMGraphState) -> str:
@@ -27,9 +27,11 @@ def gm_comment_review_router_node(state: GMGraphState) -> str:
     if pending_comment is None:
         return "commit"
 
+    review_events = world.public_events + world.pending_events
+
     review_result = gm_comment_reviewer.review(
         comment=pending_comment,
-        public_events=world.public_events,
+        public_events=review_events,
     )
 
     print(review_result)
