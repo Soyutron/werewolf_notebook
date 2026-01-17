@@ -75,6 +75,9 @@ class SpeakGenerator:
             if e.event_type == "speak"
         ]
         
+        # 発言済みプレイヤーの集合（ターゲット未発言チェック用）
+        speakers = {e.payload.get('player') for e in public_speeches if e.payload.get('player')}
+        
         # 議論開始直後かどうかの判定（発言数が少ない場合）
         # 設定: 他者の発言が2つ未満なら「序盤」とみなす
         is_early_game = len(public_speeches) < 2
@@ -143,6 +146,17 @@ Example format:
 DO NOT skip the CO. DO NOT hint. STATE IT CLEARLY.
 """
             
+            # ターゲットが未発言かどうかのチェック
+            target_warning = ""
+            if strategy.primary_target and strategy.primary_target not in speakers:
+                target_warning = f"""
+!!! WARNING: TARGET '{strategy.primary_target}' HAS NOT SPOKEN !!!
+- You CANNOT claim they said something.
+- You CANNOT find contradictions in their speech.
+- You CAN only ask them to speak or question their silence.
+- IGNORE any strategy instruction that implies they spoke.
+"""
+
             strategy_section = f"""
 ==============================
 STRATEGY TO FOLLOW
@@ -151,7 +165,7 @@ STRATEGY TO FOLLOW
 Action Stance: {strategy.action_stance}
 Main Claim: {strategy.main_claim}
 Primary Target: {strategy.primary_target or "(none)"}
-
+{target_warning}
 Goals:
 {chr(10).join(f"- {goal}" for goal in strategy.goals)}
 

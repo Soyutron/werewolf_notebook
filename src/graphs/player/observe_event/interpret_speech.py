@@ -9,8 +9,6 @@ def handle_interpret_speech(state: PlayerState) -> PlayerState:
     - BeliefGenerator を直接呼ぶ
     - 行動はしない（output = None）
     """
-    print("handle_interpret_speech")
-
     event = state["input"].event
     memory = state["memory"]
 
@@ -40,5 +38,4 @@ def handle_interpret_speech(state: PlayerState) -> PlayerState:
 
     # 3. 行動はしない
     state["output"] = None
-    print(state)
     return state
