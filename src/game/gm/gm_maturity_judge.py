@@ -24,7 +24,6 @@ class GMMaturityJudge:
         *,
         public_events: list[GameEvent],
     ) -> Optional[GMMaturityDecision]:
-
         recent_events = public_events[-15:]  # 少し多めでもOK
         events_text = format_events_for_maturity(recent_events)
 
@@ -38,10 +37,7 @@ class GMMaturityJudge:
             return response
         except Exception:
             # 成熟判定に失敗したら「未成熟」とみなす
-            return GMMaturityDecision(
-                is_mature=False,
-                reason="LLM error fallback"
-            )
+            return GMMaturityDecision(is_mature=False, reason="LLM error fallback")
 
     def _build_prompt(self, *, events_text: str) -> str:
         return f"""
@@ -60,6 +56,5 @@ Output JSON with:
 - reason: short Japanese GM comment
 """
 
-gm_maturity_judge = GMMaturityJudge(
-    llm=create_gm_maturity_llm()
-)
+
+gm_maturity_judge = GMMaturityJudge(llm=create_gm_maturity_llm())

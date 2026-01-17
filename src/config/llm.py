@@ -118,6 +118,7 @@ def create_gm_comment_llm() -> LLMClient[GMComment]:
     # gemma3:12b は推論能力が高く、内省用途に向いている
     return OllamaLangChainClient(model="gemma3:12b", output_model=GMComment)
 
+
 def create_gm_maturity_llm() -> LLMClient[GMMaturityDecision]:
     """
     GM が議論の成熟度を判定する。
@@ -158,6 +159,7 @@ def create_speak_llm() -> LLMClient[Speak]:
     # gemma3:12b は推論能力が高く、内省用途に向いている
     return OllamaLangChainClient(model="gemma3:12b", output_model=Speak)
 
+
 def create_belief_llm() -> LLMClient[RoleBeliefsOutput]:
     if USE_DUMMY:
         return DummyLLMClient(output=RoleBeliefsOutput)
@@ -172,6 +174,7 @@ def create_belief_llm() -> LLMClient[RoleBeliefsOutput]:
         model="gemma3:12b",
         output_model=RoleBeliefsOutput,
     )
+
 
 def create_vote_llm() -> LLMClient[VoteOutput]:
     if USE_DUMMY:

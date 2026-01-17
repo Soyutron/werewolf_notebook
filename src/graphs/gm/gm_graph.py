@@ -63,6 +63,7 @@ def build_gm_graph():
     # 1ノードで終了
     graph.add_edge("night", END)
     graph.add_edge("day", END)
+    graph.add_edge("vote", END)
 
     return graph.compile()
 

@@ -34,14 +34,19 @@ class GMCommentGenerator:
         直近の public_event をもとに GM コメントを生成する。
         """
 
-        # ★ 直近10件だけを見る
-        recent_events = public_events[-10:]
+        # ★ 直近15件だけを見る
+        recent_events = public_events[-15:]
 
         events_text = format_events_for_gm(recent_events)
+
+        is_opening = (
+            len(recent_events) > 0 and recent_events[-1].event_type == "day_started"
+        )
 
         prompt = self._build_prompt(
             events_text=events_text,
             players=players,
+            is_opening=is_opening,
         )
 
         try:
@@ -60,30 +65,30 @@ class GMCommentGenerator:
         *,
         events_text: str,
         players: list[PlayerName],
+        is_opening: bool,
     ) -> str:
         """
         GM 用 user prompt を構築する。
         """
         players_text = ", ".join(players)
 
+        opening_text = ""
+        if is_opening:
+            opening_text = """
+Phase:
+- This is the FIRST GM comment of the discussion.
+- No player has spoken yet.
+- There are no accusations or opinions yet.
+"""
+
         return f"""
-You are the Game Master.
+{opening_text}
 
 Players:
 {players_text}
 
 Recent public events:
 {events_text}
-
-Your task:
-- Organize the discussion flow briefly
-- Choose exactly ONE next speaker from players
-- Invite them to speak
-- Write the GM comment in JAPANESE
-
-Output JSON with:
-- speaker
-- text
 """
 
 

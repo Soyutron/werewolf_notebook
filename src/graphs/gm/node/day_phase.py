@@ -2,6 +2,7 @@ from src.core.types import GMGraphState, GameEvent, PlayerRequest
 from src.game.gm.gm_comment_generator import gm_comment_generator
 from src.game.gm.gm_maturity_judge import gm_maturity_judge
 
+
 def day_phase_node(state: GMGraphState) -> GMGraphState:
     """
     昼フェーズにおける GMGraph の進行ノード。
@@ -42,7 +43,7 @@ def day_phase_node(state: GMGraphState) -> GMGraphState:
     if internal.discussion_turn >= internal.max_discussion_turn:
         decision.next_phase = "vote"
         return state
-    
+
     if internal.discussion_turn >= internal.min_discussion_turn:
         # ★ 成熟判定（ソフト判定）
         maturity = gm_maturity_judge.judge(
@@ -52,7 +53,7 @@ def day_phase_node(state: GMGraphState) -> GMGraphState:
         print(maturity)
         print(decision.next_phase)
 
-        if maturity and maturity.is_mature:     
+        if maturity and maturity.is_mature:
             decision.events.append(
                 GameEvent(
                     event_type="gm_comment",

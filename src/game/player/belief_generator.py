@@ -123,5 +123,6 @@ Output format:
 }}
 """
 
+
 # --- グローバルに1つだけ ---
 believe_generator = BeliefGenerator(llm=create_belief_llm())

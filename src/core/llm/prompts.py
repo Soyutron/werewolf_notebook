@@ -1,4 +1,3 @@
-
 ONE_NIGHT_WEREWOLF_RULES = """
 This game is ONE-NIGHT Werewolf (One Night Ultimate Werewolf style).
 

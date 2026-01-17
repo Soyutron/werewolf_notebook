@@ -6,7 +6,6 @@ from src.core.types import (
     PlayerMemory,
     GameEvent,
     PlayerRequest,
-    PlayerName,
     Vote,
 )
 from src.config.llm import create_vote_llm
@@ -75,10 +74,7 @@ class VoteGenerator:
             for player, belief in memory.role_beliefs.items()
         )
 
-        discussion_history = "\n".join(
-            f"- {e}"
-            for e in memory.history
-        )
+        discussion_history = "\n".join(f"- {e}" for e in memory.history)
 
         return f"""
 You are an AI player in a ONE-NIGHT Werewolf game.
@@ -118,7 +114,6 @@ Output format:
 }}
 """
 
+
 # --- グローバルに1つだけ ---
-vote_generator = VoteGenerator(
-    llm=create_vote_llm()
-)
+vote_generator = VoteGenerator(llm=create_vote_llm())

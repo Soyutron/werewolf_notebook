@@ -93,7 +93,6 @@ class Dispatcher:
             # （LangGraph 実装や再実行・再開時の安全装置として有用）
             session.gm_internal.gm_event_cursor = len(session.world_state.public_events)
 
-
         # =========================================================
         # 2. request の配布（今ターンの行動要求）
         # =========================================================
