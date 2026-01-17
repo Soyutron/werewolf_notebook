@@ -207,3 +207,25 @@ def create_gm_comment_reviewer_llm() -> LLMClient[GMCommentReviewResult]:
         model="gemma3:12b",
         output_model=GMCommentReviewResult,
     )
+
+
+def create_gm_comment_refiner_llm() -> LLMClient[GMComment]:
+    """
+    GM が観測した public_event から
+    次の speaker と進行コメントを生成する。
+    """
+
+    if USE_DUMMY:
+        # テスト・デバッグ用
+        return DummyLLMClient()
+
+    if USE_VLLM:
+        # 実運用用
+        # gemma3:12b は推論能力が高く、内省用途に向いている
+        return VLLMLangChainClient(
+            model="google/gemma-3-12b-it", output_model=GMComment
+        )
+
+    # 実運用用
+    # gemma3:12b は推論能力が高く、内省用途に向いている
+    return OllamaLangChainClient(model="gemma3:12b", output_model=GMComment)

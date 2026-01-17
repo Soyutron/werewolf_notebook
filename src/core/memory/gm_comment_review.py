@@ -1,4 +1,3 @@
-from src.core.memory.gm_comment import GMComment
 from pydantic import BaseModel
 from typing import Optional
 

@@ -14,6 +14,7 @@ from src.graphs.gm.phase_router import phase_router
 from src.graphs.gm.node.gm_generate import gm_generate_node
 from src.graphs.gm.node.gm_commit import gm_commit_node
 from src.graphs.gm.node.gm_comment_review_router import gm_comment_review_router_node
+from src.graphs.gm.node.gm_refine import gm_refine_node
 
 
 class GMGraph(Protocol):
@@ -60,6 +61,7 @@ def build_gm_graph():
     graph.add_node("day", day_phase_entry_node)
     graph.add_node("gm_generate", gm_generate_node)
     graph.add_node("gm_commit", gm_commit_node)
+    graph.add_node("gm_refine", gm_refine_node)
     graph.add_node("vote", vote_phase_node)
     # graph.add_node("result", result_phase_node)
 
@@ -78,7 +80,15 @@ def build_gm_graph():
         gm_comment_review_router_node,
         {
             "commit": "gm_commit",
-            "generate": "gm_generate",
+            "refine": "gm_refine",
+        },
+    )
+    graph.add_conditional_edges(
+        "gm_refine",
+        gm_comment_review_router_node,
+        {
+            "commit": "gm_commit",
+            "refine": "gm_refine",
         },
     )
 

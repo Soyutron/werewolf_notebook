@@ -5,6 +5,7 @@ from src.game.gm.gm_comment_reviewer import gm_comment_reviewer
 
 MAX_REVIEW_COUNT = 3
 
+
 def gm_comment_review_router_node(state: GMGraphState) -> str:
     """
     生成された GM コメントをレビューし、
@@ -12,7 +13,7 @@ def gm_comment_review_router_node(state: GMGraphState) -> str:
 
     戻り値:
     - "commit": コメントを確定して公開する
-    - "generate": コメントを作り直す
+    - "refine": コメントを作り直す
     """
     internal = state["internal"]
     world = state["world_state"]
@@ -37,6 +38,6 @@ def gm_comment_review_router_node(state: GMGraphState) -> str:
         return "commit"
 
     if review_result.needs_fix:
-        return "generate"
+        return "refine"
 
     return "commit"
