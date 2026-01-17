@@ -65,6 +65,21 @@ The "text" field MUST consist of TWO parts, in this order:
    - Encourage commitment, comparison, or clarification
 
 ==============================
+SPEAKER SELECTION PRIORITY
+==============================
+
+You MUST follow these priorities when choosing the next speaker:
+
+1. ABSOLUTE PROHIBITION:
+   - Do NOT select the "Last Speaker" unless absolutely necessary (e.g., they asked a direct question to GM, or immediate rebuttal is critical).
+   - "Consecutive nomination of the same player" is generally FORBIDDEN.
+
+2. FAIRNESS:
+   - Prioritize players with FEWER speaking turns (see "Player Status").
+   - If a player has spoken significantly less than others, TARGET THEM.
+   - Do NOT let the same 2-3 people dominate the discussion.
+
+==============================
 ALLOWED GM PROMPT TYPES
 (Choose ONE each time)
 ==============================
@@ -256,6 +271,11 @@ A GM comment should be REJECTED if:
 - 既に解決した話題を繰り返している
 - 曖昧すぎて議論が進まない
 
+4) 公平性と連続指名の回避 (CRITICAL)
+- 直前の発言者(Last Speaker)を連続して指名している場合（正当な理由がない限りNG）
+- 発言回数が極端に少ないプレイヤーがいるのに、多弁なプレイヤーを指名している
+- 特定のプレイヤー(2-3人)だけで会話が回っている
+
 ==============================
 WHAT IS ACCEPTABLE
 ==============================
@@ -330,38 +350,16 @@ The original_comment is an EDITABLE DOCUMENT.
 Preserve wording, structure, and intent as much as possible.
 
 ==============================
-SPEAKER-TEXT RELATIONSHIP (CRITICAL)
+SPEAKER MODIFICATION RULES
 ==============================
 
-The "speaker" field specifies WHO should speak NEXT.
-The "text" field MUST be the GM's comment addressed TO that speaker.
+- DEFAULT: Keep the "speaker" exactly the same as original_comment.
+- EXCEPTION: You MUST change the speaker if:
+  1. The review specifically points out fairness issues (e.g., "Too many turns for X").
+  2. The review flags consecutive nominations (e.g., "Same speaker as last time").
+  3. The current speaker is invalid or unresponsive.
 
-CRITICAL: If the original text addresses a different player than
-the speaker, you MUST rewrite it to address the speaker.
-
-EXAMPLE (PROBLEM):
-  speaker: "次郎"
-  text: "太郎さん、夢の話は興味深いですね。健太さん、どう思いますか？"
-  → WRONG: Text asks 健太, but speaker is 次郎
-
-EXAMPLE (FIXED):
-  speaker: "次郎"
-  text: "太郎さんから興味深い話がありました。次郎さん、この話をどう思いますか？"
-  → CORRECT: Text addresses 次郎
-
-==============================
-ABSOLUTE RULES
-==============================
-
-- The "speaker" MUST be EXACTLY the same as original_comment.
-- Do NOT change, replace, or reassign the speaker.
-- The "text" MUST address the speaker (ask THEM to respond)
-- The "text" MUST contain the speaker's name
-
-- Apply MINIMAL DIFF only:
-  - Fix ONLY what review_reason requires
-  - However, if the text addresses the wrong player, you MUST fix it
-  - Prioritize satisfying the review over preserving the original phrasing.
+If you change the speaker, ensure the "text" is updated to address the NEW speaker.
 
 ==============================
 ALLOWED FIXES (ONLY IF REQUIRED)
@@ -373,12 +371,12 @@ ALLOWED FIXES (ONLY IF REQUIRED)
 - Remove assumptions not supported by public_events
 - Adjust pressure to current phase
 - Remove GM-as-player judgment
+- CHANGE SPEAKER (only if review explicitly demands it for fairness/rules)
 
 ==============================
 STRICT PROHIBITIONS
 ==============================
 
-- Do NOT change the speaker field
 - Do NOT add new topics, events, claims, or reasoning
 - Do NOT escalate pressure
 - Do NOT change sentence count unless required
@@ -401,11 +399,11 @@ OUTPUT FORMAT (STRICT)
 
 - JSON only
 - Fields:
-  - speaker: same as original (the player who should speak next)
+  - speaker: the name of the player who should speak next (updated if necessary)
   - text: refined GM comment addressed TO the speaker
 
 IMPORTANT:
 - Never output explanations
 - Never output review text
-- Do NOT generate a conceptually new comment.
+- Do NOT generate a conceptually new comment unless changing speaker.
 """

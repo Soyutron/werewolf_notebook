@@ -34,9 +34,18 @@ class GMCommentGenerator:
         直近の public_event をもとに GM コメントを生成する。
         """
 
+        # Speak counts and last speaker logic
+        speak_counts = {p: 0 for p in players}
+        last_speaker = None
+        for event in public_events:
+            if event.event_type == "speak":
+                speaker = event.payload.get("player")
+                if speaker in speak_counts:
+                    speak_counts[speaker] += 1
+                last_speaker = speaker
+
         # ★ 直近15件だけを見る
         recent_events = public_events[-15:]
-
         events_text = format_events_for_gm(list(reversed(recent_events)))
 
         is_opening = (
@@ -47,6 +56,8 @@ class GMCommentGenerator:
             events_text=events_text,
             players=players,
             is_opening=is_opening,
+            speak_counts=speak_counts,
+            last_speaker=last_speaker,
         )
 
         try:
@@ -66,11 +77,20 @@ class GMCommentGenerator:
         events_text: str,
         players: list[PlayerName],
         is_opening: bool,
+        speak_counts: dict[PlayerName, int],
+        last_speaker: Optional[PlayerName],
     ) -> str:
         """
         GM 用 user prompt を構築する。
         """
-        players_text = ", ".join(players)
+        # Format speaking stats
+        stats_lines = []
+        for p in players:
+            count = speak_counts.get(p, 0)
+            stats_lines.append(f"- {p}: {count}回")
+        stats_text = "\n".join(stats_lines)
+
+        last_speaker_text = f"Last Speaker: {last_speaker}" if last_speaker else "Last Speaker: None"
 
         opening_text = ""
         if is_opening:
@@ -84,8 +104,10 @@ Phase:
         return f"""
 {opening_text}
 
-Players:
-{players_text}
+Player Status:
+{stats_text}
+
+{last_speaker_text}
 
 Recent public events:
 {events_text}

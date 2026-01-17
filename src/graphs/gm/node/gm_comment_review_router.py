@@ -32,6 +32,7 @@ def gm_comment_review_router_node(state: GMGraphState) -> str:
     review_result = gm_comment_reviewer.review(
         comment=pending_comment,
         public_events=review_events,
+        players=world.players,
     )
 
     print(review_result)

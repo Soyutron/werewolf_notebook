@@ -39,6 +39,7 @@ class GMCommentReviewer:
         *,
         comment: GMComment,
         public_events: list[GameEvent],
+        players: list[str],
     ) -> GMCommentReviewResult:
         """
         GMComment をレビューする。
@@ -46,9 +47,21 @@ class GMCommentReviewer:
 
         events_text = format_events_for_review(list(reversed(public_events)))
 
+        # Speak counts and last speaker logic (duplicated for now, TODO: refactor)
+        speak_counts = {p: 0 for p in players}
+        last_speaker = None
+        for event in public_events:
+            if event.event_type == "speak":
+                speaker = event.payload.get("player")
+                if speaker in speak_counts:
+                    speak_counts[speaker] += 1
+                last_speaker = speaker
+
         prompt = self._build_prompt(
             comment=comment,
             events_text=events_text,
+            speak_counts=speak_counts,
+            last_speaker=last_speaker,
         )
 
         try:
@@ -71,15 +84,30 @@ class GMCommentReviewer:
         *,
         comment: GMComment,
         events_text: str,
+        speak_counts: dict[str, int],
+        last_speaker: str | None,
     ) -> str:
         """
         GMコメントレビュー用 prompt を構築する。
         """
+        # Format speaking stats
+        stats_lines = []
+        for p, count in speak_counts.items():
+            stats_lines.append(f"- {p}: {count}回")
+        stats_text = "\n".join(stats_lines)
+
+        last_speaker_text = f"Last Speaker: {last_speaker}" if last_speaker else "Last Speaker: None"
+
         return f"""
 Current GM Comment:
 Speaker: {comment.speaker}
 Text:
 {comment.text}
+
+Player Status:
+{stats_text}
+
+{last_speaker_text}
 
 Recent public events:
 {events_text}
