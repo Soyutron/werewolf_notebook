@@ -177,11 +177,14 @@ class GameSession:
         #
         # input / output は LangGraph 実行時に
         # 毎ターン上書きされるため、ここでは初期値を与えるのみ。
+        from src.core.types.player import PlayerInternalState
+
         player_states = {
             player: PlayerState(
                 memory=memory,
                 input=PlayerInput(),
                 output=None,
+                internal=PlayerInternalState(),
             )
             for player, memory in player_memories.items()
         }

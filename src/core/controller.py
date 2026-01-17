@@ -1,7 +1,9 @@
-from typing import Protocol
-from src.core.types import PlayerState
+from typing import Protocol, TYPE_CHECKING
+from src.core.types.player import PlayerState
 from copy import deepcopy
-from src.graphs.player.player_graph import PlayerGraph
+
+if TYPE_CHECKING:
+    from src.graphs.player.player_graph import PlayerGraph
 
 
 class PlayerController(Protocol):
@@ -44,7 +46,7 @@ class AIPlayerController:
     境界（Boundary）の役割を担う。
     """
 
-    def __init__(self, player_graph: PlayerGraph):
+    def __init__(self, player_graph: "PlayerGraph"):
         self.player_graph = player_graph
 
     def act(

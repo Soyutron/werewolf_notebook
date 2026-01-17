@@ -13,7 +13,8 @@ from pydantic import BaseModel, Field, model_validator
 
 from src.core.types.roles import RoleName
 from src.core.types.events import GameEvent, PlayerRequest, PlayerRequestType
-from src.core.memory import Reflection, Reaction
+from src.core.memory import Reflection, Reaction, Strategy, StrategyReview, SpeakReview
+from src.core.memory.speak import Speak
 
 __all__ = [
     "PlayerName",
@@ -22,6 +23,7 @@ __all__ = [
     "PlayerInput",
     "PlayerOutput",
     "PlayerState",
+    "PlayerInternalState",
     "NoAbility",
     "SeerAbility",
     "WerewolfAbility",
@@ -232,6 +234,36 @@ class PlayerOutput(BaseModel):
 
 
 # =========================
+# プレイヤーの内部進行状態
+# =========================
+class PlayerInternalState(BaseModel):
+    """
+    PlayerGraph 内でのみ使用される一時的な進行状態。
+
+    戦略生成→レビュー→発言生成→レビューのループで
+    中間状態を保持するために使用する。
+    """
+
+    pending_strategy: Optional[Strategy] = None
+    # 生成中の戦略（まだ確定していない）
+
+    last_strategy_review: Optional[StrategyReview] = None
+    # 最後の戦略レビュー結果
+
+    strategy_review_count: int = 0
+    # 戦略レビューの回数（無限ループ防止用）
+
+    pending_speak: Optional[Speak] = None
+    # 生成中の発言（まだ確定していない）
+
+    last_speak_review: Optional[SpeakReview] = None
+    # 最後の発言レビュー結果
+
+    speak_review_count: int = 0
+    # 発言レビューの回数（無限ループ防止用）
+
+
+# =========================
 # プレイヤーの状態（State）
 # =========================
 # LangGraph などでノード間を流れる状態オブジェクト
@@ -261,3 +293,10 @@ class PlayerState(TypedDict):
     #
     # ※ GM は output を解釈・適用する側であり、
     #    output を事前に設定することはない
+
+    internal: PlayerInternalState
+    # グラフ内部でのみ使用される一時的な進行状態
+    # - 戦略生成・レビューの中間状態
+    # - 発言生成・レビューの中間状態
+    #
+    # ※ グラフ実行終了後にリセットされる想定

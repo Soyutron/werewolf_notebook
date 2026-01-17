@@ -21,6 +21,7 @@ from src.core.memory.belief import RoleBeliefsOutput
 from src.core.memory.gm_maturity import GMMaturityDecision
 from src.core.memory.vote import VoteOutput
 from src.core.memory.gm_comment_review import GMCommentReviewResult
+from src.core.memory.strategy import Strategy, StrategyReview, SpeakReview
 
 # =========================================================
 # LLM 切り替えフラグ
@@ -231,3 +232,86 @@ def create_gm_comment_refiner_llm() -> LLMClient[GMComment]:
     # 実運用用
     # nemotron-3-nano:30b は推論能力が高く、内省用途に向いている
     return OllamaLangChainClient(model="nemotron-3-nano:30b", output_model=GMComment)
+
+
+# =========================================================
+# 戦略（Strategy）生成用 LLM
+# =========================================================
+def create_strategy_llm() -> LLMClient[Strategy]:
+    """
+    プレイヤーの発言前戦略を生成するための LLM を返す。
+    """
+    if USE_DUMMY:
+        return DummyLLMClient()
+
+    if USE_VLLM:
+        return VLLMLangChainClient(
+            model="google/gemma-3-12b-it", output_model=Strategy
+        )
+
+    return OllamaLangChainClient(model="nemotron-3-nano:30b", output_model=Strategy)
+
+
+def create_strategy_reviewer_llm() -> LLMClient[StrategyReview]:
+    """
+    戦略をレビューするための LLM を返す。
+    """
+    if USE_DUMMY:
+        return DummyLLMClient()
+
+    if USE_VLLM:
+        return VLLMLangChainClient(
+            model="google/gemma-3-12b-it", output_model=StrategyReview
+        )
+
+    return OllamaLangChainClient(
+        model="nemotron-3-nano:30b", output_model=StrategyReview
+    )
+
+
+def create_strategy_refiner_llm() -> LLMClient[Strategy]:
+    """
+    戦略を修正するための LLM を返す。
+    """
+    if USE_DUMMY:
+        return DummyLLMClient()
+
+    if USE_VLLM:
+        return VLLMLangChainClient(
+            model="google/gemma-3-12b-it", output_model=Strategy
+        )
+
+    return OllamaLangChainClient(model="nemotron-3-nano:30b", output_model=Strategy)
+
+
+def create_speak_reviewer_llm() -> LLMClient[SpeakReview]:
+    """
+    発言をレビューするための LLM を返す。
+    """
+    if USE_DUMMY:
+        return DummyLLMClient()
+
+    if USE_VLLM:
+        return VLLMLangChainClient(
+            model="google/gemma-3-12b-it", output_model=SpeakReview
+        )
+
+    return OllamaLangChainClient(
+        model="nemotron-3-nano:30b", output_model=SpeakReview
+    )
+
+
+def create_speak_refiner_llm() -> LLMClient[Speak]:
+    """
+    発言を修正するための LLM を返す。
+    """
+    if USE_DUMMY:
+        return DummyLLMClient()
+
+    if USE_VLLM:
+        return VLLMLangChainClient(
+            model="google/gemma-3-12b-it", output_model=Speak
+        )
+
+    return OllamaLangChainClient(model="nemotron-3-nano:30b", output_model=Speak)
+

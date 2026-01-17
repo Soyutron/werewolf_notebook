@@ -1,4 +1,4 @@
-from src.core.types import PlayerState, PlayerOutput
+from src.core.types.player import PlayerState, PlayerOutput
 from typing import Protocol
 from langgraph.graph import StateGraph, START, END
 from src.graphs.player.observe_event.night_started import handle_night_started
@@ -11,7 +11,6 @@ from src.graphs.player.observe_event.interpret_speech import handle_interpret_sp
 from src.graphs.player.node.reflection_node import reflection_node
 from src.graphs.player.node.reaction_node import reaction_node
 from src.graphs.player.phase_router import phase_router
-from src.graphs.player.handle_request.speak import handle_speak
 from src.graphs.player.handle_request.vote import handle_vote
 from src.graphs.player.post_reflection_action_router import (
     post_reflection_action_router,
@@ -51,8 +50,19 @@ class LangGraphPlayerAdapter:
 
 
 def build_player_graph():
+    # Lazy imports to avoid circular import chain
+    # (player_graph -> nodes -> game components -> core.__init__ -> session -> controller -> player_graph)
+    from src.graphs.player.node.strategy_generate import strategy_generate_node
+    from src.graphs.player.node.strategy_review_router import strategy_review_router_node
+    from src.graphs.player.node.strategy_refine import strategy_refine_node
+    from src.graphs.player.node.speak_generate import speak_generate_node
+    from src.graphs.player.node.speak_review_router import speak_review_router_node
+    from src.graphs.player.node.speak_refine import speak_refine_node
+    from src.graphs.player.node.speak_commit import speak_commit_node
+
     graph = StateGraph(PlayerState)
 
+    # === 既存のノード ===
     graph.add_node("night_started", handle_night_started)
     graph.add_node("use_ability", handle_use_ability)
     graph.add_node("divine_result", handle_divine_result)
@@ -63,18 +73,69 @@ def build_player_graph():
     graph.add_node("vote", handle_vote)
     graph.add_node("reflection", reflection_node)
     graph.add_node("reaction", reaction_node)
-    graph.add_node("speak", handle_speak)
+
+    # === 新しい戦略→発言フローのノード ===
+    graph.add_node("strategy_generate", strategy_generate_node)
+    graph.add_node("strategy_refine", strategy_refine_node)
+    graph.add_node("speak_generate", speak_generate_node)
+    graph.add_node("speak_refine", speak_refine_node)
+    graph.add_node("speak_commit", speak_commit_node)
+
+    # === 既存のエッジ（END へ直接接続するもの）===
     graph.add_edge("night_started", END)
     graph.add_edge("day_started", END)
     graph.add_edge("vote_started", END)
     graph.add_edge("use_ability", END)
     graph.add_edge("divine_result", END)
     graph.add_edge("gm_comment", END)
-    graph.add_edge("speak", END)
     graph.add_edge("reaction", END)
     graph.add_edge("reflection", END)
     graph.add_edge("interpret_speech", END)
     graph.add_edge("vote", END)
+
+    # === 戦略→発言フローのエッジ ===
+    # strategy_generate → strategy_review_router
+    graph.add_conditional_edges(
+        "strategy_generate",
+        strategy_review_router_node,
+        {
+            "commit": "speak_generate",  # 戦略確定 → 発言生成へ
+            "refine": "strategy_refine",  # 戦略修正
+        },
+    )
+
+    # strategy_refine → strategy_review_router（ループ）
+    graph.add_conditional_edges(
+        "strategy_refine",
+        strategy_review_router_node,
+        {
+            "commit": "speak_generate",
+            "refine": "strategy_refine",
+        },
+    )
+
+    # speak_generate → speak_review_router
+    graph.add_conditional_edges(
+        "speak_generate",
+        speak_review_router_node,
+        {
+            "commit": "speak_commit",  # 発言確定
+            "refine": "speak_refine",  # 発言修正
+        },
+    )
+
+    # speak_refine → speak_review_router（ループ）
+    graph.add_conditional_edges(
+        "speak_refine",
+        speak_review_router_node,
+        {
+            "commit": "speak_commit",
+            "refine": "speak_refine",
+        },
+    )
+
+    # speak_commit → END
+    graph.add_edge("speak_commit", END)
 
     # START から phase に応じて分岐
     graph.add_conditional_edges(START, phase_router)
@@ -123,3 +184,4 @@ class DummyPlayerGraph:
 # - 後から LangGraph 実装に差し替える前提
 # player_graph = DummyPlayerGraph()
 player_graph = LangGraphPlayerAdapter(build_player_graph())
+

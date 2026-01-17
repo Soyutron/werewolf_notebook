@@ -1,0 +1,42 @@
+# src/graphs/player/node/speak_generate.py
+from src.core.types.player import PlayerState
+
+
+def speak_generate_node(state: PlayerState) -> PlayerState:
+    """
+    戦略に基づいて発言を生成するノード。
+
+    責務:
+    - 確定した戦略（internal.pending_strategy）を読み取る
+    - 戦略に基づいた発言を生成する
+    - 生成した発言を internal.pending_speak に保存する
+    """
+    # Lazy import to avoid circular import
+    from src.game.player.speak_generator import speak_generator
+
+    print("[speak_generate_node] Generating speech...")
+
+    memory = state["memory"]
+    internal = state["internal"]
+    request = state["input"].request
+
+    if request is None:
+        print("[speak_generate_node] No request found, skipping")
+        return state
+
+    # 戦略があれば発言生成に渡す（将来拡張用）
+    # 現時点では speak_generator は strategy を直接受け取らないため、
+    # observed として request を渡す
+    speak = speak_generator.generate(
+        memory=memory,
+        observed=request,
+    )
+
+    if speak is None:
+        print("[speak_generate_node] Failed to generate speech")
+        return state
+
+    internal.pending_speak = speak
+
+    return state
+
