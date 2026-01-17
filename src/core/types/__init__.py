@@ -41,6 +41,7 @@ from src.core.types.player import (
     SeerAbility,
     WerewolfAbility,
     AbilityResult,
+    Vote,
 )
 
 # フェーズ・ゲーム定義・ワールド状態
@@ -81,6 +82,7 @@ __all__ = [
     "SeerAbility",
     "WerewolfAbility",
     "AbilityResult",
+    "Vote",
     # phases
     "Phase",
     "GameDefinition",

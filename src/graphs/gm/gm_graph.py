@@ -9,6 +9,7 @@ from langgraph.graph import StateGraph, START, END
 from src.graphs.gm.node.night_phase import night_phase_node
 from src.graphs.gm.node.day_phase import day_phase_node
 from src.graphs.gm.phase_router import phase_router
+from src.graphs.gm.node.vote_phase import vote_phase_node
 
 
 class GMGraph(Protocol):

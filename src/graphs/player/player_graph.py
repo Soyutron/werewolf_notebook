@@ -6,6 +6,7 @@ from src.graphs.player.handle_request.use_ability import handle_use_ability
 from src.graphs.player.observe_event.gm_comment import handle_gm_comment
 from src.graphs.player.observe_event.divine_result import handle_divine_result
 from src.graphs.player.observe_event.day_started import handle_day_started
+from src.graphs.player.observe_event.vote_started import handle_vote_started
 from src.graphs.player.observe_event.interpret_speech import handle_interpret_speech
 from src.graphs.player.node.reflection_node import reflection_node
 from src.graphs.player.node.reaction_node import reaction_node

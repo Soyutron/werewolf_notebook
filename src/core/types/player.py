@@ -26,6 +26,7 @@ __all__ = [
     "SeerAbility",
     "WerewolfAbility",
     "AbilityResult",
+    "Vote",
 ]
 
 
@@ -203,6 +204,14 @@ AbilityResult = Union[
     SeerAbility,
     WerewolfAbility,
 ]
+
+
+# =========================
+# 投票（Vote）
+# =========================
+class Vote(BaseModel):
+    voter: PlayerName
+    target: PlayerName
 
 
 # =========================
