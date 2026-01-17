@@ -1,6 +1,45 @@
 from .base import ONE_NIGHT_WEREWOLF_RULES
 
 # =========================
+# 戦略生成用プロンプト（共通構造定義）
+# =========================
+
+COMMON_STRATEGY_OUTPUT_FORMAT = """
+==============================
+OUTPUT FORMAT
+==============================
+
+Output strictly in JSON format with the following structure:
+
+{
+  "role_assumptions": {
+    "role_objective": "Your core objective",
+    "allies_enemies": "Who is on your side vs against you",
+    "winning_condition": "What needs to happen for you to win"
+  },
+  "situation_analysis": {
+    "public_info": "Analysis of open statements/actions",
+    "private_info": "Analysis of your secret knowledge",
+    "constraints": "Limitations influencing your decision"
+  },
+  "considered_options": [
+    {
+      "name": "Option Name (e.g., 'Immediate CO', 'Wait')",
+      "pros": "Advantages",
+      "cons": "Risks/Disadvantages",
+      "evaluation": "Why this is good/bad now"
+    }
+    // List 2-3 distinct options
+  ],
+  "selected_option_name": "Name of the option you chose",
+  "action_type": "fixed" | "tentative",
+  "goals": ["Goal 1", "Goal 2"],
+  "approach": "Detailed approach paragraph",
+  "key_points": ["Point 1", "Point 2"]
+}
+"""
+
+# =========================
 # 戦略生成用プロンプト（役職別）
 # =========================
 
@@ -11,44 +50,32 @@ Your role is: 占い師 (Seer)
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ==============================
-YOUR SITUATION
+THINKING PROCESS
 ==============================
 
-You have divination results that can help the village.
-Your primary goal is to share this information effectively
-and guide the village toward finding the werewolf.
+1. ASSUME YOUR ROLE
+   - You are the source of truth.
+   - Your info is vital for the village.
+   - You must share it, but be careful of counter-claims.
 
-==============================
-STRATEGY REQUIREMENTS
-==============================
+2. ANALYZE SITUATION
+   - Public: Has anyone claimed Seer? Are there suspicious claims?
+   - Private: You know one person's Role (or two unburied cards). This is FACT.
+   - Constraints: If you don't speak, the village decides blindly.
 
-As 占い師, your strategy MUST include:
+3. CONSIDER OPTIONS
+   - Immediate CO: Share info immediately. High trust, but exposes you.
+   - Delayed CO: Wait to catch liars. risky if time runs out.
+   - Fake Result (rare): Lie to trick Werewolf (very risky for Seer).
+   - Silence: Do not reveal. (Usually bad for Seer).
 
-1) GOALS (goals):
-   - Share your divination result clearly
-   - Build credibility as the true seer
-   - Guide suspicion toward werewolves
-   - Counter any fake seer claims
+4. DECIDE STRATEGY
+   - Select the option that maximizes Village win rate based on current context.
 
-2) APPROACH (approach):
-   - How to present your claim convincingly
-   - How to deal with potential counterclaims
-   - How to maximize your influence on the final vote
+5. PLAN ACTION
+   - Define concrete goals and points to say.
 
-3) KEY POINTS (key_points):
-   - The exact divination result to reveal
-   - Which player to focus suspicion on
-   - How to respond to challenges
-
-==============================
-OUTPUT FORMAT
-==============================
-
-- JSON only
-- Fields:
-  - goals: list of 2-4 concrete goals
-  - approach: single paragraph strategy
-  - key_points: list of 2-4 specific points to include in speech
+{COMMON_STRATEGY_OUTPUT_FORMAT}
 """
 
 WEREWOLF_STRATEGY_SYSTEM_PROMPT = f"""
@@ -58,53 +85,32 @@ Your role is: 人狼 (Werewolf)
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ==============================
-YOUR SITUATION
+THINKING PROCESS
 ==============================
 
-You are the werewolf and must survive the vote.
-The village will try to find and execute you.
-Your survival depends on misdirection and deception.
+1. ASSUME YOUR ROLE
+   - You are the enemy of the village.
+   - allies: Other Werewolf (if any), Madman.
+   - win: You survive (or one of you survives).
 
-==============================
-STRATEGY REQUIREMENTS
-==============================
+2. ANALYZE SITUATION
+   - Public: Who is leading? Any dangerous Seer claims?
+   - Private: You know you are Werewolf. You checked center cards (maybe).
+   - Constraints: If you are quiet, you get suspected. If you lie poorly, you get caught.
 
-As 人狼, your strategy MUST include:
+3. CONSIDER OPTIONS
+   - Fake Seer CO: Claim Seer to confuse.
+   - Fake Villager CO: Claim innocent Villager.
+   - Support Madman/Others: Blend in.
+   - Attack Real Seer: Discredit the true threat.
 
-1) GOALS (goals):
-   - Survive the final vote
-   - Direct suspicion toward village members
-   - Appear trustworthy and helpful
+4. DECIDE STRATEGY
+   - Choose the option that best hides your identity or creates enough chaos.
 
-2) APPROACH (approach):
-   - Should you fake a role claim?
-   - How to create doubt about real claims?
-   - Who should you accuse and why?
+5. PLAN ACTION
+   - Define concrete goals and points to say.
 
-3) KEY POINTS (key_points):
-   - Specific accusations or defenses
-   - Your claimed role (if any)
-   - How to respond if accused
-
-==============================
-STRATEGIC OPTIONS
-==============================
-
-You MAY:
-- Fake 占い師CO with a false result
-- Support another player's claim to blend in
-- Attack real seer claims as suspicious
-- Stay low-profile and cast doubt
-
-==============================
-OUTPUT FORMAT
-==============================
-
-- JSON only
-- Fields:
-  - goals: list of 2-4 concrete goals
-  - approach: single paragraph strategy
-  - key_points: list of 2-4 specific points to include in speech
+{COMMON_STRATEGY_OUTPUT_FORMAT}
 """
 
 MADMAN_STRATEGY_SYSTEM_PROMPT = f"""
@@ -114,53 +120,32 @@ Your role is: 狂人 (Madman)
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ==============================
-YOUR SITUATION
+THINKING PROCESS
 ==============================
 
-You win if the werewolf wins.
-You appear as a villager if divined.
-You must actively deceive the village.
+1. ASSUME YOUR ROLE
+   - You want the Werewolf to win.
+   - You do NOT know who the Werewolf is (usually).
+   - You must act suspicious or disruption to protect them.
 
-==============================
-STRATEGY REQUIREMENTS
-==============================
+2. ANALYZE SITUATION
+   - Public: Can you spot the Werewolf? Can you spot the Seer?
+   - Private: You assume you are human, but on the Wolf side.
+   - Constraints: You need to lie to cover the Wolf, but not get the Wolf killed.
 
-As 狂人, your strategy MUST include:
+3. CONSIDER OPTIONS
+   - Fake Seer CO: Best way to confuse. Give false info.
+   - Fake Werewolf CO: Bait the vote (risky if they vote you).
+   - Support suspicious players: They might be Wolf.
+   - Chaos: Random accusations.
 
-1) GOALS (goals):
-   - Protect the werewolf (you don't know who they are)
-   - Create confusion and false leads
-   - Undermine real seer claims
+4. DECIDE STRATEGY
+   - Choose the option that creates the most confusion for the Village.
 
-2) APPROACH (approach):
-   - Should you fake 占い師CO?
-   - How to create conflicting information?
-   - Which players to accuse as werewolf?
+5. PLAN ACTION
+   - Define concrete goals and points to say.
 
-3) KEY POINTS (key_points):
-   - Specific false claims or accusations
-   - How to appear convincing
-   - Counter-arguments to prepare
-
-==============================
-STRATEGIC OPTIONS
-==============================
-
-You SHOULD:
-- Fake 占い師CO with a false result (RECOMMENDED)
-- Accuse an innocent player as werewolf
-- Support suspicious behavior as trustworthy
-- Create logical contradictions
-
-==============================
-OUTPUT FORMAT
-==============================
-
-- JSON only
-- Fields:
-  - goals: list of 2-4 concrete goals
-  - approach: single paragraph strategy
-  - key_points: list of 2-4 specific points to include in speech
+{COMMON_STRATEGY_OUTPUT_FORMAT}
 """
 
 VILLAGER_STRATEGY_SYSTEM_PROMPT = f"""
@@ -170,59 +155,32 @@ Your role is: 村人 (Villager)
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ==============================
-YOUR SITUATION
+THINKING PROCESS
 ==============================
 
-You have no special ability.
-Your power comes from observation and deduction.
-You must identify the werewolf through discussion.
+1. ASSUME YOUR ROLE
+   - You are innocent.
+   - You have NO special info.
+   - You rely on logic and observation.
 
-==============================
-STRATEGY REQUIREMENTS
-==============================
+2. ANALYZE SITUATION
+   - Public: Who is lying? Who conflicts?
+   - Private: You know YOU are not Wolf.
+   - Constraints: You can't prove your innocence easily.
 
-As 村人, your strategy MUST include:
+3. CONSIDER OPTIONS
+   - Deductive Leading: Point out logical flaws.
+   - Questioning: Press others for info.
+   - Support Seer: Back up the most credible claim.
+   - Bait: Pretend to know something (advanced, risky).
 
-1) GOALS (goals):
-   - Identify the werewolf
-   - Support credible claims
-   - Challenge suspicious behavior
-   - Push toward a decisive vote
+4. DECIDE STRATEGY
+   - Choose the option that best helps find the truth.
 
-2) APPROACH (approach):
-   - Which claims seem most credible?
-   - What logical inconsistencies have you noticed?
-   - Who should the village focus on?
+5. PLAN ACTION
+   - Define concrete goals and points to say.
 
-3) KEY POINTS (key_points):
-   - Specific suspicions with reasoning
-   - Which players to trust or distrust
-   - Your voting direction
-
-==============================
-ALLOWED REASONING
-==============================
-
-You may base suspicion on:
-- Contradictory statements
-- Suspicious timing of claims
-- Logical inconsistencies
-- Incentive-based reasoning
-
-You may NOT use:
-- Pure gut feelings
-- Vague impressions
-- "様子見" or waiting
-
-==============================
-OUTPUT FORMAT
-==============================
-
-- JSON only
-- Fields:
-  - goals: list of 2-4 concrete goals
-  - approach: single paragraph strategy
-  - key_points: list of 2-4 specific points to include in speech
+{COMMON_STRATEGY_OUTPUT_FORMAT}
 """
 
 # =========================
@@ -238,34 +196,14 @@ You are reviewing a player's strategy in a ONE-NIGHT Werewolf game.
 REVIEW PURPOSE
 ==============================
 
-Your job is to check if this strategy is VALID for the player's role.
+Check if the strategy is LOGICALLY CONSISTENT and ROLE-APPROPRIATE.
 
-A strategy is INVALID if:
-1) It contradicts the player's role objectives
-2) It reveals information the player shouldn't know
-3) It is logically impossible given the game state
-4) It contains no actionable elements
-
-A strategy is VALID even if:
-- It might not be optimal
-- It is risky
-- It involves deception (for werewolf/madman)
-
-==============================
-REVIEW AXES
-==============================
-
-1) Role Alignment
-   - Does the strategy serve the role's win condition?
-
-2) Feasibility
-   - Can this strategy actually be executed?
-
-3) Coherence
-   - Are goals, approach, and key_points consistent?
-
-4) Actionability
-   - Are there concrete actions to take?
+Criteria:
+1. Alignment: Does role_assumptions match the actual role?
+2. Analysis: Is situation_analysis based on facts?
+3. Options: Are the considered_options distinct and reasonable?
+4. Decision: Does the selected_option make sense given the analysis?
+5. Plan: Do goals/approach/key_points match the selected option?
 
 ==============================
 OUTPUT FORMAT
@@ -273,9 +211,9 @@ OUTPUT FORMAT
 
 - JSON only
 - Fields:
-  - needs_fix: boolean (true if correction required)
+  - needs_fix: boolean
   - reason: short explanation
-  - fix_instruction: single sentence describing what to fix (null if needs_fix is false)
+  - fix_instruction: single sentence instructions
 """
 
 # =========================
@@ -291,30 +229,14 @@ You are refining a player's strategy in a ONE-NIGHT Werewolf game.
 TASK
 ==============================
 
-You must edit the given strategy based on the review feedback.
-This is a REFINEMENT task, not a complete rewrite.
+Update the strategy based on feedback.
+Ensure all fields (role_assumptions, situation_analysis, etc.) are consistent with the fix.
+Maintain the JSON structure of the Strategy object.
 
 Inputs:
-- original_strategy: the strategy to refine
-- review_reason: why it needs fixing
-- fix_instruction: what specifically to fix
+- original_strategy
+- review_reason
+- fix_instruction
 
-==============================
-RULES
-==============================
-
-- Apply MINIMAL changes to satisfy the fix_instruction
-- Preserve the original intent and structure
-- Keep goals/approach/key_points consistent
-- Do NOT add unrelated new elements
-
-==============================
-OUTPUT FORMAT
-==============================
-
-- JSON only
-- Fields:
-  - goals: list of goals
-  - approach: strategy approach
-  - key_points: list of key points
+{COMMON_STRATEGY_OUTPUT_FORMAT}
 """
