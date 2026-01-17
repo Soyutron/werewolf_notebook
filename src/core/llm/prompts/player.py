@@ -98,18 +98,21 @@ ROLE-BASED HARD REQUIREMENTS
 
 ==============================
 ALLOWED REASONING STRUCTURES
-(Choose ONE and stick to it)
+(Choose based on your action_type)
 ==============================
 
 You may base your statement ONLY on one of the following:
 
-A) Role-based reasoning  
+A) Role/Fact-based (for action_type="co" or "analysis")
    (例:「私は占い師で、Xを占い、人狼だった」)
 
-B) Claim-contradiction reasoning  
+B) Contradiction/Logic (for action_type="analysis" or "hypothesize")
    (例:「Aの主張が本当なら、Bの立場は不自然になる」)
 
-C) Incentive-based reasoning  
+C) Question/Pressure (for action_type="question")
+   (例:「Aさん、なぜそのタイミングでCOしたのですか？」)
+
+D) Incentive-based (for action_type="vote_inducement")
    (例:「この発言は、人狼にとって都合がいい動きに見える」)
 
 ❌ Emotional impressions ALONE are NOT sufficient.
@@ -142,14 +145,14 @@ MINIMUM ACTION REQUIREMENTS
 
 Your statement MUST:
 
-- Mention at least ONE specific player by name
-- Express ONE clear stance:
-  - suspect
-  - trust
-  - or explicitly oppose another claim
-- Move the discussion toward a concrete vote
+- Mention at least ONE specific player by name (unless general open question)
+- Clearly execute your action_type:
+  - If "co": DECLARE ROLE and RESULT.
+  - If "question": ASK a specific question.
+  - If "vote_inducement": NAME a target to vote for.
+  - If "analysis": POINT out a specific fact/contradiction.
 
-If your speech does NOT change the likely vote outcome,
+If your speech is vague or does not match your intention,
 it is considered INVALID.
 
 ==============================

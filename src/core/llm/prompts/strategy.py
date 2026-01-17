@@ -13,6 +13,7 @@ OUTPUT FORMAT (JSON ONLY)
   "co_decision": "co_now" | "co_later" | "no_co" | null,
   "co_target": "player name or null",
   "co_result": "人狼 / 村人 / null",
+  "action_type": "co" | "analysis" | "question" | "hypothesize" | "line_formation" | "vote_inducement",
   "action_stance": "aggressive" | "defensive" | "neutral",
   "primary_target": "player name or null",
   "main_claim": "One sentence core message",
@@ -40,10 +41,26 @@ YOUR POWER & RESPONSIBILITY
 - If you don't share it, the village votes BLIND
 
 ==============================
-CO DECISION (CRITICAL)
+ACTION OPTIONS
 ==============================
 
-Coming Out (CO) = Publicly declaring "I am the Seer" + sharing your result
+1. [CO] (Coming Out) - HIGH PRIORITY
+   - Reveal your role and result immediately.
+   - Essential to provide information to the village.
+   - Recommended action_type: "co"
+
+2. [Analysis]
+   - Analyze other players' claims based on your knowledge.
+   - Point out contradictions using your proven fact.
+   - Recommended action_type: "analysis"
+
+3. [Question/Pressure]
+   - Question suspicious players to expose lies.
+   - Recommended action_type: "question"
+
+==============================
+CO STRATEGY
+==============================
 
 Options:
 - co_now: Reveal immediately (RECOMMENDED DEFAULT)
@@ -56,26 +73,10 @@ Options:
 
 DEFAULT TO: co_now (unless you have strong reason not to)
 
-When co_decision = "co_now":
+If action_type is "co":
 - You MUST set co_target = name of player you divined
 - You MUST set co_result = "人狼" or "村人"
 - Your key_points MUST include the CO statement
-
-==============================
-STRATEGY GENERATION
-==============================
-
-Based on your divination result:
-
-If you found a 人狼:
-- action_stance: aggressive
-- primary_target: the werewolf you found
-- main_claim: Accuse them directly
-
-If you found a 村人:
-- action_stance: defensive (protect the confirmed human)
-- primary_target: someone suspicious
-- main_claim: Clear the innocent, redirect suspicion
 
 {COMMON_STRATEGY_OUTPUT_FORMAT}
 """
@@ -99,7 +100,29 @@ SURVIVE THE VOTE. That's all that matters.
 - If anyone else dies (or no one) → Werewolves win
 
 ==============================
-CO DECISION (FAKE CO)
+ACTION OPTIONS
+==============================
+
+1. [Fake CO]
+   - Pretend to be Seer, Villager, or even Madman.
+   - Create false information to confuse the village.
+   - Recommended action_type: "co"
+
+2. [Vote Inducement]
+   - Actively push suspicion onto a specific non-wolf player.
+   - Use aggressive logic to convince others.
+   - Recommended action_type: "vote_inducement"
+
+3. [Line Formation]
+   - Ally with players who trust you or attack your enemies.
+   - Recommended action_type: "line_formation"
+
+4. [Hypothesize]
+   - Present false scenarios that clear you and frame others.
+   - Recommended action_type: "hypothesize"
+
+==============================
+CO STRATEGY (FAKE)
 ==============================
 
 Options:
@@ -108,18 +131,9 @@ Options:
 - no_co: Blend in as villager (safe but passive)
 
 Fake CO considerations:
-- If you fake Seer, set co_target = any player, co_result = "村人"
+- If you fake Seer, set co_target = any player, co_result = "村人" (safe) or "人狼" (aggressive)
 - Never claim to have found yourself
 - Be consistent with your lie
-
-==============================
-STRATEGY TIPS
-==============================
-
-- Silence = suspicion (you MUST speak actively)
-- Support others who seem innocent to blend in
-- If real Seer outs you, DENY and counter-attack
-- Create confusion between claims
 
 {COMMON_STRATEGY_OUTPUT_FORMAT}
 """
@@ -144,7 +158,25 @@ HELP THE WEREWOLF WIN (even though you don't know who they are).
 - Getting yourself executed can SAVE the real wolf
 
 ==============================
-CO DECISION (FAKE CO ENCOURAGED)
+ACTION OPTIONS
+==============================
+
+1. [Fake CO] - BEST OPTION
+   - Fake Seer CO to confuse the village.
+   - Give conflicting results to the real Seer.
+   - Recommended action_type: "co"
+
+2. [Disruption/Question]
+   - Harass the real Seer or clear villagers.
+   - Throw random suspicion.
+   - Recommended action_type: "question" or "hypothesize"
+
+3. [Sacrifice]
+   - Act suspicious to attract votes (protecting the wolf).
+   - Recommended action_type: "vote_inducement" (on self or random)
+
+==============================
+CO STRATEGY (FAKE CO ENCOURAGED)
 ==============================
 
 Options:
@@ -155,18 +187,6 @@ Options:
 Fake CO is your best tool:
 - Claim someone is "人狼" (preferably someone who seems human)
 - Create conflicting Seer claims → confusion → wolf survives
-
-When faking:
-- co_target = any player (ideally someone trusted)
-- co_result = "人狼" (to get them voted)
-
-==============================
-STRATEGY
-==============================
-
-- Chaos helps wolves, order helps village
-- Aggressive fake claims are better than silence
-- Getting voted yourself is acceptable (if wolf survives)
 
 {COMMON_STRATEGY_OUTPUT_FORMAT}
 """
@@ -189,28 +209,37 @@ YOUR SITUATION
 - You rely on logic and observation
 
 ==============================
-CO DECISION
+ACTION OPTIONS (BE CREATIVE!)
 ==============================
 
-co_decision should be null (you have nothing to CO)
+1. [Observation & Analysis]
+   - Point out logical contradictions.
+   - Summarize the current state of COs.
+   - Recommended action_type: "analysis"
 
-Villagers should NOT fake claim unless desperate.
+2. [Questioning]
+   - Press specific players for more information.
+   - "Why did you CO now?" "Who do you suspect?"
+   - Recommended action_type: "question"
+
+3. [Vote Planning]
+   - Propose a plan: "If X is true, we should vote Y".
+   - Recommended action_type: "hypothesize" or "vote_inducement"
+
+4. [Gambit CO] (Universal CO)
+   - Rarely, you might Fake CO to test reactions, then retract.
+   - OR imply you have a role to see who counters you.
+   - WARNING: Use sparingly. Catching wolves in lies is the goal.
+   - Recommended action_type: "co" (Fake)
 
 ==============================
-STRATEGY
+STRATEGY TIPS
 ==============================
-
-Your job: Find the wolf through logic.
 
 - Listen for contradictions in claims
 - Support credible Seer claims
 - Question suspicious behavior
 - Suspicion without accusation is USELESS
-
-action_stance recommendations:
-- aggressive: When you have a suspect
-- neutral: When gathering info
-- defensive: When defending someone you trust
 
 {COMMON_STRATEGY_OUTPUT_FORMAT}
 """
