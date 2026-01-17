@@ -69,6 +69,45 @@ class SpeakGenerator:
         """
         observed_type = observed.__class__.__name__
 
+        # 公開情報の抽出と整理
+        public_speeches = [
+            e for e in memory.observed_events 
+            if e.event_type == "speak"
+        ]
+        
+        # 議論開始直後かどうかの判定（発言数が少ない場合）
+        # 設定: 他者の発言が2つ未満なら「序盤」とみなす
+        is_early_game = len(public_speeches) < 2
+        
+        public_history_text = "\n".join(
+            f"- {e.payload.get('player')}: {e.payload.get('text')}"
+            for e in public_speeches
+        )
+        
+        # 状況に応じた追加指示
+        phase_instruction = ""
+        if is_early_game:
+            phase_instruction = """
+==============================
+PHASE: EARLY GAME (Discussion just started)
+==============================
+- There is NOT enough information to find contradictions yet.
+- DO NOT claim "inconsistency" or "logic error" in others unless you can quote 2 conflicting statements.
+- Recommended actions:
+    - Ask a question (e.g., "Who is the Seer?")
+    - State your own role clearly (if beneficial)
+    - Prompt others to speak
+- AVOID: "His logic is weird" (Too early for this)
+"""
+        else:
+            phase_instruction = """
+==============================
+PHASE: MID/LATE GAME
+==============================
+- Compare statements to find contradictions.
+- If you find a logical conflict, ATTACK it.
+"""
+
         role_beliefs_text = "\n".join(
             f"- {player}: {belief.probs}"
             for player, belief in memory.role_beliefs.items()
@@ -138,16 +177,26 @@ YOU ARE {self_name}
 {anti_self_ref_section}
 {co_enforcement_section}
 {strategy_section}
+{phase_instruction}
 
-Recent observation:
-Type: {observed_type}
-Details: {observed.model_dump()}
+==============================
+PUBLIC FACTS (What everyone knows)
+==============================
+The following is the ONLY objective history. You cannot "invent" statements not listed here.
+{public_history_text if public_history_text else "(No one has spoken yet)"}
 
-Your beliefs (private):
+==============================
+YOUR PRIVATE BELIEFS (Hidden)
+==============================
+These are your internal thoughts. Do NOT treat them as public facts.
 {role_beliefs_text}
 
 Recent thoughts:
 {recent_reflections}
+
+Recent observation:
+Type: {observed_type}
+Details: {observed.model_dump()}
 
 Generate a public statement. Output JSON only.
 """

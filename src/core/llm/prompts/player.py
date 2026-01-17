@@ -173,48 +173,52 @@ You are reviewing a player's public statement in a ONE-NIGHT Werewolf game.
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ==============================
-REVIEW PURPOSE
+REVIEW PURPOSE (STRICTLY LIMITED)
 ==============================
 
-Check if the speech is VALID for public communication.
-Also check if it aligns with the given strategy.
+Check ONLY for OBJECITVE PROHIBITIONS.
+Do NOT critique the strategy, persuasion, or style.
+Do NOT check if the speech is "good" or "effective".
 
-A speech is INVALID if:
-1) It reveals internal state or probabilities
-2) It mentions system/prompt/AI elements
-3) It contradicts the strategy's key points
-4) It is incomprehensible Japanese
-5) It violates the player's role requirements
-6) It contains SELF-REFERENCE (speaker refers to themselves in third person)
-
-SELF-REFERENCE DETECTION:
-- If speaker is "太郎", saying "太郎さん" or "太郎は" is INVALID
-- Speaker MUST use first-person (私/俺/僕), never their own name
-
-A speech is VALID even if:
-- It is deceptive (for werewolf/madman)
-- It is aggressive
-- It makes accusations
+Refining/Rejecting a speech is RISKY because it leads to self-contradiction.
+Pass the speech unless it is absolutely broken.
 
 ==============================
-REVIEW AXES
+REJECTION CRITERIA (CHECK THESE ONLY)
 ==============================
 
-1) Language Quality
-   - Is it natural Japanese?
-   - Does it sound like a human player?
+Fail the speech (needs_fix: true) ONLY if:
 
-2) Strategy Alignment
-   - Does it include the key_points from strategy?
-   - Does it follow the approach?
+1. [CRITICAL] Self-Reference Violation
+   - Speaker refers to themselves in the third person (e.g. "Taro thinks...").
+   - Speaker uses their own name (e.g. "Taro" if name is Taro).
+   - NOTE: Referring to OTHER players by name is EXPECTED and VALID.
 
-3) Role Compliance
-   - If seer: does it include the divination result?
-   - If werewolf/madman: is deception plausible?
+2. [CRITICAL] Meta / System Terms
+   - Mentions "AI", "LLM", "Prompt", "System", "JSON".
+   - Reveals internal probability numbers (e.g. "My belief is 80%").
 
-4) Game Appropriateness
-   - Does it move discussion forward?
-   - Does it take a clear position?
+3. [CRITICAL] Broken Japanese
+   - Grammatically broken or incomprehensible.
+   - Wrong language (not Japanese).
+
+4. [CRITICAL] Role Contradiction (Seer Only)
+   - If the player is Seer and makes a statement starting with "I am Seer" (CO) but FAILS to say the result (White/Black).
+
+==============================
+PASS CRITERIA
+==============================
+
+If none of the above violations are found, YOU MUST PASS THE KEY.
+needs_fix: false
+
+Even if:
+- It differs slightly from the strategy.
+- It is weak or vague.
+- It is aggressive.
+- It is a lie.
+
+Strategy alignment is confirmed in the generation phase. Do not double-check it here.
 
 ==============================
 OUTPUT FORMAT
@@ -222,9 +226,11 @@ OUTPUT FORMAT
 
 - JSON only
 - Fields:
-  - needs_fix: boolean (true if correction required)
-  - reason: short explanation
+  - needs_fix: boolean (true ONLY for critical violations)
+  - reason: short explanation (required if needs_fix is true)
   - fix_instruction: what to fix (null if needs_fix is false)
+
+NOTE: If needs_fix is true, fix_instruction must be specific and minimal.
 """
 
 # =========================
@@ -237,35 +243,38 @@ You are refining a player's public statement in a ONE-NIGHT Werewolf game.
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ==============================
-TASK
+TASK: MINIMAL REPAIR
 ==============================
 
-Edit the given speech based on review feedback.
-This is a REFINEMENT task.
+You are a REPAIRER, not a writer.
+You must fix the specific error pointed out in the review review WITHOUT changing the meaning, tone, or style of the original speech.
 
 Inputs:
 - original_speak: the speech to refine
-- strategy: the strategy this speech should follow
-- review_reason: why it needs fixing
-- fix_instruction: what specifically to fix
+- strategy: original strategy (for context only)
+- review_reason: the error found
+- fix_instruction: what to fix
 
 ==============================
 ABSOLUTE RULES
 ==============================
 
-- Speaker MUST use first-person (私/俺/僕)
-- Speaker MUST NOT refer to themselves in third person
-- If speaker is "太郎", never output "太郎さん" or "太郎は"
+1. FIX ONLY THE ERROR. Do not rewrite safe parts.
+2. PRESERVE THE PERSONA. If the original was aggressive, stay aggressive. If weak, stay weak.
+3. PRESERVE THE STRATEGY. Do not change the target or the claim.
 
 ==============================
-REFINEMENT RULES
+COMMON FIXES
 ==============================
 
-- Apply MINIMAL changes to satisfy fix_instruction
-- Output MUST be in JAPANESE
-- Preserve the original tone and style
-- Ensure alignment with strategy key_points
-- Sound natural as a human player
+- Self-Reference ("Taro says..."):
+  -> Change "Taro" to "I" (私/俺).
+
+- Meta Terms ("In this prompt..."):
+  -> Remove the meta term.
+
+- Missing Result ("I am Seer..."):
+  -> Add the fake or real result ("...and X is White").
 
 ==============================
 OUTPUT FORMAT
