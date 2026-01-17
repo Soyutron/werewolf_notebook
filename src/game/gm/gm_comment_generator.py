@@ -37,10 +37,10 @@ class GMCommentGenerator:
         # ★ 直近15件だけを見る
         recent_events = public_events[-15:]
 
-        events_text = format_events_for_gm(recent_events)
+        events_text = format_events_for_gm(list(reversed(recent_events)))
 
         is_opening = (
-            len(recent_events) > 0 and recent_events[-1].event_type == "day_started"
+            len(recent_events) > 0 and recent_events[-1].event_type == "night_started"
         )
 
         prompt = self._build_prompt(
@@ -48,6 +48,7 @@ class GMCommentGenerator:
             players=players,
             is_opening=is_opening,
         )
+        print(prompt)
 
         try:
             response = self.llm.generate(

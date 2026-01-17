@@ -3,7 +3,7 @@
 from src.core.types import GMGraphState
 from src.game.gm.gm_comment_reviewer import gm_comment_reviewer
 
-MAX_REVIEW_COUNT = 2
+MAX_REVIEW_COUNT = 1
 
 
 def gm_comment_review_router_node(state: GMGraphState) -> str:

@@ -44,7 +44,7 @@ class GMCommentReviewer:
         GMComment をレビューする。
         """
 
-        events_text = format_events_for_review(public_events)
+        events_text = format_events_for_review(list(reversed(public_events)))
 
         prompt = self._build_prompt(
             comment=comment,

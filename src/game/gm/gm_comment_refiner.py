@@ -35,7 +35,7 @@ class GMCommentRefiner:
         players: list[PlayerName],
     ) -> Optional[GMComment]:
         combined_review = f"主要な指摘:\n{review.reason}\n\n補足:\n{review.fix_instruction}"
-        context_str = format_events(public_events)
+        context_str = format_events(list(reversed(public_events)))
         user_prompt = f"""
 Context (Public Events):
 {context_str}
