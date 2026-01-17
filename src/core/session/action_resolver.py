@@ -173,7 +173,6 @@ class ActionResolver:
         """
         発言アクションを解釈する。
         """
-        print("output", output)
         event = GameEvent(
             event_type="speak",
             payload={
@@ -181,7 +180,6 @@ class ActionResolver:
                 "text": output.payload["text"],
             },
         )
-        print("_resolve_speak")
         session.world_state.pending_events.append(event)
         return
 

@@ -24,6 +24,9 @@ def phase_router(state: PlayerState) -> str:
         if player_input.event.event_type == "gm_comment":
             return "gm_comment"
 
+        if player_input.event.event_type == "speak":
+            return "interpret_speech"
+
     # request が来ている場合（Player の行動ターン）
     if player_input.request is not None:
         if player_input.request.request_type == "use_ability":

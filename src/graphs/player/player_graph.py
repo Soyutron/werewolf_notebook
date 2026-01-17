@@ -6,6 +6,7 @@ from src.graphs.player.handle_request.use_ability import handle_use_ability
 from src.graphs.player.observe_event.gm_comment import handle_gm_comment
 from src.graphs.player.observe_event.divine_result import handle_divine_result
 from src.graphs.player.observe_event.day_started import handle_day_started
+from src.graphs.player.observe_event.interpret_speech import handle_interpret_speech
 from src.graphs.player.node.reflection_node import reflection_node
 from src.graphs.player.node.reaction_node import reaction_node
 from src.graphs.player.phase_router import phase_router
@@ -55,6 +56,7 @@ def build_player_graph():
     graph.add_node("divine_result", handle_divine_result)
     graph.add_node("day_started", handle_day_started)
     graph.add_node("gm_comment", handle_gm_comment)
+    graph.add_node("interpret_speech", handle_interpret_speech)
     graph.add_node("reflection", reflection_node)
     graph.add_node("reaction", reaction_node)
     graph.add_node("speak", handle_speak)
@@ -66,6 +68,7 @@ def build_player_graph():
     graph.add_edge("speak", END)
     graph.add_edge("reaction", END)
     graph.add_edge("reflection", END)
+    graph.add_edge("interpret_speech", END)
 
     # START から phase に応じて分岐
     graph.add_conditional_edges(START, phase_router)

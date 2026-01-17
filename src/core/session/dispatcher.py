@@ -59,7 +59,21 @@ class Dispatcher:
           （= 観測フェーズと行動フェーズは明確に分離される）
         """
         # =========================================================
-        # 1. event の配布（すでに起きた事実の通知）
+        # 1. pending_events の配布（Player 行動の内省）
+        # =========================================================
+        if session.world_state.pending_events:
+            for event in session.world_state.pending_events:
+                for player in session.player_states:
+                    session.run_player_turn(
+                        player=player,
+                        input=PlayerInput(event=event),
+                    )
+            # 配布が終わったら「過去の事実」に昇格
+            session.world_state.public_events.extend(session.world_state.pending_events)
+            session.world_state.pending_events.clear()
+
+        # =========================================================
+        # 2. event の配布（すでに起きた事実の通知）
         # =========================================================
         # - 全プレイヤーに共有される「確定した出来事」
         # - プレイヤーは思考・記憶更新のみを行う（行動はしない）
@@ -79,19 +93,6 @@ class Dispatcher:
             # （LangGraph 実装や再実行・再開時の安全装置として有用）
             session.gm_internal.gm_event_cursor = len(session.world_state.public_events)
 
-        # =========================================================
-        # 2. pending_events の配布（Player 行動の内省）
-        # =========================================================
-        if session.world_state.pending_events:
-            for event in session.world_state.pending_events:
-                for player in session.player_states:
-                    session.run_player_turn(
-                        player=player,
-                        input=PlayerInput(event=event),
-                    )
-            # 配布が終わったら「過去の事実」に昇格
-            session.world_state.public_events.extend(session.world_state.pending_events)
-            session.world_state.pending_events.clear()
 
         # =========================================================
         # 2. request の配布（今ターンの行動要求）
