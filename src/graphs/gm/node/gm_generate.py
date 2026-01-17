@@ -23,6 +23,7 @@ def gm_generate_node(state: GMGraphState) -> GMGraphState:
     gm_comment = gm_comment_generator.generate(
         public_events=context,
         players=players,
+        review_feedback=internal.last_review_reason,
     )
 
     # 生成に失敗した場合は何もしない

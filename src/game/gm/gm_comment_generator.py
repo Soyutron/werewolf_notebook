@@ -29,6 +29,7 @@ class GMCommentGenerator:
         *,
         public_events: list[GameEvent],
         players: list[PlayerName],
+        review_feedback: Optional[str] = None,
     ) -> Optional[GMComment]:
         """
         直近の public_event をもとに GM コメントを生成する。
@@ -47,6 +48,7 @@ class GMCommentGenerator:
             events_text=events_text,
             players=players,
             is_opening=is_opening,
+            review_feedback=review_feedback,    
         )
 
         try:
@@ -66,6 +68,7 @@ class GMCommentGenerator:
         events_text: str,
         players: list[PlayerName],
         is_opening: bool,
+        review_feedback: Optional[str] = None,
     ) -> str:
         """
         GM 用 user prompt を構築する。
@@ -80,9 +83,20 @@ Phase:
 - No player has spoken yet.
 - There are no accusations or opinions yet.
 """
+        feedback_text = ""
+        if review_feedback:
+            feedback_text = f"""
+IMPORTANT:
+The previous GM comment was rejected for the following reason:
+- {review_feedback}
+
+You MUST address and fix this issue in the new GM comment.
+"""
 
         return f"""
 {opening_text}
+
+{feedback_text}
 
 Players:
 {players_text}

@@ -78,7 +78,7 @@ def build_gm_graph():
         gm_comment_review_router_node,
         {
             "commit": "gm_commit",
-            "refine": "gm_generate",
+            "generate": "gm_generate",
         },
     )
 

@@ -486,14 +486,15 @@ The following are NOT issues and must NOT trigger a fix:
 OUTPUT FORMAT (STRICT)
 ==============================
 
-You MUST output a valid JSON object
-matching EXACTLY this structure:
-
-{
-  "needs_fix": boolean,
-  "reason": "短い理由（必須）",
-  "fix_instruction": null | "どの点をどう直すべきかを一文で"
-}
+- JSON only
+- Fields:
+  - needs_fix: boolean
+    - true if correction is required
+    - false if the GM comment is acceptable
+  - reason: short explanation (required)
+  - fix_instruction:
+    - null if needs_fix is false
+    - a single sentence describing what should be fixed if needs_fix is true
 
 RULES:
 - If the GM comment is acceptable:
