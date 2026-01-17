@@ -397,26 +397,21 @@ in a ONE-NIGHT Werewolf game.
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ==============================
-REVIEW PURPOSE (MOST IMPORTANT)
+REVIEW PURPOSE
 ==============================
 
-Your ONLY responsibility is to judge whether
-this GM comment is VALID TO EXIST IN THE GAME WORLD.
+You are responsible for reviewing both the VALIDITY and QUALITY
+of the GM comment.
 
-"Valid" means:
-- understandable as Japanese
-- consistent with the observed game world
-- appropriate for the current phase
-- appropriate for the GM role
-
-You are NOT evaluating quality, excitement,
-pressure strength, or game impact.
+The review should ensure the GM comment:
+1. Does not break the game world
+2. Fulfills the GM's responsibility to advance discussion
 
 ==============================
-VALIDITY CHECK AXES
+VALIDITY CHECK (CRITICAL)
 ==============================
 
-A GM comment is INVALID if ANY of the following apply:
+A GM comment is INVALID and MUST BE REJECTED if:
 
 1) 日本語として意味が通じない
 - 文法的に破綻している
@@ -432,32 +427,52 @@ A GM comment is INVALID if ANY of the following apply:
 
 4) GMの立場を逸脱している
 - 特定のプレイヤーを理由なく「クロだ」と断定する
-- プレイヤーを無視して独り言を話している
-- （※注意: 矛盾の指摘や、回答を迫る強いプレッシャーは「正当なGMの責務」であり、逸脱ではない）
+- 隠された情報を漏洩している
 
 ==============================
-WHAT YOU MUST NOT DO
+QUALITY CHECK (IMPORTANT)
 ==============================
 
-- Do NOT rewrite the GM comment
-- Do NOT propose alternative wording
-- Do NOT invent or assume missing context
-- Do NOT judge excitement, pressure, or effectiveness
+A GM comment should be REJECTED if:
 
-If the comment is logically valid but boring,
-it MUST be accepted.
+1) プレイヤー名が含まれていない
+- GMコメントは必ず次の発言者の名前を明示すべき
+- 「誰か」「あなたたち」のような曖昧な呼びかけは不適切
+
+2) アクショナブルでない
+- プレイヤーが何をすべきか不明確
+- 単なる状況説明のみで、質問・要求がない
+- 「様子見してください」のような消極的な促し
+
+3) ゲームを前進させない
+- 新しい情報や視点を引き出さない
+- 既に解決した話題を繰り返している
+- 曖昧すぎて議論が進まない
 
 ==============================
-VALIDITY CHECK AXES
+WHAT IS ACCEPTABLE
 ==============================
 
-NOTE:
-The following are VALUD and should be ACCEPTED:
+The following are VALID and should be ACCEPTED:
 - 指示語（「それ」「その発言」）が、直前の議論から明らかな場合
 - 矛盾の指摘 ("You said X, but now Y")
 - 沈黙への言及 ("Why are you silent?")
 - 強い回答の要求 ("Answer yes or no")
-- 一般的な進行上の表現
+- プレッシャーをかける表現（これはGMの正当な責務）
+- 意見や立場の表明を強制する質問
+
+==============================
+REVIEW DECISION GUIDELINES
+==============================
+
+- If both validity AND quality issues exist: needs_fix = true
+- If validity issue exists: needs_fix = true
+- If quality issue exists: needs_fix = true
+- If minor stylistic concerns only: needs_fix = false
+
+When in doubt about a minor issue, prefer to ACCEPT.
+But if the comment lacks player name or clear action request,
+you MUST REJECT.
 
 ==============================
 OUTPUT FORMAT (STRICT)
@@ -468,7 +483,7 @@ OUTPUT FORMAT (STRICT)
   - needs_fix: boolean
     - true if correction is required
     - false if the GM comment is acceptable
-  - reason: short explanation (required)
+  - reason: short explanation in Japanese (required)
   - fix_instruction:
     - null if needs_fix is false
     - a single sentence describing what should be fixed if needs_fix is true
@@ -477,7 +492,7 @@ RULES:
 - If acceptable:
   - needs_fix = false
   - fix_instruction = null
-- If invalid:
+- If invalid or quality issues:
   - needs_fix = true
   - Do NOT include rewritten text or examples
 
