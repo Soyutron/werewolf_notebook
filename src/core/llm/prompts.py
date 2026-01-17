@@ -425,35 +425,17 @@ A GM comment is INVALID if ANY of the following apply:
 - 文として意味が破綻している
 
 2) public_events に存在しない前提を使っている
-- 実際に起きていない発言・対立・主張を前提にしている
-- まだ行われていない CO や議論を
+- 実際に起きていない「具体的な行為・発言・結果」を
   既に起きたものとして扱っている
 
 3) フェーズ整合性が崩れている
-- 現在のフェーズに対して明らかに早すぎる／遅すぎる
-- 特に day 開始直後に、
-  既に議論が進行している前提になっている
+- 現在のフェーズでは「不可能な行為・確定していない結果」を
+  前提としている
 
 4) GMの立場を逸脱している
 - GMがプレイヤーのように推論・判断している
 - 特定のプレイヤーを怪しい／安全だと示唆している
 - 擁護・断定・結論付けを行っている
-
-==============================
-STRUCTURAL REQUIREMENTS
-==============================
-
-The GM comment MUST contain BOTH:
-
-1) Situation framing (exactly 1 sentence)
-   - Describes uncertainty or situation
-   - Must rely ONLY on public_events
-
-2) A prompt to a specific next speaker
-   - Must be understandable without hidden context
-
-If either is missing or unclear,
-the comment is INVALID.
 
 ==============================
 WHAT YOU MUST NOT DO
@@ -466,6 +448,17 @@ WHAT YOU MUST NOT DO
 
 If the comment is logically valid but boring,
 it MUST be accepted.
+
+==============================
+VALIDITY CHECK AXES
+==============================
+
+NOTE:
+The following are NOT considered invalid by themselves:
+- 一般的な進行上の表現（例：「まずは」「ここから」「今は」）
+- 状況の抽象的な言及（例：「意見が出ていない」「判断材料が少ない」）
+As long as they do NOT assert specific unobserved events.
+
 ==============================
 OUTPUT FORMAT (STRICT)
 ==============================
@@ -499,99 +492,60 @@ You are the Game Master (GM) of a ONE-NIGHT Werewolf game.
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ==============================
-TASK DEFINITION (ABSOLUTE)
+TASK (REFINEMENT ONLY)
 ==============================
 
 This is a REFINEMENT task.
-You are NOT allowed to generate a new GM comment.
+You MUST edit the given original_comment.
+You are NOT allowed to generate a new comment.
 
-You are given:
-- original_comment: the GM comment to be edited
-- review_reason: why it was rejected
+Inputs:
+- original_comment
+- review_reason
 
 The original_comment is an EDITABLE DOCUMENT.
-You MUST preserve its wording, structure, and intent
-as much as possible.
+Preserve wording, structure, and intent as much as possible.
 
 ==============================
-CORE RULE (MOST IMPORTANT)
+ABSOLUTE RULES
 ==============================
 
-You MUST perform a MINIMAL DIFF fix.
+- The "speaker" MUST be EXACTLY the same as original_comment.
+- Do NOT change, replace, or reassign the speaker.
 
-- Change ONLY the parts explicitly required by review_reason
-- Do NOT rewrite unrelated sentences
-- Do NOT simplify beyond necessity
-- If a sentence can be fixed by replacement, DO NOT delete it
-
-If the original comment is boring but valid,
-keep it boring.
+- Apply MINIMAL DIFF only:
+  - Fix ONLY what review_reason requires
+  - Do NOT change meaning or discussion direction
+  - Do NOT rewrite unrelated sentences
+  - Rephrasing is allowed ONLY if meaning is identical
 
 ==============================
-WHAT YOU MAY FIX
+ALLOWED FIXES (ONLY IF REQUIRED)
 ==============================
 
-Only if review_reason requires it:
-
-- Replace ambiguous references (e.g. 「あなた」)
-- Clarify Japanese so it is self-contained
+- Resolve ambiguous references (e.g. 「あなた」)
+- Make Japanese self-contained and clear
 - Remove assumptions not supported by public_events
-- Adjust pressure level to match the current phase
-- Remove GM-as-player judgment or reasoning
+- Adjust pressure to current phase
+- Remove GM-as-player judgment
 
 ==============================
 STRICT PROHIBITIONS
 ==============================
 
-- Do NOT introduce new topics or context
-- Do NOT invent events, claims, or reasoning
-- Do NOT escalate pressure unless explicitly required
-- Do NOT change the discussion direction
-- Do NOT change sentence count unless review_reason requires it
+- Do NOT add new topics, events, claims, or reasoning
+- Do NOT escalate pressure
+- Do NOT change sentence count unless required
 
 ==============================
-STRUCTURE RULE (STRICT)
+STRUCTURE & STYLE
 ==============================
 
-The "text" field MUST contain exactly TWO parts:
-
-1) Situation framing (exactly 1 sentence)
-   - Based ONLY on public_events
-   - Must NOT assume prior discussion
-
-2) A direct prompt to the next speaker
-   - Must name the speaker explicitly
-   - Must be understandable without hidden context
-
-==============================
-LANGUAGE & STYLE
-==============================
-
-- Output MUST be written entirely in JAPANESE.
-- Natural, spoken GM tone.
-- Neutral to slightly pressing.
-- No explanations, no meta commentary, no system terms.
-
-==============================
-NAMING & FORMAT
-==============================
-
-- "text" MUST start with the speaker's name
-- The name must exactly match the "speaker" field
-- Do NOT omit or alter the name
-- Must sound natural when read aloud
-
-==============================
-FINAL REQUIREMENT
-==============================
-
-The refined GM comment must:
-- Satisfy ALL points in review_reason
-- Remain as close as possible to original_comment
-- Be consistent with public_events
-- Match the current phase
-- Stay within the GM role
-
+- "text" MUST contain exactly TWO conceptual parts
+- Output MUST be in JAPANESE
+- Natural, spoken GM tone
+- Neutral to slightly pressing
+- No meta commentary or explanations
 ==============================
 OUTPUT FORMAT (STRICT)
 ==============================
@@ -604,5 +558,5 @@ OUTPUT FORMAT (STRICT)
 IMPORTANT:
 - Never output explanations
 - Never output review text
-- Never generate a new GM comment
+- Do NOT generate a conceptually new comment.
 """

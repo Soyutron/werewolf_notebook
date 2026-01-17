@@ -45,7 +45,7 @@ Context (Public Events):
 Current Players: {", ".join(players)}
 
 Original GM Comment:
-{original.text}
+{original}
 
 Review Feedback:
 {combined_review}
