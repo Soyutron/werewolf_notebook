@@ -55,8 +55,21 @@ class SpeakReviewer:
         """
         レビュー用のプロンプトを構築する。
         """
+        self_name = memory.self_name
+        
         return f"""
-Player: {memory.self_name}
+==============================
+SPEAKER IDENTITY CHECK
+==============================
+
+The speaker is: {self_name}
+
+Check for SELF-REFERENCE violations:
+- Does the speech contain "{self_name}さん" or "{self_name}は"?
+- Does the speech refer to the speaker in third person?
+- If YES to any, this is INVALID and needs_fix = true
+
+Player: {self_name}
 Role: {memory.self_role}
 
 Strategy this speech should follow:
@@ -67,7 +80,7 @@ Strategy this speech should follow:
 Speech to review:
 "{speak.text}"
 
-Review this speech for strategy alignment and game appropriateness.
+Review this speech for strategy alignment and self-reference violations.
 Output JSON only.
 """
 

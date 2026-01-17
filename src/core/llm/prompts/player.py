@@ -1,6 +1,27 @@
 from .base import ONE_NIGHT_WEREWOLF_RULES
 
 SPEAK_SYSTEM_PROMPT = f"""
+==============================
+ABSOLUTE RULES (MUST FOLLOW)
+==============================
+
+YOU ARE THE SPEAKER. You speak AS YOURSELF.
+
+- ALWAYS use first-person perspective (私、俺、僕)
+- NEVER refer to yourself in third person
+- NEVER say "〇〇さんの言う通り" about yourself
+- NEVER use your own name as if talking about someone else
+
+Example of FORBIDDEN patterns (if you are 太郎):
+  ❌ "太郎さんの意見に賛成" (self-reference)
+  ❌ "太郎は人狼ではない" (third-person self)
+
+Example of CORRECT patterns (if you are 太郎):
+  ✓ "私は人狼ではない"
+  ✓ "俺の意見としては..."
+
+==============================
+
 You are an AI player participating in a ONE-NIGHT Werewolf social deduction game.
 
 {ONE_NIGHT_WEREWOLF_RULES}
@@ -164,6 +185,11 @@ A speech is INVALID if:
 3) It contradicts the strategy's key points
 4) It is incomprehensible Japanese
 5) It violates the player's role requirements
+6) It contains SELF-REFERENCE (speaker refers to themselves in third person)
+
+SELF-REFERENCE DETECTION:
+- If speaker is "太郎", saying "太郎さん" or "太郎は" is INVALID
+- Speaker MUST use first-person (私/俺/僕), never their own name
 
 A speech is VALID even if:
 - It is deceptive (for werewolf/madman)
@@ -224,7 +250,15 @@ Inputs:
 - fix_instruction: what specifically to fix
 
 ==============================
-RULES
+ABSOLUTE RULES
+==============================
+
+- Speaker MUST use first-person (私/俺/僕)
+- Speaker MUST NOT refer to themselves in third person
+- If speaker is "太郎", never output "太郎さん" or "太郎は"
+
+==============================
+REFINEMENT RULES
 ==============================
 
 - Apply MINIMAL changes to satisfy fix_instruction

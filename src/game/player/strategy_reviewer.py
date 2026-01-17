@@ -16,6 +16,10 @@ class StrategyReviewer:
     - 戦略が役職の目標に沿っているかをチェック
     - 実行可能性を検証
     - 論理的整合性を確認
+    
+    責務外:
+    - 表現や言い回しの評価（speak_reviewer が担当）
+    - 話者視点の制御（speak_generator が担当）
     """
 
     def __init__(self, llm: LLMClient):

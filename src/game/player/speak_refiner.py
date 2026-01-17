@@ -60,8 +60,19 @@ class SpeakRefiner:
         """
         リファイン用のプロンプトを構築する。
         """
+        # 自己言及禁止のガード（最上位に配置）
+        self_name = memory.self_name
+        
         return f"""
-Player: {memory.self_name}
+==============================
+CRITICAL: YOU ARE {self_name}
+==============================
+
+- You are speaking as {self_name}
+- Use first-person (私/俺/僕)
+- NEVER say "{self_name}さん" or refer to yourself in third person
+
+Player: {self_name}
 Role: {memory.self_role}
 
 Strategy to follow:

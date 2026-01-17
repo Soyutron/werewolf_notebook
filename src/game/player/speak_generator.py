@@ -107,8 +107,22 @@ Do NOT take actions that conflict with the approach.
         else:
             strategy_section = ""
 
+        # 自己言及禁止のガード（最上位に配置）
+        self_name = memory.self_name
+        anti_self_ref_section = f"""
+==============================
+CRITICAL: YOU ARE {self_name}
+==============================
+
+- You are speaking as {self_name}
+- Use first-person (私/俺/僕)
+- NEVER say "{self_name}さん" or refer to yourself in third person
+- This is YOUR OWN statement
+"""
+
         return f"""
-You are {memory.self_name}.
+{anti_self_ref_section}
+
 You are speaking publicly in a Werewolf-style game.
 {strategy_section}
 Recent observation:

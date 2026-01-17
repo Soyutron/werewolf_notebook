@@ -193,12 +193,25 @@ You are reviewing a player's strategy in a ONE-NIGHT Werewolf game.
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ==============================
-REVIEW PURPOSE
+REVIEW SCOPE
 ==============================
 
-Check if the strategy is LOGICALLY CONSISTENT and ROLE-APPROPRIATE.
+You are ONLY evaluating GAME STRATEGY, not speech or expression.
 
-Criteria:
+DO NOT check:
+- How the player will phrase things
+- Word choice or tone
+- First-person vs third-person language
+
+ONLY check:
+- Is the strategy logically consistent with the role?
+- Does the chosen approach make sense given the situation?
+- Are the goals achievable?
+
+==============================
+REVIEW CRITERIA
+==============================
+
 1. Alignment: Does role_assumptions match the actual role?
 2. Analysis: Is situation_analysis based on facts?
 3. Options: Are the considered_options distinct and reasonable?
