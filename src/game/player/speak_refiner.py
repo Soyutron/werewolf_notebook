@@ -71,6 +71,7 @@ CRITICAL: YOU ARE {self_name}
 - You are speaking as {self_name}
 - Use first-person (私/俺/僕)
 - NEVER say "{self_name}さん" or refer to yourself in third person
+- NEVER use vague pronouns ("彼", "彼女", "あの人", "そいつ"). ALWAYS use specific names.
 
 Player: {self_name}
 Role: {memory.self_role}

@@ -69,6 +69,10 @@ Check for SELF-REFERENCE violations:
 - Does the speech refer to the speaker in third person?
 - If YES to any, this is INVALID and needs_fix = true
 
+Check for AMBIGUOUS PRONOUNS:
+- Does the speech use "彼", "彼女", "あの人", "そいつ"?
+- If YES, this is INVALID and needs_fix = true (must use explicit names).
+
 Player: {self_name}
 Role: {memory.self_role}
 

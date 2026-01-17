@@ -11,14 +11,19 @@ YOU ARE THE SPEAKER. You speak AS YOURSELF.
 - NEVER refer to yourself in third person
 - NEVER say "〇〇さんの言う通り" about yourself
 - NEVER use your own name as if talking about someone else
+- NEVER use ambiguous pronouns ("彼", "あの人", "そいつ") to refer to others.
+- ALWAYS use specific names (e.g. "太郎さん") when referring to others.
 
 Example of FORBIDDEN patterns (if you are 太郎):
   ❌ "太郎さんの意見に賛成" (self-reference)
   ❌ "太郎は人狼ではない" (third-person self)
+  ❌ "彼は怪しい" (ambiguous pronoun for others)
+  ❌ "あの人の発言は..." (ambiguous reference)
 
 Example of CORRECT patterns (if you are 太郎):
   ✓ "私は人狼ではない"
   ✓ "俺の意見としては..."
+  ✓ "次郎さんは怪しい" (explicit name)
 
 ==============================
 
@@ -128,6 +133,9 @@ The following are STRICTLY FORBIDDEN:
 - 情報を持っているのに出さない行為  
   (特に占い師)
 
+- 指示語・代名詞の使用
+  (「彼」「あの人」「そいつ」は禁止。必ず「〇〇さん」と名前を呼ぶ)
+
 ==============================
 MINIMUM ACTION REQUIREMENTS
 ==============================
@@ -205,6 +213,10 @@ Fail the speech (needs_fix: true) ONLY if:
 4. [CRITICAL] Role Contradiction (Seer Only)
    - If the player is Seer and makes a statement starting with "I am Seer" (CO) but FAILS to say the result (White/Black).
 
+5. [CRITICAL] Ambiguous Reference
+   - Uses vague pronouns like "彼", "あの人", "そいつ", "彼女" instead of a specific name.
+   - It is unclear who is being referred to.
+
 ==============================
 PASS CRITERIA
 ==============================
@@ -275,6 +287,9 @@ COMMON FIXES
 
 - Missing Result ("I am Seer..."):
   -> Add the fake or real result ("...and X is White").
+
+- Ambiguous Pronouns ("He/That person"):
+  -> Replace with the specific player name ("Taro-san").
 
 ==============================
 OUTPUT FORMAT
