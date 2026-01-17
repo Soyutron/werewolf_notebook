@@ -127,7 +127,16 @@ PHASE: MID/LATE GAME
         
         if strategy is not None:
             # CO強制セクション（co_now の場合）
+
             if strategy.co_decision == "co_now":
+                # Check for unknown result
+                result_instruction = f"3. Result: {strategy.co_result}"
+                example_sentence = f"「私は占い師です。{strategy.co_target}さんを占いました。結果は{strategy.co_result}でした。」"
+                
+                if not strategy.co_result or strategy.co_result.lower() == "unknown":
+                    result_instruction = "3. Result: Decide a result (White or Black) YOURSELF based on your game plan."
+                    example_sentence = f"「私は占い師です。{strategy.co_target}さんを占いました。結果は{strategy.co_target}さんは[人狼/村人]でした。」"
+
                 co_enforcement_section = f"""
 ==============================
 MANDATORY CO (YOU MUST DO THIS)
@@ -138,10 +147,10 @@ Your strategy requires you to CO (Come Out) NOW.
 Your speech MUST include ALL of the following:
 1. 「私は占い師です」or equivalent CO statement
 2. Target: {strategy.co_target}
-3. Result: {strategy.co_result}
+{result_instruction}
 
 Example format:
-「私は占い師です。{strategy.co_target}さんを占いました。結果は{strategy.co_result}でした。」
+{example_sentence}
 
 DO NOT skip the CO. DO NOT hint. STATE IT CLEARLY.
 """
