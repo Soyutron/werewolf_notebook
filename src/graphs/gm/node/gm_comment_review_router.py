@@ -3,6 +3,7 @@
 from src.core.types import GMGraphState
 from src.game.gm.gm_comment_reviewer import gm_comment_reviewer
 
+MAX_REVIEW_COUNT = 3
 
 def gm_comment_review_router_node(state: GMGraphState) -> str:
     """
@@ -13,8 +14,6 @@ def gm_comment_review_router_node(state: GMGraphState) -> str:
     - "commit": コメントを確定して公開する
     - "refine": コメントを作り直す
     """
-    print("gm_comment_review_router_node")
-
     internal = state["internal"]
     world = state["world_state"]
 
@@ -31,8 +30,11 @@ def gm_comment_review_router_node(state: GMGraphState) -> str:
 
     print(review_result)
 
-    # デバッグ・追跡用（worldには出さない）
     internal.last_gm_review = review_result
+    internal.gm_comment_review_count += 1
+
+    if internal.gm_comment_review_count >= MAX_REVIEW_COUNT:
+        return "commit"
 
     if review_result.needs_fix:
         return "refine"

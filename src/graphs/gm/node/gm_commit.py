@@ -1,6 +1,6 @@
 # src/game/gm/nodes/gm_commit_node.py
 
-from src.core.types import GameEvent, GMGraphState
+from src.core.types import GameEvent, GMGraphState, PlayerRequest
 
 
 def gm_commit_node(state: GMGraphState) -> GMGraphState:
@@ -34,8 +34,16 @@ def gm_commit_node(state: GMGraphState) -> GMGraphState:
         )
     )
 
+    decision.requests = {
+        pending.speaker: PlayerRequest(
+            request_type="speak",
+            payload={},
+        )
+    }
+
     # --- commit 後のクリーンアップ ---
     internal.pending_gm_comment = None
     internal.last_gm_review = None
+    internal.gm_comment_review_count = 0
 
     return state

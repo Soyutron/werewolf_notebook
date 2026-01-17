@@ -148,6 +148,8 @@ class GMInternalState(BaseModel):
 
     last_gm_review: Optional[GMCommentReviewResult] = None
 
+    gm_comment_review_count: int = 0
+
 
 # =========================
 # GMGraph が扱う State
