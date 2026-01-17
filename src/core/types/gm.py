@@ -113,7 +113,8 @@ class GMInternalState(BaseModel):
     # ・あくまで「進行管理」のみを目的とする
 
     discussion_turn: int = 0  # 発言回数
-    max_discussion_turn: int = 10  # 上限
+    max_discussion_turn: int = 50  # 上限
+    min_discussion_turn: int = 30  # 下限
 
     gm_event_cursor: int = 0
     # GM が public_events をどこまで処理したかを示すカーソル

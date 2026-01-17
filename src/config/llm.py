@@ -18,6 +18,7 @@ from src.core.memory.reaction import Reaction
 from src.core.memory.gm_comment import GMComment
 from src.core.memory.speak import Speak
 from src.core.memory.belief import RoleBeliefsOutput
+from src.core.memory.gm_maturity import GMMaturityDecision
 
 # =========================================================
 # LLM 切り替えフラグ
@@ -115,6 +116,26 @@ def create_gm_comment_llm() -> LLMClient[GMComment]:
     # 実運用用
     # gemma3:12b は推論能力が高く、内省用途に向いている
     return OllamaLangChainClient(model="gemma3:12b", output_model=GMComment)
+
+def create_gm_maturity_llm() -> LLMClient[GMMaturityDecision]:
+    """
+    GM が議論の成熟度を判定する。
+    """
+
+    if USE_DUMMY:
+        # テスト・デバッグ用
+        return DummyLLMClient()
+
+    if USE_VLLM:
+        # 実運用用
+        # gemma3:12b は推論能力が高く、内省用途に向いている
+        return VLLMLangChainClient(
+            model="google/gemma-3-12b-it", output_model=GMMaturityDecision
+        )
+
+    # 実運用用
+    # gemma3:12b は推論能力が高く、内省用途に向いている
+    return OllamaLangChainClient(model="gemma3:12b", output_model=GMMaturityDecision)
 
 
 def create_speak_llm() -> LLMClient[Speak]:
