@@ -16,9 +16,15 @@ vllm serve google/gemma-3-12b-it \
   --gpu-memory-utilization 0.9
 
 vllm serve Qwen/Qwen2.5-14B-Instruct \
-  --dtype bfloat16 \
+  --quantization awq \
   --max-model-len 8192 \
+  --gpu-memory-utilization 0.95
+
+vllm serve Qwen/Qwen2.5-14B-Instruct \
+  --dtype bfloat16 \
+  --max-model-len 2048 \
   --gpu-memory-utilization 0.95 \
+  --disable-torch-compile \
   --trust-remote-code
 
 

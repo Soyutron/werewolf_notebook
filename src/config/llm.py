@@ -32,7 +32,7 @@ from src.core.memory.gm_comment_review import GMCommentReviewResult
 # False の場合:
 #   - 実際のローカル / 外部 LLM を使用する
 USE_DUMMY = False
-USE_VLLM = True
+USE_VLLM = False
 
 
 # =========================================================
@@ -48,7 +48,7 @@ def create_reflection_llm() -> LLMClient[Reflection]:
     - トークン消費はある程度許容される
 
     そのため:
-    - 高性能・大きめモデル（gemma3:12b）を使用する
+    - 高性能・大きめモデル（nemotron-3-nano:30b）を使用する
     """
 
     if USE_DUMMY:
@@ -58,14 +58,14 @@ def create_reflection_llm() -> LLMClient[Reflection]:
 
     if USE_VLLM:
         # 実運用用
-        # gemma3:12b は推論能力が高く、内省用途に向いている
+        # nemotron-3-nano:30b は推論能力が高く、内省用途に向いている
         return VLLMLangChainClient(
             model="google/gemma-3-12b-it", output_model=Reflection
         )
 
     # 実運用用
-    # gemma3:12b は推論能力が高く、内省用途に向いている
-    return OllamaLangChainClient(model="gemma3:1b", output_model=Reflection)
+    # nemotron-3-nano:30b は推論能力が高く、内省用途に向いている
+    return OllamaLangChainClient(model="nemotron-3-nano:30b", output_model=Reflection)
 
 
 # =========================================================
@@ -81,7 +81,7 @@ def create_reaction_llm() -> LLMClient[Reaction]:
     - 呼び出し頻度が高くなりがち
 
     そのため:
-    - 軽量・高速モデル（gemma3:1b）を使用する
+    - 軽量・高速モデル（nemotron-3-nano:30b）を使用する
     """
 
     if USE_DUMMY:
@@ -90,12 +90,12 @@ def create_reaction_llm() -> LLMClient[Reaction]:
 
     if USE_VLLM:
         # 実運用用
-        # gemma3:12b は推論能力が高く、内省用途に向いている
+        # nemotron-3-nano:30b は推論能力が高く、内省用途に向いている
         return VLLMLangChainClient(model="google/gemma-3-12b-it", output_model=Reaction)
 
     # 実運用用
-    # gemma3:1b は軽量で応答が速く、リアクション用途に最適
-    return OllamaLangChainClient(model="gemma3:1b", output_model=Reaction)
+    # nemotron-3-nano:30b は軽量で応答が速く、リアクション用途に最適
+    return OllamaLangChainClient(model="nemotron-3-nano:30b", output_model=Reaction)
 
 
 def create_gm_comment_llm() -> LLMClient[GMComment]:
@@ -110,14 +110,14 @@ def create_gm_comment_llm() -> LLMClient[GMComment]:
 
     if USE_VLLM:
         # 実運用用
-        # gemma3:12b は推論能力が高く、内省用途に向いている
+        # nemotron-3-nano:30b は推論能力が高く、内省用途に向いている
         return VLLMLangChainClient(
             model="google/gemma-3-12b-it", output_model=GMComment
         )
 
     # 実運用用
-    # gemma3:12b は推論能力が高く、内省用途に向いている
-    return OllamaLangChainClient(model="gemma3:12b", output_model=GMComment)
+    # nemotron-3-nano:30b は推論能力が高く、内省用途に向いている
+    return OllamaLangChainClient(model="nemotron-3-nano:30b", output_model=GMComment)
 
 
 def create_gm_maturity_llm() -> LLMClient[GMMaturityDecision]:
@@ -131,14 +131,14 @@ def create_gm_maturity_llm() -> LLMClient[GMMaturityDecision]:
 
     if USE_VLLM:
         # 実運用用
-        # gemma3:12b は推論能力が高く、内省用途に向いている
+        # nemotron-3-nano:30b は推論能力が高く、内省用途に向いている
         return VLLMLangChainClient(
             model="google/gemma-3-12b-it", output_model=GMMaturityDecision
         )
 
     # 実運用用
-    # gemma3:12b は推論能力が高く、内省用途に向いている
-    return OllamaLangChainClient(model="gemma3:12b", output_model=GMMaturityDecision)
+    # nemotron-3-nano:30b は推論能力が高く、内省用途に向いている
+    return OllamaLangChainClient(model="nemotron-3-nano:30b", output_model=GMMaturityDecision)
 
 
 def create_speak_llm() -> LLMClient[Speak]:
@@ -153,12 +153,12 @@ def create_speak_llm() -> LLMClient[Speak]:
 
     if USE_VLLM:
         # 実運用用
-        # gemma3:12b は推論能力が高く、内省用途に向いている
+        # nemotron-3-nano:30b は推論能力が高く、内省用途に向いている
         return VLLMLangChainClient(model="google/gemma-3-12b-it", output_model=Speak)
 
     # 実運用用
-    # gemma3:12b は推論能力が高く、内省用途に向いている
-    return OllamaLangChainClient(model="gemma3:12b", output_model=Speak)
+    # nemotron-3-nano:30b は推論能力が高く、内省用途に向いている
+    return OllamaLangChainClient(model="nemotron-3-nano:30b", output_model=Speak)
 
 
 def create_belief_llm() -> LLMClient[RoleBeliefsOutput]:
@@ -172,7 +172,7 @@ def create_belief_llm() -> LLMClient[RoleBeliefsOutput]:
         )
 
     return OllamaLangChainClient(
-        model="gemma3:12b",
+        model="nemotron-3-nano:30b",
         output_model=RoleBeliefsOutput,
     )
 
@@ -188,7 +188,7 @@ def create_vote_llm() -> LLMClient[VoteOutput]:
         )
 
     return OllamaLangChainClient(
-        model="gemma3:12b",
+        model="nemotron-3-nano:30b",
         output_model=RoleBeliefsOutput,
     )
 
@@ -204,7 +204,7 @@ def create_gm_comment_reviewer_llm() -> LLMClient[GMCommentReviewResult]:
         )
 
     return OllamaLangChainClient(
-        model="gemma3:12b",
+        model="nemotron-3-nano:30b",
         output_model=GMCommentReviewResult,
     )
 
@@ -221,11 +221,11 @@ def create_gm_comment_refiner_llm() -> LLMClient[GMComment]:
 
     if USE_VLLM:
         # 実運用用
-        # gemma3:12b は推論能力が高く、内省用途に向いている
+        # nemotron-3-nano:30b は推論能力が高く、内省用途に向いている
         return VLLMLangChainClient(
             model="google/gemma-3-12b-it", output_model=GMComment
         )
 
     # 実運用用
-    # gemma3:12b は推論能力が高く、内省用途に向いている
-    return OllamaLangChainClient(model="gemma3:12b", output_model=GMComment)
+    # nemotron-3-nano:30b は推論能力が高く、内省用途に向いている
+    return OllamaLangChainClient(model="nemotron-3-nano:30b", output_model=GMComment)

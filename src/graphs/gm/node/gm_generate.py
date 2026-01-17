@@ -11,7 +11,6 @@ def gm_generate_node(state: GMGraphState) -> GMGraphState:
     - 生成結果を decision.events に追加する
     - フェーズ遷移や成熟判定は行わない
     """
-    print("gm_generate_node")
 
     world = state["world_state"]
     internal = state["internal"]

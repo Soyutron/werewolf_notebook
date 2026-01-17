@@ -15,7 +15,6 @@ def day_phase_entry_node(state: GMGraphState) -> GMGraphState:
     - フェーズ遷移の判断は行わない
     - プレイヤー発言や GM コメント生成は行わない
     """
-    print("day_phase_entry_node")
 
     decision = state["decision"]
     internal = state["internal"]

@@ -48,7 +48,6 @@ class GMCommentGenerator:
             players=players,
             is_opening=is_opening,
         )
-        print(prompt)
 
         try:
             response = self.llm.generate(
