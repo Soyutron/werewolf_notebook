@@ -75,23 +75,23 @@ def build_gm_graph():
             "vote": END,
         },
     )
-    graph.add_edge("gm_generate", "gm_commit")
-    # graph.add_conditional_edges(
-    #     "gm_generate",
-    #     gm_comment_review_router_node,
-    #     {
-    #         "commit": "gm_commit",
-    #         "refine": "gm_refine",
-    #     },
-    # )
-    # graph.add_conditional_edges(
-    #     "gm_refine",
-    #     gm_comment_review_router_node,
-    #     {
-    #         "commit": "gm_commit",
-    #         "refine": "gm_refine",
-    #     },
-    # )
+    # graph.add_edge("gm_generate", "gm_commit")
+    graph.add_conditional_edges(
+        "gm_generate",
+        gm_comment_review_router_node,
+        {
+            "commit": "gm_commit",
+            "refine": "gm_refine",
+        },
+    )
+    graph.add_conditional_edges(
+        "gm_refine",
+        gm_comment_review_router_node,
+        {
+            "commit": "gm_commit",
+            "refine": "gm_refine",
+        },
+    )
 
     # 1ノードで終了
     graph.add_edge("night", END)

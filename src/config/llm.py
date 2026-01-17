@@ -138,7 +138,9 @@ def create_gm_maturity_llm() -> LLMClient[GMMaturityDecision]:
 
     # 実運用用
     # nemotron-3-nano:30b は推論能力が高く、内省用途に向いている
-    return OllamaLangChainClient(model="nemotron-3-nano:30b", output_model=GMMaturityDecision)
+    return OllamaLangChainClient(
+        model="nemotron-3-nano:30b", output_model=GMMaturityDecision
+    )
 
 
 def create_speak_llm() -> LLMClient[Speak]:
