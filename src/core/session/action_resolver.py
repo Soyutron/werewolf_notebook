@@ -193,8 +193,8 @@ class ActionResolver:
         投票アクションを解釈する。
         （現時点では未実装のプレースホルダ）
         """
-        # 将来実装予定
-        pass
+        session.gm_internal.vote_pending.remove(player)
+        return
 
     def _resolve_divine(
         self,
