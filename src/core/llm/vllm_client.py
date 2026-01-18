@@ -68,20 +68,3 @@ class VLLMLangChainClient(Generic[T]):
         result = self.structured_llm.invoke(messages)
 
         return result
-
-    async def agenerate(self, *, system: str, prompt: str) -> T:
-        """
-        system / prompt を渡し、構造化データを非同期で生成する。
-
-        並列実行（asyncio.gather）で複数リクエストを同時に処理する際に使用。
-        """
-
-        messages = [
-            ("system", system),
-            ("human", prompt),
-        ]
-
-        # 構造化 LLM を非同期実行
-        result = await self.structured_llm.ainvoke(messages)
-
-        return result

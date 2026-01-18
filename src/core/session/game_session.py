@@ -35,19 +35,15 @@ from src.core.types import (
     GMGraphState,
     GameDecision,
     GMInternalState,
-    GameEvent,
-    RoleProb,
 )
-from typing import Dict, List
+from typing import Dict
 from src.core.controller import PlayerController
 from src.graphs.gm.gm_graph import GMGraph, gm_graph
 from copy import deepcopy
-import asyncio
 
 from src.core.session.action_resolver import ActionResolver
 from src.core.session.dispatcher import Dispatcher
 from src.core.session.phase_runner import PhaseRunner
-from src.game.player.belief_generator import believe_generator
 
 
 class GameSession:
@@ -381,61 +377,3 @@ class GameSession:
         この実装は PhaseRunner クラスに委譲する。
         """
         self._phase_runner.run_result_step(session=self)
-
-    # =========================================================
-    # Belief 非同期更新（パフォーマンス最適化）
-    # =========================================================
-
-    def observe_event(
-        self,
-        *,
-        player: PlayerName,
-        event: GameEvent,
-    ) -> None:
-        """
-        イベントを観測のみさせる（LLM 呼び出しなし）。
-
-        speak イベント配布時に、まず全員にイベントを観測させ、
-        その後 belief 更新を並列実行するために使用。
-        """
-        memory = self.player_states[player]["memory"]
-        memory.observed_events.append(event)
-
-    async def update_beliefs_async(self, events: List[GameEvent]) -> None:
-        """
-        全プレイヤーの belief を並列更新する。
-
-        設計方針:
-        - 各プレイヤーの belief 更新は独立しているため並列化可能
-        - asyncio.gather で全 LLM 呼び出しを同時実行
-        - 失敗したプレイヤーは古い belief を維持
-        """
-        # speak イベントのみを対象
-        speak_events = [e for e in events if e.event_type == "speak"]
-        if not speak_events:
-            return
-
-        # 各プレイヤーごとに最新の speak イベントで更新
-        # （複数の speak イベントがある場合は最後のものを使用）
-        latest_speak = speak_events[-1]
-
-        async def update_player_belief(player: PlayerName) -> None:
-            """1 プレイヤーの belief を非同期更新"""
-            memory = self.player_states[player]["memory"]
-            new_beliefs = await believe_generator.agenerate(
-                memory=memory,
-                observed=latest_speak,
-            )
-            if new_beliefs is not None:
-                # 自分自身の役職は固定（安全装置）
-                self_probs = {
-                    role: (1.0 if role == memory.self_role else 0.0)
-                    for role in new_beliefs[memory.self_name].probs.keys()
-                }
-                new_beliefs[memory.self_name] = RoleProb(probs=self_probs)
-                memory.role_beliefs = new_beliefs
-
-        # 全プレイヤーの belief 更新を並列実行
-        await asyncio.gather(
-            *[update_player_belief(player) for player in self.player_states.keys()]
-        )

@@ -19,7 +19,6 @@ Dispatcher - GameDecision を解釈し、ゲーム世界に反映する処理を
 
 from __future__ import annotations
 from typing import TYPE_CHECKING
-import asyncio
 
 from src.core.types import (
     GameDecision,
@@ -80,32 +79,13 @@ class Dispatcher:
         # - プレイヤーは思考・記憶更新のみを行う（行動はしない）
         # - request と同一 step で同時に存在してよい
         if decision.events:
-            # speak イベントとそれ以外を分離
-            speak_events = [e for e in decision.events if e.event_type == "speak"]
-            other_events = [e for e in decision.events if e.event_type != "speak"]
-
-            # ---------------------------------------------------------
-            # 2a. speak 以外のイベント（従来通りの処理）
-            # ---------------------------------------------------------
-            for event in other_events:
+            for event in decision.events:
                 for player in session.player_states:
+                    # event は「観測情報」なので全員に配布する
                     session.run_player_turn(
                         player=player,
                         input=PlayerInput(event=event),
                     )
-
-            # ---------------------------------------------------------
-            # 2b. speak イベント（観測と belief 更新を分離して並列化）
-            # ---------------------------------------------------------
-            if speak_events:
-                # Step 1: 全プレイヤーに観測のみ配布（同期・軽量）
-                for event in speak_events:
-                    for player in session.player_states:
-                        session.observe_event(player=player, event=event)
-
-                # Step 2: belief 更新を並列実行（非同期）
-                asyncio.run(session.update_beliefs_async(speak_events))
-
             # event は全員に配布し終えた後で、
             # 公開ログ（WorldState）として確定させる
             session.world_state.public_events.extend(decision.events)
