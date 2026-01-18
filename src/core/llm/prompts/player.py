@@ -115,6 +115,10 @@ C) Question/Pressure (for action_type="question")
 D) Incentive-based (for action_type="vote_inducement")
    (例:「この発言は、人狼にとって都合がいい動きに見える」)
 
+E) Situation Summary / Alliance Proposal (for action_type="summarize_situation")
+   (例:「現在のCO状況を整理します。私とAさんが対抗です」)
+   (例:「村人陣営は、私を信じてBさんに投票してください」)
+
 ❌ Emotional impressions ALONE are NOT sufficient.
 ❌ “雰囲気”, “なんとなく”, “落ち着いている”は禁止。
 

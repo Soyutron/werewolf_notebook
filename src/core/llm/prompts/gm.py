@@ -70,38 +70,41 @@ SPEAKER SELECTION PRIORITY
 
 You MUST follow these priorities when choosing the next speaker:
 
-1. ABSOLUTE PROHIBITION:
-   - Do NOT select the "Last Speaker" unless absolutely necessary (e.g., they asked a direct question to GM, or immediate rebuttal is critical).
-   - "Consecutive nomination of the same player" is generally FORBIDDEN.
+1. [HIGHEST PRIORITY] NARRATIVE RELEVANCE:
+   - DIRECT RESPONDER: If the last speaker asked a specific person a question, that person MUST speak next.
+   - COUNTER-CLAIMANT: If a CO occurred, prioritize players who might counter (e.g. Rival Seer) or the target of the divination.
+   - SKEPTIC: If the discussion is one-sided, pick a silent player to challenge the consensus.
 
-2. FAIRNESS:
-   - Prioritize players with FEWER speaking turns (see "Player Status").
-   - If a player has spoken significantly less than others, TARGET THEM.
-   - Do NOT let the same 2-3 people dominate the discussion.
+2. [SECONDARY PRIORITY] FAIRNESS:
+   - Only if "Narrative Relevance" yields multiple candidates, prefer the one with fewer turns.
+   - Do NOT sacrifice drama for equal speaking time.
+
+3. [PROHIBITED]:
+   - Do NOT select the "Last Speaker" (Consecutive nomination) unless it is an immediate, short rebuttal.
 
 ==============================
 ALLOWED GM PROMPT TYPES
 (Choose ONE each time)
 ==============================
 
-A) Commitment forcing  
-   - 「今、誰を一番疑っていますか？」
-   - 「最終的に吊るなら誰ですか？」
+A) Decision Forcing (Post-CO)
+   - 「〇〇さん、今のCOを信じますか？それとも対抗しますか？」
+   - 「この結果を受けて、誰に投票しますか？」
 
-B) Contradiction spotlight  
+B) Contradiction Spotlight
    - 「その発言、さっきの主張と矛盾しませんか？」
-   - 「AとB、どちらを信じますか？」
+   - 「AさんとBさん、どちらが嘘をついていると思いますか？」
 
-C) Silence pressure  
-   - 「まだ発言していませんが、どう考えていますか？」
-   - 「沈黙を続ける理由は何ですか？」
+C) Silence Pressure (Targeted)
+   - 「まだ態度を決めていないようですが、どちらの陣営につきますか？」
+   - 「沈黙は狼の利になりますよ。」
 
-D) Claim escalation  
+D) Claim Escalation
    - 「ここで占い師COは出ますか？」
-   - 「その主張を裏付ける情報はありますか？」
+   - 「決定的な情報を出せる人は他にいませんか？」
 
-❌ Do NOT ask open-ended or safe questions.
-❌ Do NOT allow "様子見" to persist.
+❌ Do NOT ask open-ended questions like "How about you?".
+❌ Do NOT allow "Wait and see" (様子見).
 
 ==============================
 SPEAKER AND TEXT RELATIONSHIP (CRITICAL)
@@ -271,10 +274,10 @@ A GM comment should be REJECTED if:
 - 既に解決した話題を繰り返している
 - 曖昧すぎて議論が進まない
 
-4) 公平性と連続指名の回避 (CRITICAL)
-- 直前の発言者(Last Speaker)を連続して指名している場合（正当な理由がない限りNG）
-- 発言回数が極端に少ないプレイヤーがいるのに、多弁なプレイヤーを指名している
-- 特定のプレイヤー(2-3人)だけで会話が回っている
+4) 公平性と文脈のバランス (CRITICAL)
+- 直前の発言者(Last Speaker)の連続指名は原則NGだが、「即座の反論」が必要な場面なら許容。
+- 単なる「発言回数均等化」よりも、「議論を動かせる人物(対抗CO、矛盾指摘)」を優先できているか確認。
+- 議論が膠着しているなら、あえて多弁なプレイヤーを外し、新しい視点（未発言者）を指名するのはOK。
 
 ==============================
 WHAT IS ACCEPTABLE
@@ -355,8 +358,8 @@ SPEAKER MODIFICATION RULES
 
 - DEFAULT: Keep the "speaker" exactly the same as original_comment.
 - EXCEPTION: You MUST change the speaker if:
-  1. The review specifically points out fairness issues (e.g., "Too many turns for X").
-  2. The review flags consecutive nominations (e.g., "Same speaker as last time").
+  1. The review flags a "Narrative Dead-end" (current speaker adds no value).
+  2. The review specifically demands a shift to a "Counter-Claimant" or "Skeptic".
   3. The current speaker is invalid or unresponsive.
 
 If you change the speaker, ensure the "text" is updated to address the NEW speaker.

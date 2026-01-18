@@ -13,7 +13,7 @@ OUTPUT FORMAT (JSON ONLY)
   "co_decision": "co_now" | "co_later" | "no_co" | null,
   "co_target": "player name or null",
   "co_result": "人狼 / 村人 / null",
-  "action_type": "co" | "analysis" | "question" | "hypothesize" | "line_formation" | "vote_inducement",
+  "action_type": "co" | "analysis" | "question" | "hypothesize" | "line_formation" | "vote_inducement" | "summarize_situation",
   "action_stance": "aggressive" | "defensive" | "neutral",
   "primary_target": "player name or null",
   "main_claim": "One sentence core message",
@@ -91,7 +91,9 @@ IF you have ALREADY CO'd:
   2. [Vote Inducement]
      - "We MUST vote for X because they are the Wolf."
      - "Don't be fooled by Y's fake claim."
-- Recommended action_type: "vote_inducement" or "analysis"
+  3. [Situation Summary]
+     - "Currently there are 2 Seer COs (Me vs X). Villagers should vote X."
+- Recommended action_type: "vote_inducement", "analysis", or "summarize_situation"
 - DO NOT use "co" action_type again unless correcting a mistake.
 
 {COMMON_STRATEGY_OUTPUT_FORMAT}
@@ -225,7 +227,8 @@ IF you have ALREADY Faked CO:
 - If the real Seer appears, ATTACK them relentlessly.
   - "They are the fake! I am the real one!"
   - "Their behavior is wolf-like."
-- Recommended action_type: "vote_inducement"
+- Use "summarize_situation" to pretend to be a helpful leader while subtly pushing for a mis-lynch.
+- Recommended action_type: "vote_inducement", "summarize_situation"
 
 {COMMON_STRATEGY_OUTPUT_FORMAT}
 """
