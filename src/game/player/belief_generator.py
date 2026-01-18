@@ -49,34 +49,71 @@ class BeliefGenerator:
                 prompt=user,
             )
 
-            beliefs: Dict[PlayerName, RoleProb] = {}
-
-            for item in result.beliefs:
-                # RoleProbOutput -> RoleProb convert
-                probs = {
-                    "villager": item.belief.villager,
-                    "seer": item.belief.seer,
-                    "werewolf": item.belief.werewolf,
-                    "madman": item.belief.madman,
-                }
-                
-                # Normalize manually since RoleProb.normalize doesn't exist
-                total = sum(probs.values())
-                if total > 0:
-                    probs = {k: v / total for k, v in probs.items()}
-                else:
-                    # Fallback uniform distribution
-                    probs = {k: 0.25 for k in probs}
-
-                beliefs[item.player] = RoleProb(probs=probs)
-
-            return beliefs
+            return self._parse_result(result, memory)
 
         except Exception as e:
             import traceback
             traceback.print_exc()
             # 推論に失敗してもゲーム進行は止めない
             return None
+
+    async def agenerate(
+        self,
+        *,
+        memory: PlayerMemory,
+        observed: Observed,
+    ) -> Optional[Dict[PlayerName, RoleProb]]:
+        """
+        role_beliefs を非同期で生成する。
+
+        並列実行（asyncio.gather）で複数プレイヤーの belief を
+        同時に更新する際に使用。
+        """
+        system, user = self._build_prompts(memory, observed)
+
+        try:
+            result: RoleBeliefsOutput = await self.llm.agenerate(
+                system=system,
+                prompt=user,
+            )
+
+            return self._parse_result(result, memory)
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return None
+
+    def _parse_result(
+        self,
+        result: RoleBeliefsOutput,
+        memory: PlayerMemory,
+    ) -> Dict[PlayerName, RoleProb]:
+        """
+        LLM の出力を RoleProb 辞書にパースする。
+        """
+        beliefs: Dict[PlayerName, RoleProb] = {}
+
+        for item in result.beliefs:
+            # RoleProbOutput -> RoleProb convert
+            probs = {
+                "villager": item.belief.villager,
+                "seer": item.belief.seer,
+                "werewolf": item.belief.werewolf,
+                "madman": item.belief.madman,
+            }
+            
+            # Normalize manually since RoleProb.normalize doesn't exist
+            total = sum(probs.values())
+            if total > 0:
+                probs = {k: v / total for k, v in probs.items()}
+            else:
+                # Fallback uniform distribution
+                probs = {k: 0.25 for k in probs}
+
+            beliefs[item.player] = RoleProb(probs=probs)
+
+        return beliefs
 
     def _build_prompts(
         self,
