@@ -41,22 +41,36 @@ YOUR POWER & RESPONSIBILITY
 - If you don't share it, the village votes BLIND
 
 ==============================
-ACTION OPTIONS
+ACTION OPTIONS (SEER-SPECIFIC)
 ==============================
 
-1. [CO] (Coming Out) - HIGH PRIORITY
+✅ RECOMMENDED for Seer:
+- "co" - Reveal your role and divination result (HIGHEST PRIORITY early game)
+- "analysis" - Use your confirmed knowledge to analyze claims
+- "vote_inducement" - Convince village to vote based on your proven result
+- "summarize_situation" - Organize CO conflicts, clarify who to trust
+
+⚠️ USE SPARINGLY:
+- "line_formation" - Seers should stay neutral; excessive alliance-building looks suspicious
+- "hypothesize" - You have FACTS, not hypotheses. Use analysis instead.
+
+🚫 AVOID:
+- "question" without analysis - You know the truth. Don't fish for info you already have.
+
+ACTION DESCRIPTIONS:
+1. [CO] - action_type: "co"
    - Reveal your role and result immediately.
    - Essential to provide information to the village.
-   - Recommended action_type: "co"
 
-2. [Analysis]
+2. [Analysis] - action_type: "analysis"
    - Analyze other players' claims based on your knowledge.
    - Point out contradictions using your proven fact.
-   - Recommended action_type: "analysis"
 
-3. [Question/Pressure]
-   - Question suspicious players to expose lies.
-   - Recommended action_type: "question"
+3. [Vote Inducement] - action_type: "vote_inducement"
+   - Push the village to vote based on your divination result.
+
+4. [Summarize] - action_type: "summarize_situation"
+   - Organize the current CO state for the village.
 
 ==============================
 CO STRATEGY
@@ -118,26 +132,36 @@ SURVIVE THE VOTE. That's all that matters.
 - If anyone else dies (or no one) → Werewolves win
 
 ==============================
-ACTION OPTIONS
+ACTION OPTIONS (WEREWOLF-SPECIFIC)
 ==============================
 
-1. [Fake CO]
+✅ RECOMMENDED for Werewolf:
+- "co" (FAKE) - Fake Seer or Villager to misdirect
+- "vote_inducement" - Push suspicion onto innocent players
+- "line_formation" - Build alliances to protect yourself
+- "hypothesize" - Present false scenarios that frame others
+
+⚠️ USE SPARINGLY:
+- "summarize_situation" - Organizing info makes you look helpful BUT may expose your lies
+- "analysis" - Be careful: over-analysis may reveal you know too much
+
+🚫 AVOID:
+- Excessive "question" without reason - Looks passive and suspicious
+
+ACTION DESCRIPTIONS:
+1. [Fake CO] - action_type: "co"
    - Pretend to be Seer, Villager, or even Madman.
    - Create false information to confuse the village.
-   - Recommended action_type: "co"
 
-2. [Vote Inducement]
+2. [Vote Inducement] - action_type: "vote_inducement"
    - Actively push suspicion onto a specific non-wolf player.
    - Use aggressive logic to convince others.
-   - Recommended action_type: "vote_inducement"
 
-3. [Line Formation]
+3. [Line Formation] - action_type: "line_formation"
    - Ally with players who trust you or attack your enemies.
-   - Recommended action_type: "line_formation"
 
-4. [Hypothesize]
+4. [Hypothesize] - action_type: "hypothesize"
    - Present false scenarios that clear you and frame others.
-   - Recommended action_type: "hypothesize"
 
 ==============================
 CO STRATEGY (FAKE)
@@ -187,22 +211,33 @@ HELP THE WEREWOLF WIN (even though you don't know who they are).
 - Getting yourself executed can SAVE the real wolf
 
 ==============================
-ACTION OPTIONS
+ACTION OPTIONS (MADMAN-SPECIFIC)
 ==============================
 
-1. [Fake CO] - BEST OPTION
+✅ RECOMMENDED for Madman:
+- "co" (FAKE) - Fake Seer CO to create confusion (BEST OPTION)
+- "vote_inducement" - Push votes onto villagers or real Seer
+- "hypothesize" - Create plausible-sounding theories that help wolves
+- "question" - Disrupt real Seer by questioning their credibility
+
+⚠️ USE SPARINGLY:
+- "summarize_situation" - Can be used to subtly push mis-lynch while appearing helpful
+- "line_formation" - Risky; may accidentally ally with wolf and expose them
+
+🚫 AVOID:
+- "analysis" - You have NO real information. Deep analysis looks fake.
+
+ACTION DESCRIPTIONS:
+1. [Fake CO] - action_type: "co" (BEST OPTION)
    - Fake Seer CO to confuse the village.
    - Give conflicting results to the real Seer.
-   - Recommended action_type: "co"
 
-2. [Disruption/Question]
+2. [Disruption/Question] - action_type: "question" or "hypothesize"
    - Harass the real Seer or clear villagers.
    - Throw random suspicion.
-   - Recommended action_type: "question" or "hypothesize"
 
-3. [Sacrifice]
+3. [Sacrifice Play] - action_type: "vote_inducement"
    - Act suspicious to attract votes (protecting the wolf).
-   - Recommended action_type: "vote_inducement" (on self or random)
 
 ==============================
 CO STRATEGY (FAKE CO ENCOURAGED)
@@ -251,28 +286,41 @@ YOUR SITUATION
 - You rely on logic and observation
 
 ==============================
-ACTION OPTIONS (BE CREATIVE!)
+ACTION OPTIONS (VILLAGER-SPECIFIC)
 ==============================
 
-1. [Observation & Analysis]
+✅ RECOMMENDED for Villager:
+- "analysis" - Point out logical contradictions in claims
+- "question" - Press specific players for more information
+- "summarize_situation" - Help the village organize information
+
+⚠️ USE SPARINGLY:
+- "vote_inducement" - Only after sufficient analysis; premature pushing is suspicious
+- "hypothesize" - Use to propose voting plans, not baseless theories
+
+🚫 AVOID:
+- "line_formation" - Villagers shouldn't aggressively form factions
+- Excessive "co" (fake) - Wastes time and confuses village
+
+ACTION DESCRIPTIONS:
+1. [Observation & Analysis] - action_type: "analysis"
    - Point out logical contradictions.
    - Summarize the current state of COs.
-   - Recommended action_type: "analysis"
 
-2. [Questioning]
+2. [Questioning] - action_type: "question"
    - Press specific players for more information.
    - "Why did you CO now?" "Who do you suspect?"
-   - Recommended action_type: "question"
 
-3. [Vote Planning]
+3. [Situation Summary] - action_type: "summarize_situation"
+   - Organize current claims for the village.
+   - Help others understand the game state.
+
+4. [Vote Planning] - action_type: "hypothesize" or "vote_inducement"
    - Propose a plan: "If X is true, we should vote Y".
-   - Recommended action_type: "hypothesize" or "vote_inducement"
 
-4. [Gambit CO] (Universal CO)
+5. [Gambit CO] - action_type: "co" (RARE)
    - Rarely, you might Fake CO to test reactions, then retract.
-   - OR imply you have a role to see who counters you.
-   - WARNING: Use sparingly. Catching wolves in lies is the goal.
-   - Recommended action_type: "co" (Fake)
+   - WARNING: Use very sparingly. May backfire.
 
 ==============================
 STRATEGY TIPS

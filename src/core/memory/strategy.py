@@ -30,9 +30,9 @@ class Strategy(BaseModel):
     )
     
     # === 基本方針 ===
-    action_type: Literal["co", "analysis", "question", "hypothesize", "line_formation", "vote_inducement"] = Field(
+    action_type: Literal["co", "analysis", "question", "hypothesize", "line_formation", "vote_inducement", "summarize_situation"] = Field(
         default="vote_inducement",
-        description="行動タイプ: co=CO, analysis=分析共有, question=質問, hypothesize=仮説提示, line_formation=ライン形成, vote_inducement=投票誘導"
+        description="行動タイプ: co=CO, analysis=分析共有, question=質問, hypothesize=仮説提示, line_formation=ライン形成, vote_inducement=投票誘導, summarize_situation=状況整理"
     )
     action_stance: Literal["aggressive", "defensive", "neutral"] = Field(
         description="発言の基本スタンス"
