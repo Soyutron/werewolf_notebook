@@ -116,6 +116,9 @@ PHASE: MID/LATE GAME
             for player, belief in memory.role_beliefs.items()
         )
 
+        # 役職推定分析セクションの構築
+        belief_analysis = self._build_belief_analysis_section(memory)
+
         recent_reflections_list = memory.history[-10:]
         recent_reflections = "\n".join(
             str(r) for r in reversed(recent_reflections_list)
@@ -223,6 +226,27 @@ YOUR PRIVATE BELIEFS (Hidden)
 These are your internal thoughts. Do NOT treat them as public facts.
 {role_beliefs_text}
 
+==============================
+ROLE BELIEF ANALYSIS (USE THIS IN YOUR SPEECH)
+==============================
+
+Your analysis of other players' likely roles:
+{belief_analysis}
+
+When speaking, you SHOULD:
+1. Mention the TOP 2 most likely roles for suspicious players
+   Example: "Xさんは人狼か狂人の可能性がある"
+2. Explain what each role possibility means for the village
+   Example: "もし人狼なら今日処理しないと負ける。もし狂人なら吊りは避けるべき"
+3. State your voting recommendation based on this analysis
+   Example: "人狼の可能性が高いと判断したので、Xさんへの投票を推奨する"
+
+Example of GOOD belief-based speech:
+「花子さんは占い師COをしていますが、私の結果と矛盾しています。
+花子さんが人狼なら偽占いで村を惑わそうとしている。
+狂人なら人狼を守るために騙っている可能性がある。
+どちらにせよ村側ではないので、花子さんへの投票を提案します。」
+
 Recent thoughts:
 {recent_reflections}
 
@@ -232,6 +256,85 @@ Details: {observed.model_dump()}
 
 Generate a public statement. Output JSON only.
 """
+
+    def _build_belief_analysis_section(self, memory: PlayerMemory) -> str:
+        """
+        role_beliefs を分析可能な形式に変換し、
+        発言で役職推定を明示するためのサマリーを構築する。
+        
+        各プレイヤーについて上位2つの役職候補を抽出し、
+        判断に使いやすい形式で提示する。
+        """
+        # 役職名の日本語マッピング
+        role_names_ja = {
+            "villager": "村人",
+            "seer": "占い師",
+            "werewolf": "人狼",
+            "madman": "狂人",
+        }
+        
+        analysis_lines = []
+        
+        for player, belief in memory.role_beliefs.items():
+            if player == memory.self_name:
+                continue  # 自分自身はスキップ
+            
+            # 確率が高い順にソート
+            sorted_roles = sorted(
+                belief.probs.items(), 
+                key=lambda x: x[1], 
+                reverse=True
+            )
+            
+            # 上位2つの役職候補を抽出（15%以上のもののみ）
+            top_roles = [(role, prob) for role, prob in sorted_roles if prob >= 0.15][:2]
+            
+            if len(top_roles) >= 2:
+                role1, prob1 = top_roles[0]
+                role2, prob2 = top_roles[1]
+                role1_ja = role_names_ja.get(role1, role1)
+                role2_ja = role_names_ja.get(role2, role2)
+                
+                # 役職ごとの判断ガイドを追加
+                implications = self._get_role_implications(role1, role2)
+                
+                analysis_lines.append(
+                    f"- {player}: {role1_ja}({prob1:.0%}) or {role2_ja}({prob2:.0%})\n"
+                    f"  → {implications}"
+                )
+            elif len(top_roles) == 1:
+                role1, prob1 = top_roles[0]
+                role1_ja = role_names_ja.get(role1, role1)
+                analysis_lines.append(f"- {player}: likely {role1_ja}({prob1:.0%})")
+        
+        if not analysis_lines:
+            return "(No strong beliefs about other players yet)"
+        
+        return "\n".join(analysis_lines)
+
+    def _get_role_implications(self, role1: str, role2: str) -> str:
+        """
+        2つの役職候補がある場合の判断ガイドを生成する。
+        """
+        implications = {
+            ("werewolf", "madman"): "人狼なら今日処理必須、狂人なら吊り損",
+            ("madman", "werewolf"): "狂人なら吊り損、人狼なら今日処理必須",
+            ("werewolf", "villager"): "人狼なら処理必須、村人なら吊りは致命的",
+            ("villager", "werewolf"): "村人なら吊りは致命的、人狼なら処理必須",
+            ("seer", "madman"): "本物占い師なら信用すべき、狂人なら偽情報",
+            ("madman", "seer"): "狂人なら偽情報、本物占い師なら信用すべき",
+            ("seer", "werewolf"): "本物占い師なら信用すべき、人狼なら騙り",
+            ("werewolf", "seer"): "人狼の騙りか本物占い師か見極めが必要",
+            ("villager", "madman"): "村人か狂人かで投票価値が変わる",
+            ("madman", "villager"): "狂人か村人かで投票価値が変わる",
+            ("villager", "seer"): "村人か占い師かで発言の信頼度が変わる",
+            ("seer", "villager"): "占い師か村人かで発言の信頼度が変わる",
+        }
+        
+        return implications.get(
+            (role1, role2), 
+            f"{role1}と{role2}の可能性を考慮して判断"
+        )
 
 
 # --- グローバルに1つだけ ---

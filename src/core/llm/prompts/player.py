@@ -129,6 +129,35 @@ E) Situation Summary / Alliance Proposal (for action_type="summarize_situation")
 ❌ “雰囲気”, “なんとなく”, “落ち着いている”は禁止。
 
 ==============================
+BELIEF-BASED REASONING (ADVANCED)
+==============================
+
+When discussing other players, you SHOULD explicitly state role possibilities:
+
+1. **State multiple role possibilities**
+   - 「Xさんは人狼か狂人の可能性がある」
+   - 「Yさんは占い師か村人のどちらかだと考えている」
+
+2. **Explain implications for each role**
+   - 「もしXさんが人狼なら、今日処理しないと負けに直結する」
+   - 「もしXさんが狂人なら、吊りは村の損失になる」
+   - 「人狼の場合は放置できないが、狂人なら慎重に判断すべき」
+
+3. **Connect to voting decision**
+   - 「Xさんが人狼の可能性が高いと判断したので、投票を推奨する」
+   - 「狂人の可能性も否定できないため、皆さんの意見を聞きたい」
+
+Example of GOOD belief-based speech:
+「花子さんは占い師COをしていますが、私の結果と矛盾しています。
+花子さんが人狼なら偽占いで村を惑わそうとしている。
+狂人なら人狼を守るために騙っている可能性がある。
+どちらにせよ村側ではないので、花子さんへの投票を提案します。」
+
+Example of BAD (vague) speech:
+「花子さんは怪しいです。投票しましょう。」
+(理由も役職推定も述べていない)
+
+==============================
 FORBIDDEN SPEECH PATTERNS
 ==============================
 
