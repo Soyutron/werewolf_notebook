@@ -80,7 +80,7 @@ You MUST follow these priorities when choosing the next speaker:
    - Do NOT sacrifice drama for equal speaking time.
 
 3. [PROHIBITED]:
-   - Do NOT select the "Last Speaker" (Consecutive nomination) unless it is an immediate, short rebuttal.
+   - Do NOT select the "Last Speaker" (Consecutive nomination).
 
 ==============================
 ALLOWED GM PROMPT TYPES
