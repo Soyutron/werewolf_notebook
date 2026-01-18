@@ -7,6 +7,7 @@ from src.core.memory.strategy import Strategy, SpeakReview
 from src.core.memory.speak import Speak
 from src.core.types.player import PlayerMemory
 from src.config.llm import create_speak_refiner_llm
+from src.game.player.belief_utils import build_belief_analysis_section, get_role_guidance
 
 
 class SpeakRefiner:
@@ -76,6 +77,10 @@ class SpeakRefiner:
             for e in public_speeches
         )
 
+        # --- Belief分析セクションの構築 ---
+        belief_analysis = build_belief_analysis_section(memory)
+        role_guidance = get_role_guidance(memory.self_role)
+
         # ターゲット未発言の警告と戦略の無効化
         target_warning = ""
         strategy_text = f"""
@@ -126,6 +131,28 @@ The following is the ONLY objective history.
 If a player is not listed here, they have NOT spoken.
 {public_history_text if public_history_text else "(No one has spoken)"}
 
+==============================
+ROLE BELIEF CONTEXT (FOR CONSISTENCY)
+==============================
+
+Your current beliefs about other players:
+{belief_analysis}
+
+When refining, ensure:
+1. Speech is CONSISTENT with your beliefs
+   - If you believe X is 人狼(70%), don't say "X is trustworthy"
+   - If you believe X is 占い師(80%), treat their claim with respect
+2. Speech is ROLE-APPROPRIATE
+   - As {memory.self_role}, you should: {role_guidance}
+3. Maintain role-based conviction
+   - 人狼: Be careful not to expose yourself or help village
+   - 占い師: Be confident about your divination result
+   - 狂人: Create confusion, not clarity
+   - 村人: Analyze based on facts, don't blindly trust
+
+==============================
+REFINEMENT TASK
+==============================
 
 Original Speech:
 "{original.text}"
@@ -134,10 +161,11 @@ Review Feedback:
 - Reason: {review.reason}
 - Fix Instruction: {review.fix_instruction}
 
-Refine the speech to address the fix instruction.
-CRITICAL: ALSO CHECK PUBLIC FACTS.
-- If the speech quotes a player who is NOT in Public Facts, REMOVE THAT QUOTE.
-- This is a HALLUCINATION. Fix it even if not mentioned in Review Feedback.
+Refine the speech to:
+1. Address the fix instruction
+2. Maintain belief consistency
+3. Ensure role-appropriate behavior
+4. Remove any hallucinations (quotes from silent players)
 
 Apply minimal changes otherwise.
 Output JSON only.

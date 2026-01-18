@@ -7,6 +7,7 @@ from src.core.memory.strategy import Strategy, SpeakReview
 from src.core.memory.speak import Speak
 from src.core.types.player import PlayerMemory
 from src.config.llm import create_speak_reviewer_llm
+from src.game.player.belief_utils import build_belief_analysis_section, get_role_guidance
 
 
 class SpeakReviewer:
@@ -67,6 +68,10 @@ class SpeakReviewer:
             for e in public_speeches
         )
 
+        # --- Belief分析セクションの構築 ---
+        belief_analysis = build_belief_analysis_section(memory)
+        role_guidance = get_role_guidance(memory.self_role)
+
         return f"""
 ==============================
 SPEAKER IDENTITY CHECK
@@ -98,7 +103,34 @@ PUBLIC FACTS (CHECK THIS)
 {public_history_text if public_history_text else "(No one has spoken)"}
 
 ==============================
+ROLE BELIEF CONSISTENCY CHECK
+==============================
 
+Your current beliefs about other players:
+{belief_analysis}
+
+Check for BELIEF CONTRADICTION:
+- If belief says "Xさん: 人狼(70%) or 狂人(20%)" but speech says "Xは信頼できる" → INCONSISTENT
+- If belief says "Xさん: 村人(80%)" but speech strongly accuses X → SUSPICIOUS LOGIC
+- If speech contradicts your own beliefs, set needs_fix = true.
+
+==============================
+ROLE-APPROPRIATE BEHAVIOR CHECK
+==============================
+
+As {memory.self_role}, you should: {role_guidance}
+
+Check for ROLE-INAPPROPRIATE BEHAVIOR:
+- 占い師: Should share facts and organize information, NOT hide divination results
+- 人狼: Should blend in or misdirect, NOT expose themselves or help village
+- 狂人: Should create chaos, NOT help village directly or reveal wolf
+- 村人: Should analyze and question, NOT make false claims
+
+If speech contradicts player's role incentives, set needs_fix = true.
+
+==============================
+STRATEGY ALIGNMENT
+==============================
 
 Strategy this speech should follow:
 - Goals: {strategy.goals}
@@ -108,7 +140,12 @@ Strategy this speech should follow:
 Speech to review:
 "{speak.text}"
 
-Review this speech for strategy alignment and self-reference violations.
+Review this speech for:
+1. Factual errors (hallucination)
+2. Self-reference violations
+3. Belief contradictions
+4. Role-inappropriate behavior
+
 Output JSON only.
 """
 

@@ -147,12 +147,6 @@ When discussing other players, you SHOULD explicitly state role possibilities:
    - 「Xさんが人狼の可能性が高いと判断したので、投票を推奨する」
    - 「狂人の可能性も否定できないため、皆さんの意見を聞きたい」
 
-Example of GOOD belief-based speech:
-「花子さんは占い師COをしていますが、私の結果と矛盾しています。
-花子さんが人狼なら偽占いで村を惑わそうとしている。
-狂人なら人狼を守るために騙っている可能性がある。
-どちらにせよ村側ではないので、花子さんへの投票を提案します。」
-
 Example of BAD (vague) speech:
 「花子さんは怪しいです。投票しましょう。」
 (理由も役職推定も述べていない)
@@ -294,6 +288,21 @@ Fail the speech (needs_fix: true) ONLY if:
    - Uses vague pronouns like "彼", "あの人", "そいつ", "彼女", "その人".
    - Using a Name (e.g. "Taro-san") is NEVER ambiguous.
 
+7. [IMPORTANT] Belief Contradiction
+   - Speech contradicts the player's own role_beliefs about other players.
+   - Example: Belief says "Taro: werewolf(70%)" but speech says "Taro is trustworthy".
+   - This is ILLOGICAL and needs_fix = true.
+   - Reason MUST mention "Belief contradiction".
+
+8. [IMPORTANT] Role-Inappropriate Behavior
+   - Speech contains actions that would harm the speaker's own faction.
+   - 占い師: NOT sharing divination result when they should.
+   - 人狼: Accidentally revealing wolf-team members or helping village.
+   - 狂人: Helping village directly instead of creating chaos.
+   - 村人: Making obviously false claims that hurt village.
+   - If detected, needs_fix = true.
+   - Reason MUST mention "Role-inappropriate behavior".
+
 ==============================
 PASS CRITERIA
 ==============================
@@ -402,6 +411,28 @@ Ensure the refined speech follows:
 If the original speech is "Hanako said X (lie) -> Vote Hanako",
 Refine to: "Hanako is silent (truth) -> Vote Hanako" (if that fits strategy)
 OR: "I suspect Hanako -> Vote Hanako" (vague but safe).
+
+==============================
+BELIEF-BASED REFINEMENT
+==============================
+
+When refining, consider the player's role_beliefs from the prompt:
+
+1. MAINTAIN BELIEF CONSISTENCY
+   - If belief says "Xさん: 人狼(70%)", speech should reflect suspicion toward X
+   - If belief says "Xさん: 村人(80%)", speech should not strongly accuse X
+   - Fix any contradiction between belief and speech content
+
+2. ROLE-APPROPRIATE CONVICTION
+   - 占い師: Speak with confidence about facts you know
+   - 人狼: Be cautious, blend in, misdirect subtly (don't help village)
+   - 狂人: Create chaos without being too obvious (don't expose wolf)
+   - 村人: Analyze and question based on observations (don't make false claims)
+
+3. LOGICAL CONSISTENCY
+   - "Xは人狼か狂人の可能性がある" → reasonable
+   - "Xは人狼だが信頼できる" → contradiction, fix it
+   - Ensure the speech makes sense for the role and beliefs
 
 ==============================
 OUTPUT FORMAT
