@@ -64,6 +64,45 @@ class StrategyGenerator:
             print(f"[StrategyGenerator] Failed to generate strategy: {e}")
             return None
 
+    def _contains_co_statement(self, text: str) -> bool:
+        """
+        発言テキストにCO表現が含まれるか判定する。
+        """
+        co_patterns = [
+            "私は占い師",
+            "占い師です",
+            "COします",
+            "カミングアウト",
+            "占い師CO",
+            "人狼CO",
+            "狂人CO",
+            "村人CO",
+            "占った結果",
+            "占いました",
+            "結果は人狼",
+            "結果は村人",
+        ]
+        return any(pattern in text for pattern in co_patterns)
+    
+    def _detect_own_co(self, memory: PlayerMemory) -> tuple[bool, str]:
+        """
+        自分がすでにCOしたかどうかを検出する。
+        
+        Returns:
+            tuple[bool, str]: (CO済みかどうか, CO内容の要約)
+        """
+        own_co_statements = []
+        for event in memory.observed_events:
+            if event.event_type == "speak":
+                speaker = event.payload.get("player", "")
+                text = event.payload.get("text", "")
+                if speaker == memory.self_name and self._contains_co_statement(text):
+                    own_co_statements.append(text)
+        
+        if own_co_statements:
+            return True, own_co_statements[-1]  # 最新のCO発言を返す
+        return False, ""
+
     def _build_prompt(self, memory: PlayerMemory) -> str:
         """
         戦略生成用のプロンプトを構築する。
@@ -84,12 +123,60 @@ class StrategyGenerator:
             for e in reversed(memory.observed_events[-10:])
         )
 
+        # CO済み検出
+        has_already_co, last_co_text = self._detect_own_co(memory)
+        
+        # POST-CO 強制セクション
+        post_co_enforcement = ""
+        if has_already_co:
+            post_co_enforcement = f"""
+==============================
+⚠️ CRITICAL: YOU HAVE ALREADY CO'd!
+==============================
+
+Your previous CO statement:
+「{last_co_text[:100]}{'...' if len(last_co_text) > 100 else ''}」
+
+The village ALREADY KNOWS your claim. DO NOT REPEAT IT.
+
+🚫 BANNED:
+- action_type = "co" (YOU ALREADY DID THIS)
+- co_decision = "co_now" (SET TO null OR "no_co")
+- Repeating "私は占い師です" or similar
+
+✅ REQUIRED FOCUS:
+- action_type = "vote_inducement" → Push for a vote on your target
+- action_type = "analysis" → Point out contradictions, refute counter-claims
+- action_type = "question" → Press suspicious players for answers
+
+Your job NOW is to:
+1. DEFEND your CO against challengers
+2. ATTACK those who contradict you
+3. CONVINCE villagers to VOTE with you
+
+DO NOT waste time restating known facts.
+"""
+
         # 占い師の場合、占い結果を明示的に抽出
         divine_result_section = ""
         if memory.self_role == "seer":
             for event in memory.observed_events:
                 if event.event_type == "divine_result":
-                    divine_result_section = f"""
+                    # CO済みの場合は「すでに公開済み」と明記
+                    if has_already_co:
+                        divine_result_section = f"""
+==============================
+YOUR DIVINATION RESULT (ALREADY PUBLIC)
+==============================
+
+You divined: {event.payload.get('target', 'unknown')}
+Result: {event.payload.get('result', 'unknown')}
+
+⚠️ You have ALREADY shared this. Do not repeat the CO.
+Focus on defending your claim or attacking rivals.
+"""
+                    else:
+                        divine_result_section = f"""
 ==============================
 YOUR DIVINATION RESULT (CRITICAL)
 ==============================
@@ -109,6 +196,7 @@ You are {memory.self_name}.
 Your role is: {memory.self_role}
 
 Players in this game: {', '.join(memory.players)}
+{post_co_enforcement}
 {divine_result_section}
 Recent game events:
 {observed_events_text if observed_events_text else "(none yet)"}
