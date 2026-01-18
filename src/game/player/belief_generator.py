@@ -42,12 +42,18 @@ class BeliefGenerator:
         失敗した場合は None を返す。
         """
         system, user = self._build_prompts(memory, observed)
+        
+        print("[BeliefGenerator] Building prompts completed")
+        print(f"[BeliefGenerator] System prompt length: {len(system)}")
+        print(f"[BeliefGenerator] User prompt length: {len(user)}")
 
         try:
+            print("[BeliefGenerator] Calling LLM.generate()...")
             result: RoleBeliefsOutput = self.llm.generate(
                 system=system,
                 prompt=user,
             )
+            print("[BeliefGenerator] LLM.generate() returned")
 
             beliefs: Dict[PlayerName, RoleProb] = {}
 

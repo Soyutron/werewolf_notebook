@@ -11,6 +11,7 @@ LLM クライアント生成に関する設定モジュール。
 
 from src.core.llm.ollama_client import OllamaLangChainClient
 from src.core.llm.vllm_client import VLLMLangChainClient
+from src.core.llm.gemini_client import GeminiLangChainClient
 from src.core.llm.dummy import DummyLLMClient
 from src.core.llm.client import LLMClient
 from src.core.memory.reflection import Reflection
@@ -33,7 +34,12 @@ from src.core.memory.strategy import Strategy, StrategyReview, SpeakReview
 # False の場合:
 #   - 実際のローカル / 外部 LLM を使用する
 USE_DUMMY = False
-USE_VLLM = True
+USE_VLLM = False
+USE_GEMINI = True
+
+# Gemini API 設定
+# 使用するモデル名（gemini-2.0-flash, gemini-1.5-pro など）
+GEMINI_MODEL = "gemini-2.5-flash"
 
 
 # =========================================================
@@ -56,6 +62,10 @@ def create_reflection_llm() -> LLMClient[Reflection]:
         # テスト・デバッグ用
         # 内省ロジックの流れだけを確認したい場合に使用
         return DummyLLMClient()
+
+    if USE_GEMINI:
+        # Gemini API を使用
+        return GeminiLangChainClient(model=GEMINI_MODEL, output_model=Reflection)
 
     if USE_VLLM:
         # 実運用用
@@ -89,6 +99,10 @@ def create_reaction_llm() -> LLMClient[Reaction]:
         # テスト・デバッグ用
         return DummyLLMClient()
 
+    if USE_GEMINI:
+        # Gemini API を使用
+        return GeminiLangChainClient(model=GEMINI_MODEL, output_model=Reaction)
+
     if USE_VLLM:
         # 実運用用
         # nemotron-3-nano:30b は推論能力が高く、内省用途に向いている
@@ -108,6 +122,10 @@ def create_gm_comment_llm() -> LLMClient[GMComment]:
     if USE_DUMMY:
         # テスト・デバッグ用
         return DummyLLMClient()
+
+    if USE_GEMINI:
+        # Gemini API を使用
+        return GeminiLangChainClient(model=GEMINI_MODEL, output_model=GMComment)
 
     if USE_VLLM:
         # 実運用用
@@ -129,6 +147,10 @@ def create_gm_maturity_llm() -> LLMClient[GMMaturityDecision]:
     if USE_DUMMY:
         # テスト・デバッグ用
         return DummyLLMClient()
+
+    if USE_GEMINI:
+        # Gemini API を使用
+        return GeminiLangChainClient(model=GEMINI_MODEL, output_model=GMMaturityDecision)
 
     if USE_VLLM:
         # 実運用用
@@ -154,6 +176,10 @@ def create_speak_llm() -> LLMClient[Speak]:
         # テスト・デバッグ用
         return DummyLLMClient()
 
+    if USE_GEMINI:
+        # Gemini API を使用
+        return GeminiLangChainClient(model=GEMINI_MODEL, output_model=Speak)
+
     if USE_VLLM:
         # 実運用用
         # nemotron-3-nano:30b は推論能力が高く、内省用途に向いている
@@ -167,6 +193,9 @@ def create_speak_llm() -> LLMClient[Speak]:
 def create_belief_llm() -> LLMClient[RoleBeliefsOutput]:
     if USE_DUMMY:
         return DummyLLMClient(output=RoleBeliefsOutput)
+
+    if USE_GEMINI:
+        return GeminiLangChainClient(model=GEMINI_MODEL, output_model=RoleBeliefsOutput)
 
     if USE_VLLM:
         return VLLMLangChainClient(
@@ -184,6 +213,9 @@ def create_vote_llm() -> LLMClient[VoteOutput]:
     if USE_DUMMY:
         return DummyLLMClient(output=VoteOutput)
 
+    if USE_GEMINI:
+        return GeminiLangChainClient(model=GEMINI_MODEL, output_model=VoteOutput)
+
     if USE_VLLM:
         return VLLMLangChainClient(
             model="google/gemma-3-12b-it",
@@ -199,6 +231,9 @@ def create_vote_llm() -> LLMClient[VoteOutput]:
 def create_gm_comment_reviewer_llm() -> LLMClient[GMCommentReviewResult]:
     if USE_DUMMY:
         return DummyLLMClient(output=GMCommentReviewResult)
+
+    if USE_GEMINI:
+        return GeminiLangChainClient(model=GEMINI_MODEL, output_model=GMCommentReviewResult)
 
     if USE_VLLM:
         return VLLMLangChainClient(
@@ -222,6 +257,10 @@ def create_gm_comment_refiner_llm() -> LLMClient[GMComment]:
         # テスト・デバッグ用
         return DummyLLMClient()
 
+    if USE_GEMINI:
+        # Gemini API を使用
+        return GeminiLangChainClient(model=GEMINI_MODEL, output_model=GMComment)
+
     if USE_VLLM:
         # 実運用用
         # nemotron-3-nano:30b は推論能力が高く、内省用途に向いている
@@ -244,6 +283,9 @@ def create_strategy_llm() -> LLMClient[Strategy]:
     if USE_DUMMY:
         return DummyLLMClient()
 
+    if USE_GEMINI:
+        return GeminiLangChainClient(model=GEMINI_MODEL, output_model=Strategy)
+
     if USE_VLLM:
         return VLLMLangChainClient(
             model="google/gemma-3-12b-it", output_model=Strategy
@@ -258,6 +300,9 @@ def create_strategy_reviewer_llm() -> LLMClient[StrategyReview]:
     """
     if USE_DUMMY:
         return DummyLLMClient()
+
+    if USE_GEMINI:
+        return GeminiLangChainClient(model=GEMINI_MODEL, output_model=StrategyReview)
 
     if USE_VLLM:
         return VLLMLangChainClient(
@@ -276,6 +321,9 @@ def create_strategy_refiner_llm() -> LLMClient[Strategy]:
     if USE_DUMMY:
         return DummyLLMClient()
 
+    if USE_GEMINI:
+        return GeminiLangChainClient(model=GEMINI_MODEL, output_model=Strategy)
+
     if USE_VLLM:
         return VLLMLangChainClient(
             model="google/gemma-3-12b-it", output_model=Strategy
@@ -290,6 +338,9 @@ def create_speak_reviewer_llm() -> LLMClient[SpeakReview]:
     """
     if USE_DUMMY:
         return DummyLLMClient()
+
+    if USE_GEMINI:
+        return GeminiLangChainClient(model=GEMINI_MODEL, output_model=SpeakReview)
 
     if USE_VLLM:
         return VLLMLangChainClient(
@@ -307,6 +358,9 @@ def create_speak_refiner_llm() -> LLMClient[Speak]:
     """
     if USE_DUMMY:
         return DummyLLMClient()
+
+    if USE_GEMINI:
+        return GeminiLangChainClient(model=GEMINI_MODEL, output_model=Speak)
 
     if USE_VLLM:
         return VLLMLangChainClient(
