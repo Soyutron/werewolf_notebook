@@ -41,34 +41,50 @@ class BeliefGenerator:
 
         失敗した場合は None を返す。
         """
-        prompt = self._build_prompt(memory, observed)
+        system, user = self._build_prompts(memory, observed)
 
         try:
             result: RoleBeliefsOutput = self.llm.generate(
-                prompt=prompt,
+                system=system,
+                prompt=user,
             )
 
             beliefs: Dict[PlayerName, RoleProb] = {}
 
-            for player, probs in result.beliefs.items():
-                beliefs[player] = RoleProb.normalize(probs)
+            for item in result.beliefs:
+                # RoleProbOutput -> RoleProb convert
+                probs = {
+                    "villager": item.belief.villager,
+                    "seer": item.belief.seer,
+                    "werewolf": item.belief.werewolf,
+                    "madman": item.belief.madman,
+                }
+                
+                # Normalize manually since RoleProb.normalize doesn't exist
+                total = sum(probs.values())
+                if total > 0:
+                    probs = {k: v / total for k, v in probs.items()}
+                else:
+                    # Fallback uniform distribution
+                    probs = {k: 0.25 for k in probs}
+
+                beliefs[item.player] = RoleProb(probs=probs)
 
             return beliefs
 
-        except Exception:
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
             # 推論に失敗してもゲーム進行は止めない
             return None
 
-    def _build_prompt(
+    def _build_prompts(
         self,
         memory: PlayerMemory,
         observed: Observed,
-    ) -> str:
+    ) -> tuple[str, str]:
         """
-        belief 更新用の prompt を構築する。
-
-        - 発言のニュアンス解釈はすべて LLM に任せる
-        - 確定情報（divine_result）は尊重するよう指示
+        system / user prompt を構築する。
         """
         observed_type = observed.__class__.__name__
 
@@ -77,12 +93,39 @@ class BeliefGenerator:
             for player, belief in memory.role_beliefs.items()
         )
 
-        return f"""
+        system = """
 You are an AI player in a Werewolf-style social deduction game.
+You must update your private beliefs about each player's role based on a new observation.
 
-You must update your private beliefs about each player's role
-based on a new observation.
+Rules:
+- Output ONLY updated role beliefs.
+- Beliefs must be probabilistic (no certainty).
+- Do NOT use 0.0 or 1.0 probabilities.
+- Probabilities for each player must sum to exactly 1.0.
+- Do NOT change your own role.
+- Do NOT explain your reasoning.
+- Output JSON list of objects.
 
+Output format:
+{
+  "beliefs": [
+    {
+      "player": "Alice",
+      "belief": {
+        "villager": 0.4,
+        "seer": 0.3,
+        "werewolf": 0.3,
+        "madman": 0.0
+      }
+    },
+    {
+      "player": "Bob",
+      "belief": { ... }
+    }
+  ]
+}
+"""
+        user = f"""
 Current players:
 {memory.players}
 
@@ -99,29 +142,8 @@ New observation:
 Type: {observed_type}
 Details:
 {observed.model_dump()}
-
-Rules:
-- Output ONLY updated role beliefs.
-- Beliefs must be probabilistic (no certainty).
-- Do NOT use 0.0 or 1.0 probabilities.
-- Probabilities for each player must sum to exactly 1.0.
-- Do NOT change your own role.
-- Do NOT explain your reasoning.
-- Output JSON only.
-
-Output format:
-{{
-  "Alice": {{
-    "villager": 0.4,
-    "seer": 0.3,
-    "werewolf": 0.3
-    "madman": 0.0
-  }},
-  "Bob": {{
-    ...
-  }}
-}}
 """
+        return system.strip(), user.strip()
 
 
 # --- グローバルに1つだけ ---
