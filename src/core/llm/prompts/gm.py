@@ -93,17 +93,27 @@ The "text" field MUST consist of TWO parts:
 
 ## Speaker Selection Priority
 
-1. **[HIGHEST] Narrative Relevance**
+IMPORTANT: Candidates are PRE-FILTERED. You MUST choose from the provided candidate list.
+
+1. **[HIGHEST] Fairness - Prioritize Unspoken Players**
+   - Until ALL players have spoken at least once, select ONLY from unspoken players
+   - This ensures everyone gets equal speaking opportunity in each round
+   - Do NOT select a player who has already spoken if unspoken players remain
+
+2. **[SECONDARY] Contextual Relevance (among valid candidates)**
    - DIRECT RESPONDER: If last speaker asked someone a question → that person speaks next
    - COUNTER-CLAIMANT: After CO → prioritize potential rivals or divination targets
    - SKEPTIC: If discussion is one-sided → pick a silent player to challenge consensus
+   - If "Contextually Preferred" players are listed, prefer them (if they are also candidates)
 
-2. **[SECONDARY] Fairness**
-   - Among equal candidates, prefer fewer speaking turns
-   - Do NOT sacrifice drama for equal speaking time
+3. **[TERTIARY] Narrative Advancement**
+   - Among equal candidates, prefer those who can advance discussion
+   - Do NOT sacrifice fairness for drama in early rounds
 
-3. **[PROHIBITED]**
-   - Do NOT select the last speaker consecutively (unless immediate short rebuttal)
+4. **[PROHIBITED]**
+   - Do NOT select the last speaker consecutively
+   - Do NOT select players outside the candidate list
+
 
 ## Allowed Prompt Types (Choose ONE)
 
