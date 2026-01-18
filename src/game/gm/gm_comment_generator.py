@@ -52,9 +52,22 @@ class GMCommentGenerator:
             len(recent_events) > 0 and recent_events[-1].event_type == "night_started"
         )
 
+        # Prevent consecutive nomination
+        # However, if there are only 2 players (rare in OneNight, but possible in testing),
+        # strictly banning the last speaker forces a ping-pong which is fine.
+        # But if there's only 1 player? Unlikely.
+        # General rule: Create a list of Valid Next Speakers.
+        
+        candidates = []
+        if last_speaker and len(players) > 1:
+            candidates = [p for p in players if p != last_speaker]
+        else:
+            candidates = list(players)
+
         prompt = self._build_prompt(
             events_text=events_text,
             players=players,
+            candidates=candidates,
             is_opening=is_opening,
             speak_counts=speak_counts,
             last_speaker=last_speaker,
@@ -76,6 +89,7 @@ class GMCommentGenerator:
         *,
         events_text: str,
         players: list[PlayerName],
+        candidates: list[PlayerName],
         is_opening: bool,
         speak_counts: dict[PlayerName, int],
         last_speaker: Optional[PlayerName],
@@ -91,6 +105,9 @@ class GMCommentGenerator:
         stats_text = "\n".join(stats_lines)
 
         last_speaker_text = f"Last Speaker: {last_speaker}" if last_speaker else "Last Speaker: None"
+        
+        candidates_text = ", ".join(candidates)
+        candidates_section = f"Candidate Speakers (You MUST choose from here): {candidates_text}"
 
         opening_text = ""
         if is_opening:
@@ -108,6 +125,7 @@ Player Status:
 {stats_text}
 
 {last_speaker_text}
+{candidates_section}
 
 Recent public events:
 {events_text}
