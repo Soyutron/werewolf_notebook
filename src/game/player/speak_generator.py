@@ -131,11 +131,11 @@ PHASE: MID/LATE GAME
             if strategy.co_decision == "co_now":
                 # Check for unknown result
                 result_instruction = f"3. Result: {strategy.co_result}"
-                example_sentence = f"「私は占い師です。{strategy.co_target}さんを占いました。結果は{strategy.co_result}でした。」"
+                example_sentence = f"「私は占い師です。昨晩、{strategy.co_target}さんを占いました。結果は{strategy.co_result}でした。皆さんの意見をお聞かせください。」"
                 
                 if not strategy.co_result or strategy.co_result.lower() == "unknown":
                     result_instruction = "3. Result: Decide a result (White or Black) YOURSELF based on your game plan."
-                    example_sentence = f"「私は占い師です。{strategy.co_target}さんを占いました。結果は{strategy.co_target}さんは[人狼/村人]でした。」"
+                    example_sentence = f"「私は占い師です。昨晩、{strategy.co_target}さんを占いました。{strategy.co_target}さんは[人狼/村人]でした。皆さん、この情報を踏まえてどう思いますか？」"
 
                 co_enforcement_section = f"""
 ==============================
@@ -152,7 +152,13 @@ Your speech MUST include ALL of the following:
 Example format:
 {example_sentence}
 
-DO NOT skip the CO. DO NOT hint. STATE IT CLEARLY.
+IMPORTANT STYLE RULES:
+- Report calmly and factually, like a real Seer would.
+- DO NOT use exclamation marks (！).
+- DO NOT use interrogative accusations (e.g., 一体何を企んでいるんだ？).
+- DO NOT be overly dramatic or emotional.
+
+DO NOT skip the CO. DO NOT hint. STATE IT CLEARLY but CALMLY.
 """
             
             # ターゲットが未発言かどうかのチェック
