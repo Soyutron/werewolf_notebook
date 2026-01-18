@@ -41,9 +41,19 @@ def belief_update_node(state: PlayerState) -> PlayerState:
 
     if new_beliefs is not None:
         # 自分自身の役職は固定（安全装置）
+        # LLM が自分自身を含めなかった場合に備え、安全にロールリストを取得
+        if memory.self_name in new_beliefs:
+            available_roles = list(new_beliefs[memory.self_name].probs.keys())
+        elif new_beliefs:
+            # 他のプレイヤーから役職リストを取得
+            available_roles = list(next(iter(new_beliefs.values())).probs.keys())
+        else:
+            # フォールバック: デフォルトの役職リスト
+            available_roles = ["villager", "seer", "werewolf", "madman"]
+        
         self_probs = {
             role: (1.0 if role == memory.self_role else 0.0)
-            for role in new_beliefs[memory.self_name].probs.keys()
+            for role in available_roles
         }
         new_beliefs[memory.self_name] = RoleProb(probs=self_probs)
         memory.role_beliefs = new_beliefs
