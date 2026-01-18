@@ -134,7 +134,7 @@ class ActionResolver:
                 role = self.assigned_roles[target]
 
                 # 狂人の占いは必ず「村人」に見える
-                if self.assigned_roles[player] == "madman":
+                if role == "madman":
                     visible_role = "villager"
                 else:
                     visible_role = role
