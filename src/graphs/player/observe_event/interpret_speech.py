@@ -1,13 +1,13 @@
-from src.core.types import PlayerState, RoleProb
-from src.game.player.belief_generator import believe_generator
+from src.core.types import PlayerState
 
 
 def handle_interpret_speech(state: PlayerState) -> PlayerState:
     """
-    発言（speak）を受け取り、belief（role_beliefs）を更新するノード。
+    発言（speak）を受け取り、観測イベントとして保存するノード。
 
-    - handle_speak と同じ責務感
-    - BeliefGenerator を直接呼ぶ
+    責務:
+    - 発言イベントを observed_events に記録する
+    - belief の更新は行わない（belief_update_node で実行）
     - 行動はしない（output = None）
     """
     event = state["input"].event
@@ -18,25 +18,8 @@ def handle_interpret_speech(state: PlayerState) -> PlayerState:
         state["output"] = None
         return state
 
-    # 1. 観測イベントとして保存
+    # 観測イベントとして保存（belief 更新は belief_update_node で行う）
     memory.observed_events.append(event)
 
-    # 2. belief を更新
-    new_beliefs = believe_generator.generate(
-        memory=memory,
-        observed=event,
-    )
-
-    if new_beliefs is not None:
-        # 自分自身の役職は固定（安全装置）
-        self_probs = {
-            role: (1.0 if role == memory.self_role else 0.0)
-            for role in new_beliefs[memory.self_name].probs.keys()
-        }
-        new_beliefs[memory.self_name] = RoleProb(probs=self_probs)
-
-        memory.role_beliefs = new_beliefs
-
-    # 3. 行動はしない
     state["output"] = None
     return state

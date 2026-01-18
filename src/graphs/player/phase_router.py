@@ -33,7 +33,7 @@ def phase_router(state: PlayerState) -> str:
             return "use_ability"
 
         if player_input.request.request_type == "speak":
-            return "strategy_generate"
+            return "belief_update"
 
         if player_input.request.request_type == "vote":
             return "vote"
