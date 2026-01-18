@@ -39,7 +39,7 @@ USE_GEMINI = True
 
 # Gemini API 設定
 # 使用するモデル名（gemini-2.0-flash, gemini-1.5-pro など）
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-2.5-flash-lite"
 
 
 # =========================================================
