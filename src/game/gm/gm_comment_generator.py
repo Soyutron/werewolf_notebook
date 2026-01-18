@@ -1,6 +1,5 @@
 # src/game/gm/gm_comment_generator.py
 from typing import Optional
-import random
 
 from src.core.llm.client import LLMClient
 from src.core.llm.prompts import GM_COMMENT_SYSTEM_PROMPT
@@ -80,14 +79,6 @@ class GMCommentGenerator:
                 prompt=prompt,
             )
             print(response)
-            print(response)
-            
-            # Additional validation: Enforce candidate constraints
-            if response and response.speaker not in candidates and candidates:
-                print(f"GM Warning: LLM selected invalid speaker {response.speaker}. Overriding with random candidate.")
-                response.speaker = random.choice(candidates)
-                # Note: The text might still address the invalid speaker, but preventing the loop is prioritized.
-            
             return response
         except Exception:
             # GMコメント生成に失敗しても進行は止めない
