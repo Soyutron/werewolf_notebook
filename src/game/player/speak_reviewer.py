@@ -57,12 +57,27 @@ class SpeakReviewer:
         """
         self_name = memory.self_name
         
+        # --- 公開情報の抽出 ---
+        public_speeches = [
+            e for e in memory.observed_events 
+            if e.event_type == "speak"
+        ]
+        public_history_text = "\n".join(
+            f"- {e.payload.get('player')}: {e.payload.get('text')}"
+            for e in public_speeches
+        )
+
         return f"""
 ==============================
 SPEAKER IDENTITY CHECK
 ==============================
 
 The speaker is: {self_name}
+
+Check for HALLUCINATIONS (FACTUAL ERRORS) [PRIORITY 1]:
+- Does the speech quote/reference a player who is NOT in the Public Facts below?
+- If YES, this is INVALID and needs_fix = true.
+- Reason MUST mention "Hallucination".
 
 Check for SELF-REFERENCE violations:
 - Does the speech contain "{self_name}さん" or "{self_name}は"? (Your OWN name)
@@ -76,6 +91,14 @@ Check for AMBIGUOUS PRONOUNS:
 
 Player: {self_name}
 Role: {memory.self_role}
+
+==============================
+PUBLIC FACTS (CHECK THIS)
+==============================
+{public_history_text if public_history_text else "(No one has spoken)"}
+
+==============================
+
 
 Strategy this speech should follow:
 - Goals: {strategy.goals}

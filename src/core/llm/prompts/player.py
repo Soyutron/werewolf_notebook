@@ -238,25 +238,30 @@ REJECTION CRITERIA (CHECK THESE ONLY)
 
 Fail the speech (needs_fix: true) ONLY if:
 
-1. [CRITICAL] Self-Reference Violation (Strictly defined)
+1. [CRITICAL] Hallucination (Factual Error)
+   - Quotes or claims a statement from a player who is NOT in the "PUBLIC FACTS" list.
+   - Example: "Hanako said X" when Hanako is not in the list.
+   - NOTE: Strategy might be wrong. Trust Public Facts.
+
+2. [CRITICAL] Self-Reference Violation (Strictly defined)
    - Speaker refers to THEMSELVES by their own NAME (e.g. "Taro thinks...").
    - Speaker refers to THEMSELVES in the third person.
    - NOTE: Referring to OTHER players by name is REQUIRED and VALID.
    - NOTE: "I am Seer" is VALID (Role claim).
 
-2. [CRITICAL] Meta / System Terms
+3. [CRITICAL] Meta / System Terms
    - Mentions "AI", "LLM", "Prompt", "System", "JSON".
    - Reveals internal probability numbers (e.g. "My belief is 80%").
 
-3. [CRITICAL] Broken Japanese
+4. [CRITICAL] Broken Japanese
    - Grammatically broken or incomprehensible.
    - Wrong language (not Japanese).
 
-4. [CRITICAL] Role Contradiction (Seer Only)
+5. [CRITICAL] Role Contradiction (Seer Only)
    - If the player is Seer and makes a statement starting with "I am Seer" (CO) but FAILS to say the result (White/Black).
    - "I am Seer" without a result is meaningless.
 
-5. [CRITICAL] Ambiguous Reference
+6. [CRITICAL] Ambiguous Reference
    - Uses vague pronouns like "彼", "あの人", "そいつ", "彼女", "その人".
    - Using a Name (e.g. "Taro-san") is NEVER ambiguous.
 
@@ -315,11 +320,14 @@ Inputs:
 ABSOLUTE RULES
 ==============================
 
-1. FIX ONLY THE ERROR. Do not rewrite safe parts.
-2. PRESERVE ENTITY NAMES.
+1. FIX THE ERROR specified in the review instruction.
+2. CHECK FOR HALLUCINATIONS:
+   - If the speech quotes a player who is NOT in "PUBLIC FACTS", YOU MUST REMOVE THAT QUOTE.
+   - This overrides the "Minimal Repair" rule. Factual grounding is absolute.
+3. PRESERVE ENTITY NAMES (unless correcting ambiguous pronouns).
    - If the original speech checks "Taro", KEEP "Taro".
    - Do NOT change "Taro" to "Seer" (Role) or "Me" (Self) unless it was a self-reference error.
-3. RESOLVE PRONOUNS CORRECTLY.
+4. RESOLVE PRONOUNS CORRECTLY.
    - If replacing "him/her", use a specific name from the Valid Partners list or the Strategy.
    - Do NOT use Roles as names (e.g. "I divined Seer" is WRONG if you meant "I divined Taro").
 
@@ -339,6 +347,32 @@ COMMON FIXES
 - Ambiguous Pronouns ("He/That person"):
   -> Replace with the specific player name ("Taro-san").
   -> LOOK at the Strategy to find the correct name.
+
+- Hallucination (Quoting silent player):
+  Original: "Hanako said she is Seer." (Hanako is silent in Public Facts)
+  Strategy: "Refute Hanako."
+  Fix: "Hanako hasn't spoken yet." OR "I suspect Hanako." (Remove the quote!)
+
+==============================
+FACTUAL GROUNDING (CRITICAL)
+==============================
+1. CHECK "PUBLIC FACTS" section.
+2. If the Original Speech says "Taro said X", but Taro is NOT in Public Facts:
+   -> THIS IS A HALLUCINATION.
+   -> REMOVE the quote.
+   -> Change to: "Taro hasn't spoken yet, which is suspicious" OR just "I suspect Taro".
+
+==============================
+LOGICAL STRUCTURE
+==============================
+Ensure the refined speech follows:
+1. CLAIM (Who is suspicious/safe?)
+2. EVIDENCE (Based on ACTUAL facts)
+3. CONCLUSION (Vote me / Vote them)
+
+If the original speech is "Hanako said X (lie) -> Vote Hanako",
+Refine to: "Hanako is silent (truth) -> Vote Hanako" (if that fits strategy)
+OR: "I suspect Hanako -> Vote Hanako" (vague but safe).
 
 ==============================
 OUTPUT FORMAT
