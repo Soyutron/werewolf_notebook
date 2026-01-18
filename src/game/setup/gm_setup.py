@@ -1,20 +1,34 @@
 # game/setup/gm_setup.py
-from typing import Dict, List, Tuple
+"""
+ゲームセットアップモジュール
 
-from src.core.types.player import PlayerName, PlayerMemory
-from src.core.types.roles import RoleName
+責務:
+- プレイヤー生成
+- 役職割り当て
+- PlayerMemory 初期化
+- Controller 初期化
+
+設計方針:
+- GameDefinition を Single Source of Truth として使用
+- プレイヤー人数は role_distribution から自動決定
+"""
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Dict, List, Tuple
+
 from src.game.setup.players import create_players
 from src.game.setup.roles import assign_roles
 from src.game.setup.memory import create_initial_player_memory
-from src.core.types.phases import GameDefinition
-from src.core.controller import PlayerController
-from src.core.controller import AIPlayerController
+
+if TYPE_CHECKING:
+    from src.core.types.player import PlayerName, PlayerMemory
+    from src.core.types.roles import RoleName
+    from src.core.types.phases import GameDefinition
+    from src.core.controller import PlayerController
 
 
 def setup_game(
     definition: GameDefinition,
-    # NOTE: 現在はワンナイト人狼固定構成のため definition は未使用。
-    # 将来、player_count / role_distribution を definition から取得する。
 ) -> Tuple[
     List[PlayerName],
     Dict[PlayerName, RoleName],
@@ -22,7 +36,7 @@ def setup_game(
     Dict[PlayerName, PlayerController],
 ]:
     """
-    ワンナイト人狼のゲーム初期状態を構築する。
+    ゲーム初期状態を構築する。
 
     この関数の責務:
     - プレイヤー一覧の生成
@@ -30,21 +44,23 @@ def setup_game(
     - 各 PlayerMemory の初期化
 
     設計方針:
-    - ゲーム開始時に一度だけ呼ばれる
-    - ここで生成された PlayerMemory は PlayerGraph に渡され、
-      以後 GM は中身を直接変更しない
+    - GameDefinition.role_distribution を Single Source of Truth として使用
+    - プレイヤー人数は role_distribution から自動決定
+    - role_distribution の内容に応じて任意の役職構成に対応
     """
     # Lazy import to avoid circular import
     from src.graphs.player.player_graph import player_graph
+    from src.core.controller import AIPlayerController
 
-    # 1. プレイヤー生成（5人固定）
-    players: List[PlayerName] = create_players()
+    # 1. プレイヤー人数は role_distribution から決定
+    player_count = len(definition.role_distribution)
+    players = create_players(player_count)
 
-    # 2. 役職配布（GM のみが知る）
-    assigned_roles: Dict[PlayerName, RoleName] = assign_roles(players)
+    # 2. 役職配布（GameDefinition を使用）
+    assigned_roles = assign_roles(players, definition)
 
     # 3. PlayerMemory 初期化
-    player_memories: Dict[PlayerName, PlayerMemory] = {
+    player_memories = {
         player: create_initial_player_memory(
             definition=definition,
             self_name=player,
@@ -54,8 +70,7 @@ def setup_game(
         for player in players
     }
 
-    # 4. Controller 初期化（AI 5人）
+    # 4. Controller 初期化（AI N人）
     controllers = {player: AIPlayerController(player_graph) for player in players}
 
     return players, assigned_roles, player_memories, controllers
-

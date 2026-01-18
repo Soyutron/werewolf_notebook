@@ -1,45 +1,56 @@
 # game/setup/roles.py
+"""
+役職割り当てモジュール
+
+責務:
+- GameDefinition.role_distribution に基づいて役職をランダムに割り当てる
+- プレイヤー人数と役職数の整合性検証
+
+設計方針:
+- GameDefinition を Single Source of Truth として使用
+- 役職構成・人数の変更に柔軟に対応可能
+"""
+from __future__ import annotations
+
 import random
-from typing import Dict, List
-from src.core.types import PlayerName, RoleName
+from typing import TYPE_CHECKING, Dict, List
+
+if TYPE_CHECKING:
+    from src.core.types.phases import GameDefinition
+
+# NOTE: PlayerName, RoleName は TypeAlias = str のため、
+# 循環インポートを避けて str を直接使用する。
 
 
-# =========================
-# 固定役職構成（5人村）
-# =========================
-# ワンナイト人狼想定：
-# - 村人 x2
-# - 人狼 x1
-# - 占い師 x1
-# - 狂人 x1
-DEFAULT_ROLES: List[RoleName] = [
-    "villager",
-    "villager",
-    "werewolf",
-    "seer",
-    "madman",
-]
-
-
-def assign_roles(players: List[PlayerName]) -> Dict[PlayerName, RoleName]:
+def assign_roles(
+    players: List[str],
+    definition: GameDefinition,
+) -> Dict[str, str]:
     """
     プレイヤーに役職をランダムに割り当てる。
 
-    現段階の仕様:
-    - プレイヤー人数は5人固定
-    - 役職構成は固定（村村狼占狂）
-    - シャッフルしてランダム配布する
+    Args:
+        players: プレイヤー名のリスト
+        definition: ゲーム定義（役職構成を含む）
 
-    将来拡張:
-    - 人数可変
-    - role_distribution を GameDefinition から受け取る
-    - テスト用に shuffle 無効化
+    Returns:
+        プレイヤー名 → 役職名 の辞書
+
+    Raises:
+        ValueError: プレイヤー人数と role_distribution の長さが一致しない場合
+
+    設計方針:
+    - GameDefinition.role_distribution を使用して任意の人数・役職構成に対応
+    - シャッフルによりランダム配布を実現
+    - テスト用に random.seed() で再現性を確保可能
     """
+    if len(players) != len(definition.role_distribution):
+        raise ValueError(
+            f"Player count ({len(players)}) must match "
+            f"role_distribution length ({len(definition.role_distribution)})"
+        )
 
-    if len(players) != 5:
-        raise ValueError("Current one-night werewolf setup supports exactly 5 players.")
-
-    roles = DEFAULT_ROLES.copy()
+    roles = list(definition.role_distribution)
     random.shuffle(roles)
 
     return {player: role for player, role in zip(players, roles)}
