@@ -19,6 +19,10 @@ class GMCommentGenerator:
     """
     GM が観測した public_event から
     次の speaker と進行コメントを生成する。
+    
+    発言者選定ロジック:
+    - 基本: シンプルなラウンドロビン（全員が順番に発言）
+    - 補助: 直前の発言で名指しされた人がいれば優先
     """
 
     def __init__(self, llm: LLMClient):
@@ -35,7 +39,7 @@ class GMCommentGenerator:
         直近の public_event をもとに GM コメントを生成する。
         """
 
-        # Speak counts and last speaker logic
+        # 発言回数と直前発言者を集計
         speak_counts = {p: 0 for p in players}
         last_speaker = None
         for event in public_events:
@@ -45,7 +49,7 @@ class GMCommentGenerator:
                     speak_counts[speaker] += 1
                 last_speaker = speaker
 
-        # ★ 直近15件だけを見る
+        # 直近15件だけを見る
         recent_events = public_events[-15:]
         events_text = format_events_for_gm(list(reversed(recent_events)))
 
@@ -53,48 +57,22 @@ class GMCommentGenerator:
             len(recent_events) > 0 and recent_events[-1].event_type == "night_started"
         )
 
-        # === Fair Speaker Selection Logic ===
-        # 1. Identify players who haven't spoken yet
-        unspoken_players = [p for p in players if speak_counts[p] == 0]
-        all_have_spoken = len(unspoken_players) == 0
-        
-        # 2. Detect contextual relevance (e.g., question targets from recent events)
-        contextual_targets = self._extract_contextual_targets(recent_events, players)
-        
-        # 3. Build candidate list with priority:
-        #    - If not everyone has spoken: only unspoken players are candidates
-        #    - If everyone has spoken: reset and allow all players
-        #    - Always exclude last speaker to prevent consecutive nomination
-        
-        if all_have_spoken:
-            # Reset: everyone can be nominated again
-            base_candidates = list(players)
-        else:
-            # Prioritize unspoken players exclusively
-            base_candidates = unspoken_players
-        
-        # Exclude last speaker to prevent consecutive nomination
-        if last_speaker and len(base_candidates) > 1:
-            candidates = [p for p in base_candidates if p != last_speaker]
-        else:
-            candidates = base_candidates
-        
-        # If no valid candidates (edge case), fall back to all players except last speaker
-        if not candidates:
-            candidates = [p for p in players if p != last_speaker] or list(players)
-        
-        # 4. Among candidates, identify contextually preferred speakers
-        preferred_candidates = [p for p in candidates if p in contextual_targets]
+        # シンプルな発言者選定
+        next_speaker, selection_reason = self._get_next_speaker(
+            players=players,
+            speak_counts=speak_counts,
+            last_speaker=last_speaker,
+            recent_events=recent_events,
+        )
 
         prompt = self._build_prompt(
             events_text=events_text,
             players=players,
-            candidates=candidates,
-            preferred_candidates=preferred_candidates,
+            next_speaker=next_speaker,
+            selection_reason=selection_reason,
             is_opening=is_opening,
             speak_counts=speak_counts,
             last_speaker=last_speaker,
-            all_have_spoken=all_have_spoken,
             log_summary=log_summary,
         )
 
@@ -108,52 +86,83 @@ class GMCommentGenerator:
         except Exception:
             # GMコメント生成に失敗しても進行は止めない
             return None
-    
-    def _extract_contextual_targets(
+
+    def _get_next_speaker(
+        self,
+        players: list[PlayerName],
+        speak_counts: dict[PlayerName, int],
+        last_speaker: Optional[PlayerName],
+        recent_events: list[GameEvent],
+    ) -> tuple[PlayerName, str]:
+        """
+        シンプルなラウンドロビン + 文脈補助による発言者選定。
+        
+        Returns:
+            tuple: (next_speaker, selection_reason)
+        """
+        # 1. 未発言者リストを取得（プレイヤー順序を維持）
+        unspoken = [p for p in players if speak_counts.get(p, 0) == 0]
+        
+        # 2. 全員発言済みなら新ラウンド開始
+        if not unspoken:
+            unspoken = list(players)
+        
+        # 3. 直前発言者を除外（連続指名防止）
+        candidates = [p for p in unspoken if p != last_speaker]
+        if not candidates:
+            candidates = unspoken
+        
+        # 4. 文脈ヒント: 直前の発言で名指しされた人がいれば優先
+        mentioned = self._get_mentioned_player(recent_events, candidates)
+        if mentioned:
+            return mentioned, "mentioned_in_last_speech"
+        
+        # 5. デフォルト: 候補リストの先頭（順番通り）
+        return candidates[0], "round_robin"
+
+    def _get_mentioned_player(
         self,
         recent_events: list[GameEvent],
-        players: list[PlayerName],
-    ) -> set[PlayerName]:
+        candidates: list[PlayerName],
+    ) -> Optional[PlayerName]:
         """
-        直近のイベントから文脈的に指名されるべきプレイヤーを抽出する。
-        例: 質問された相手、言及された相手など
+        直前の発言で名指しされたプレイヤーを候補から探す。
+        見つからなければ None を返す。
         """
-        targets = set()
+        if not recent_events:
+            return None
         
-        for event in reversed(recent_events):
-            if event.event_type == "speak":
-                payload = event.payload
-                text = payload.get("text", "")
-                speaker = payload.get("player", "")
-                
-                # Look for mentions of other players in the speech
-                for p in players:
-                    if p != speaker and p in text:
-                        targets.add(p)
-                
-                # Limit extraction to most recent relevant events
-                if len(targets) >= 3:
-                    break
+        # 直前の発言イベントのみを見る
+        last_event = recent_events[-1]
+        if last_event.event_type != "speak":
+            return None
         
-        return targets
+        text = last_event.payload.get("text", "")
+        speaker = last_event.payload.get("player", "")
+        
+        # 発言者以外で、テキスト内に名前が含まれる候補を探す
+        for p in candidates:
+            if p != speaker and p in text:
+                return p
+        
+        return None
 
     def _build_prompt(
         self,
         *,
         events_text: str,
         players: list[PlayerName],
-        candidates: list[PlayerName],
-        preferred_candidates: list[PlayerName],
+        next_speaker: PlayerName,
+        selection_reason: str,
         is_opening: bool,
         speak_counts: dict[PlayerName, int],
         last_speaker: Optional[PlayerName],
-        all_have_spoken: bool,
         log_summary: str = "",
     ) -> str:
         """
         GM 用 user prompt を構築する。
         """
-        # Format speaking stats
+        # 発言状況のフォーマット
         stats_lines = []
         for p in players:
             count = speak_counts.get(p, 0)
@@ -161,39 +170,29 @@ class GMCommentGenerator:
             stats_lines.append(f"- {p}: {count}回 ({status})")
         stats_text = "\n".join(stats_lines)
 
-        last_speaker_text = f"Last Speaker: {last_speaker}" if last_speaker else "Last Speaker: None"
+        last_speaker_text = f"直前の発言者: {last_speaker}" if last_speaker else "直前の発言者: なし"
         
-        candidates_text = ", ".join(candidates)
-        candidates_section = f"Candidate Speakers (You MUST choose from here): {candidates_text}"
-        
-        # Fairness round status
-        if all_have_spoken:
-            fairness_status = "Round Status: All players have spoken at least once. New round begins - focus on advancing discussion."
+        # 選定理由のヒント
+        if selection_reason == "mentioned_in_last_speech":
+            reason_hint = f"（直前の発言で {next_speaker} が言及されました）"
         else:
-            unspoken_count = len([p for p in players if speak_counts.get(p, 0) == 0])
-            fairness_status = f"Round Status: {unspoken_count} player(s) have NOT spoken yet. PRIORITIZE unspoken players."
-        
-        # Preferred candidates hint
-        preferred_section = ""
-        if preferred_candidates:
-            preferred_text = ", ".join(preferred_candidates)
-            preferred_section = f"\nContextually Preferred (mentioned/questioned in recent discussion): {preferred_text}"
+            reason_hint = "（順番による選定）"
 
         opening_text = ""
         if is_opening:
             opening_text = """
-Phase:
-- This is the FIRST GM comment of the discussion.
-- No player has spoken yet.
-- There are no accusations or opinions yet.
+フェーズ:
+- これは議論の最初のGMコメントです
+- まだ誰も発言していません
+- 主張や疑惑はまだありません
 """
 
-        # Log summary section
+        # ログサマリーセクション
         log_summary_section = ""
         if log_summary:
             log_summary_section = f"""
 ==============================
-GAME LOG SUMMARY
+ゲームログ要約
 ==============================
 {log_summary}
 """
@@ -202,15 +201,14 @@ GAME LOG SUMMARY
 {opening_text}
 {log_summary_section}
 
-Player Status:
+発言状況:
 {stats_text}
 
-{fairness_status}
-
 {last_speaker_text}
-{candidates_section}{preferred_section}
 
-Recent public events:
+次の発言者: {next_speaker} {reason_hint}
+
+直近のイベント:
 {events_text}
 """
 
