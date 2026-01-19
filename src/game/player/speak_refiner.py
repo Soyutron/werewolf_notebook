@@ -85,26 +85,27 @@ class SpeakRefiner:
         target_warning = ""
         strategy_text = f"""
 Strategy to follow:
-- Goals: {strategy.goals}
-- Approach: {strategy.approach}
-- Key Points: {strategy.key_points}
+- Action: {strategy.action_type}
+- Target: {strategy.target_player or "(None)"}
+- Style: {strategy.style_instruction}
+- Focus: {strategy.value_focus}
 """
 
         # 戦略のターゲットがまだ発言していない場合（幻覚防止）
-        if strategy.primary_target and strategy.primary_target not in speakers:
+        if strategy.target_player and strategy.target_player not in speakers:
             target_warning = f"""
-!!! WARNING: TARGET '{strategy.primary_target}' HAS NOT SPOKEN !!!
+!!! WARNING: TARGET '{strategy.target_player}' HAS NOT SPOKEN !!!
 - The Strategy above claims they said something, but they are SILENT.
 - The Strategy is BASED ON HALLUCINATION. IGNORE IT.
-- NEW GOAL: Simply state that {strategy.primary_target} hasn't spoken yet.
+- NEW GOAL: Simply state that {strategy.target_player} hasn't spoken yet.
 - REMOVE any quotes attributed to them.
 """
             # 戦略テキストを上書きして誤誘導を防ぐ
             strategy_text = f"""
 Strategy to follow (MODIFIED SAFE MODE):
-- Goals: [Safely question {strategy.primary_target}]
-- Approach: {strategy.primary_target} has not spoken. Point this out.
-- Key Points: ["{strategy.primary_target} is silent.", "Do not quote them."]
+- Action: Question Silence
+- Target: {strategy.target_player}
+- Instruction: {strategy.target_player} has not spoken. Point this out carefully.
 """
 
         return f"""

@@ -133,9 +133,11 @@ STRATEGY ALIGNMENT
 ==============================
 
 Strategy this speech should follow:
-- Goals: {strategy.goals}
-- Approach: {strategy.approach}
-- Key Points: {strategy.key_points}
+- Action: {strategy.action_type}
+- Target: {strategy.target_player or "(None)"}
+- Style: {strategy.style_instruction}
+- Focus: {strategy.value_focus}
+
 
 Speech to review:
 "{speak.text}"

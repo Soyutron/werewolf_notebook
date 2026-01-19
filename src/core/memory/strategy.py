@@ -56,31 +56,33 @@ class Strategy(BaseModel):
         description="CO時に伝える結果（例: '人狼', '村人'）"
     )
     
-    # === 基本方針 ===
-    action_type: Literal["co", "analysis", "question", "hypothesize", "line_formation", "vote_inducement", "summarize_situation"] = Field(
-        default="vote_inducement",
-        description="行動タイプ: co=CO, analysis=分析共有, question=質問, hypothesize=仮説提示, line_formation=ライン形成, vote_inducement=投票誘導, summarize_situation=状況整理"
-    )
-    action_stance: Literal["aggressive", "defensive", "neutral"] = Field(
-        description="発言の基本スタンス"
-    )
-    primary_target: Optional[str] = Field(
+    # === 戦略パラメータ（抽象） ===
+    # 自然言語ではなく、パラメータで方針を決定する
+    
+    target_player: Optional[str] = Field(
         default=None,
-        description="主に言及・追及するプレイヤー名"
-    )
-    main_claim: str = Field(
-        description="この発言で伝えたい核心メッセージ（1文）"
+        description="このターンの主なターゲット（攻撃・質問・保護対象）"
     )
     
-    # === 具体的なアクション（speak_generator互換） ===
-    goals: List[str] = Field(
-        description="この戦略における具体的な達成目標リスト"
+    value_focus: Literal["logic", "emotion", "trust", "aggression"] = Field(
+        default="logic",
+        description="発言の重視点: logic=論理矛盾の指摘, emotion=感情への訴え, trust=信用形成, aggression=攻撃性"
     )
-    approach: str = Field(
-        description="目標達成のための具体的なアプローチ・振る舞い"
+
+    aggression_level: int = Field(
+        description="攻撃性パラメータ (1-10): 1=防御的・穏便, 10=超攻撃的・断定"
     )
-    key_points: List[str] = Field(
-        description="発言に含めるべき具体的なポイント"
+    
+    doubt_level: int = Field(
+        description="疑念の強さ (1-10): 1=信じている, 10=完全に疑っている（嘘つき扱い）"
+    )
+    
+    action_type: Literal["co", "agree", "disagree", "question", "vote_inducement", "skip"] = Field(
+        description="具体的な行動タイプ"
+    )
+    
+    style_instruction: str = Field(
+        description="発言のスタイルの指示（例: '冷静に事実を並べる', '困惑した様子で問いかける', '断定的に追い詰める'）"
     )
 
 

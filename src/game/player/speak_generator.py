@@ -170,9 +170,9 @@ DO NOT skip the CO. DO NOT hint. STATE IT CLEARLY but CALMLY.
             
             # ターゲットが未発言かどうかのチェック
             target_warning = ""
-            if strategy.primary_target and strategy.primary_target not in speakers:
+            if strategy.target_player and strategy.target_player not in speakers:
                 target_warning = f"""
-!!! WARNING: TARGET '{strategy.primary_target}' HAS NOT SPOKEN !!!
+!!! WARNING: TARGET '{strategy.target_player}' HAS NOT SPOKEN !!!
 - You CANNOT claim they said something.
 - You CANNOT find contradictions in their speech.
 - You CAN only ask them to speak or question their silence.
@@ -181,21 +181,22 @@ DO NOT skip the CO. DO NOT hint. STATE IT CLEARLY but CALMLY.
 
             strategy_section = f"""
 ==============================
-STRATEGY TO FOLLOW
+STRATEGY PARAMETERS (EXECUTE THIS)
 ==============================
 
-Action Stance: {strategy.action_stance}
-Main Claim: {strategy.main_claim}
-Primary Target: {strategy.primary_target or "(none)"}
-{target_warning}
-Goals:
-{chr(10).join(f"- {goal}" for goal in strategy.goals)}
+You must generate speech based on these parameters:
 
-Approach:
-{strategy.approach}
+1. [ACTION] Type: {strategy.action_type}
+   - Target: {strategy.target_player or "(None)"} {target_warning}
+   
+2. [TONE & STYLE]
+   - Aggression: {strategy.aggression_level}/10 (1=Calm/Polite, 10=Furious/Assertive)
+   - Doubt: {strategy.doubt_level}/10 (1=Trusting, 10=Accusing)
+   - Focus: {strategy.value_focus} (Make your argument based on this)
+   - Instruction: "{strategy.style_instruction}"
 
-Key Points:
-{chr(10).join(f"- {point}" for point in strategy.key_points)}
+3. [GOAL]
+   Achieve the action type with the specified tone.
 """
 
         # 自己言及禁止のガード
@@ -250,11 +251,6 @@ When speaking, you SHOULD:
 3. State your voting recommendation based on this analysis
    Example: "人狼の可能性が高いと判断したので、Xさんへの投票を推奨する"
 
-Example of GOOD belief-based speech:
-「花子さんは占い師COをしていますが、私の結果と矛盾しています。
-花子さんが人狼なら偽占いで村を惑わそうとしている。
-狂人なら人狼を守るために騙っている可能性がある。
-どちらにせよ村側ではないので、花子さんへの投票を提案します。」
 
 Recent thoughts:
 {recent_reflections}

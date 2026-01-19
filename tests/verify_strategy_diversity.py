@@ -3,10 +3,11 @@ import sys
 import os
 
 # Create a minimal mock environment
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../src")))
+# Create a minimal mock environment
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from core.memory.strategy import Strategy
-from core.llm.prompts.strategy import (
+from src.core.memory.strategy import Strategy
+from src.core.llm.prompts.strategy import (
     SEER_STRATEGY_SYSTEM_PROMPT,
     WEREWOLF_STRATEGY_SYSTEM_PROMPT,
     MADMAN_STRATEGY_SYSTEM_PROMPT,
@@ -17,7 +18,7 @@ from core.llm.prompts.strategy import (
 # so we will use the actual strategy generator if possible, or just print the prompts to manually check structure.
 # But for a real test, let's try to instantiate the Generator and run it.
 
-from game.player.strategy_generator import StrategyGenerator
+from src.game.player.strategy_generator import StrategyGenerator
 from pydantic import BaseModel
 
 class MockContext(BaseModel):
@@ -62,7 +63,7 @@ async def run_test():
         "Villager": VILLAGER_STRATEGY_SYSTEM_PROMPT
     }
     
-    keywords = ["action_type", "question", "analysis", "hypothesize"]
+    keywords = ["aggression_level", "doubt_level", "value_focus", "target_player"]
     
     for role, prompt in prompts.items():
         print(f"Checking {role} Prompt...")

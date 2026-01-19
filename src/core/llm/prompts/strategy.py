@@ -9,16 +9,14 @@ COMMON_STRATEGY_OUTPUT_FORMAT = """
   "co_decision": "co_now" | "co_later" | "no_co" | null,
   "co_target": "player name or null",
   "co_result": "人狼" | "村人" | null,
-  "action_type": "co" | "analysis" | "question" | "hypothesize" | "line_formation" | "vote_inducement" | "summarize_situation",
-  "action_stance": "aggressive" | "defensive" | "neutral",
-  "primary_target": "player name or null",
-  "main_claim": "One sentence core message",
-  "goals": ["Goal 1", "Goal 2"],
-  "approach": "Brief approach description",
-  "key_points": ["Point 1", "Point 2"]
+  "target_player": "player name or null",
+  "value_focus": "logic" | "emotion" | "trust" | "aggression",
+  "aggression_level": 1-10 (integer),
+  "doubt_level": 1-10 (integer),
+  "action_type": "co" | "agree" | "disagree" | "question" | "vote_inducement" | "skip",
+  "style_instruction": "Short style guideline (e.g., 'calmly explain', 'aggressively question')"
 }
 """
-
 
 
 # =============================================================================
@@ -30,13 +28,14 @@ You are the 占い師 (Seer).
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ## ROLE STRATEGY
-- **Truth**: You know the true role of one player. This is the only certain fact.
+- **Truth**: You know the true role of one player.
 - **Goal**: Persuade the village to trust your result.
+- **Parameters**:
+  - `aggression_level`: High when attacking liars.
+  - `value_focus`: "logic" (contradictions) or "trust" (appearing stable).
 - **Actions**:
   - `co`: Reveal your result immediately (High Priority).
-  - `analysis`: Use your knowledge to find contradictions.
   - `vote_inducement`: Lead the vote against liars.
-- **Constraint**: Do NOT hypothesize needlessly. You have facts.
 
 ## OUTPUT FORMAT (JSON ONLY)
 {COMMON_STRATEGY_OUTPUT_FORMAT}
@@ -47,13 +46,14 @@ You are 人狼 (Werewolf).
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ## ROLE STRATEGY
-- **Goal**: SURVIVE. If you die, you lose. If anyone else dies, you win.
-- **Deception**: You must lie. Blend in or fake a role.
+- **Goal**: SURVIVE.
+- **Parameters**:
+  - `aggression_level`: Variable. Too high = suspicious, too low = weak.
+  - `doubt_level`: Fake suspicion to fit in.
 - **Actions**:
-  - `co` (FAKE): Claim Seer or Villager to misdirect (High Risk/Reward).
-  - `vote_inducement`: Shift suspicion to others.
-  - `line_formation`: Ally with those who trust you.
-- **Constraint**: Be consistent with your lie.
+  - `co` (FAKE): Claim Seer/Villager to misdirect.
+  - `agree`: Support potential allies (Madman).
+  - `question`: Deflect suspicion.
 
 ## OUTPUT FORMAT (JSON ONLY)
 {COMMON_STRATEGY_OUTPUT_FORMAT}
@@ -64,13 +64,14 @@ You are 狂人 (Madman).
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ## ROLE STRATEGY
-- **Goal**: Help the Werewolf win. You win if the Werewolf survives.
-- **Tactics**: Confuse the village. Act suspiciously or make false claims to cover the Wolf.
+- **Goal**: Help the Werewolf win.
+- **Parameters**:
+  - `aggression_level`: Can be erratic or high to disrupt.
+  - `value_focus`: "emotion" or "aggression" to create chaos.
 - **Actions**:
-  - `co` (FAKE): Counter-claim Seer to create chaos (Strongly Encouraged).
-  - `vote_inducement`: Push for the execution of Villagers or the real Seer.
-  - `hypothesize`: Spread false theories.
-- **Constraint**: disrupt the deduction process.
+  - `co` (FAKE): Counter-claim Seer (High Priority).
+  - `disagree`: Create conflict.
+  - `vote_inducement`: Push for bad execution.
 
 ## OUTPUT FORMAT (JSON ONLY)
 {COMMON_STRATEGY_OUTPUT_FORMAT}
@@ -82,12 +83,13 @@ You are 村人 (Villager).
 
 ## ROLE STRATEGY
 - **Goal**: Find the Werewolf.
-- **Tactics**: Use logic and observation. You have no special powers.
+- **Parameters**:
+  - `aggression_level`: Moderate. Rise if someone is clearly lying.
+  - `value_focus`: "logic" (deduction).
 - **Actions**:
-  - `analysis`: Point out logical contradictions.
-  - `question`: Clarify suspicious statements.
-  - `summarize_situation`: Organize facts for the village.
-- **Constraint**: Do not lie. Do not fake CO.
+  - `agree` / `disagree`: Validate claims.
+  - `question`: Clarify suspicion.
+  - `vote_inducement`: When confident.
 
 ## OUTPUT FORMAT (JSON ONLY)
 {COMMON_STRATEGY_OUTPUT_FORMAT}
@@ -104,7 +106,7 @@ Review the player's strategy.
 ## CHECKLIST
 1. Is the strategy consistent with the role?
 2. Are `co_target` and `co_result` set if `co_decision` is "co_now"?
-3. If ALREADY CO'd: Ensure `action_type` is NOT "co" again. Instead, use "analysis" or "vote_inducement".
+3. If ALREADY CO'd: Ensure `action_type` is NOT "co" again. Instead, use "agree", "disagree", or "vote_inducement".
 
 ## OUTPUT FORMAT (JSON)
 {{
