@@ -12,8 +12,18 @@ class StrategyPlan(BaseModel):
     initial_goal: str = Field(
         description="このゲームにおける最終的な勝利条件・目標（例: '占い師として信頼を勝ち取る', '人狼として処刑を回避する'）"
     )
+    victory_condition: str = Field(
+        description="勝利するために必要な具体的な状態や条件（例: '人狼を処刑する際に、自分が生存していること'）"
+    )
+    defeat_condition: str = Field(
+        description="敗北につながる状態や条件（例: '初日に処刑される', '人狼と疑われる'）"
+    )
     role_behavior: str = Field(
         description="役職としての振る舞い方針（例: '潜伏して情報を集める', '積極的にCOして場を乱す'）"
+    )
+    must_not_do: List[str] = Field(
+        default=[],
+        description="絶対に避けるべき行動や展開のリスト（例: ['矛盾した発言をする', '寡黙になりすぎる']）"
     )
     co_policy: Literal["immediate", "wait_and_see", "no_co", "counter_co"] = Field(
         description="CO（カミングアウト）に関する基本方針"

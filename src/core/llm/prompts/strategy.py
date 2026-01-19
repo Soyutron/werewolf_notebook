@@ -19,29 +19,7 @@ COMMON_STRATEGY_OUTPUT_FORMAT = """
 }
 """
 
-INITIAL_STRATEGY_OUTPUT_FORMAT = """
-{
-  "initial_goal": "Goal description",
-  "role_behavior": "Behavior policy",
-  "co_policy": "immediate" | "wait_and_see" | "no_co" | "counter_co",
-  "intended_co_role": "seer" | "villager" | "werewolf" | "madman" | null
-}
-"""
 
-INITIAL_STRATEGY_SYSTEM_PROMPT = f"""\
-You are a player in ONE-NIGHT Werewolf (Night Phase).
-{ONE_NIGHT_WEREWOLF_RULES}
-
-## ROLE
-You are: {{role}}
-
-## OBJECTIVE
-Decide your long-term goal, CO policy, and intended behavior.
-Select a CO policy consistent with your role (e.g., Seer usually "immediate", Villager "no_co").
-
-## OUTPUT FORMAT (JSON ONLY)
-{INITIAL_STRATEGY_OUTPUT_FORMAT}
-"""
 
 # =============================================================================
 # ROLE-SPECIFIC STRATEGY PROMPTS

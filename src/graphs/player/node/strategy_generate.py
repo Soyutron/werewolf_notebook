@@ -13,6 +13,7 @@ def strategy_generate_node(state: PlayerState) -> PlayerState:
     """
     # Lazy import to avoid circular import
     from src.game.player.strategy_generator import strategy_generator
+    from src.game.player.strategy_plan_generator import strategy_plan_generator
 
     print("[strategy_generate_node] Generating strategy...")
 
@@ -23,7 +24,7 @@ def strategy_generate_node(state: PlayerState) -> PlayerState:
     #    本来は夜フェーズでやるべきだが、現状のグラフ構造上、初回の発言機会に生成する
     if memory.strategy_plan is None:
         print("[strategy_generate_node] generating initial strategy plan...")
-        plan = strategy_generator.generate_initial_strategy(memory)
+        plan = strategy_plan_generator.generate(memory)
         if plan:
             memory.strategy_plan = plan
         else:

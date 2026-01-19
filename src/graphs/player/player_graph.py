@@ -53,6 +53,7 @@ def build_player_graph():
     # Lazy imports to avoid circular import chain
     # (player_graph -> nodes -> game components -> core.__init__ -> session -> controller -> player_graph)
     from src.graphs.player.node.strategy_generate import strategy_generate_node
+    from src.graphs.player.node.strategy_plan_generate import strategy_plan_generate_node
     from src.graphs.player.node.speak_generate import speak_generate_node
     from src.graphs.player.node.speak_review_router import speak_review_router_node
     from src.graphs.player.node.speak_refine import speak_refine_node
@@ -75,6 +76,7 @@ def build_player_graph():
     graph.add_node("reaction", reaction_node)
 
     # === 戦略→発言フローのノード ===
+    graph.add_node("strategy_plan_generate", strategy_plan_generate_node)
     graph.add_node("belief_update", belief_update_node)
     graph.add_node("log_summarize", log_summarize_node)
     graph.add_node("strategy_generate", strategy_generate_node)
@@ -83,7 +85,8 @@ def build_player_graph():
     graph.add_node("speak_commit", speak_commit_node)
 
     # === 既存のエッジ（END へ直接接続するもの）===
-    graph.add_edge("night_started", END)
+    # graph.add_edge("night_started", END)  <-- Changed to go to strategy_plan_generate
+    graph.add_edge("strategy_plan_generate", END)
     graph.add_edge("day_started", END)
     graph.add_edge("vote_started", END)
     graph.add_edge("use_ability", END)
@@ -93,6 +96,9 @@ def build_player_graph():
     graph.add_edge("reflection", END)
     graph.add_edge("interpret_speech", END)
     graph.add_edge("vote", END)
+
+    # === Night Phase Edge ===
+    graph.add_edge("night_started", "strategy_plan_generate")
 
     # === 戦略→発言フローのエッジ ===
     # belief_update → log_summarize → strategy_generate → speak_generate

@@ -7,12 +7,10 @@ from src.core.llm.prompts import (
     WEREWOLF_STRATEGY_SYSTEM_PROMPT,
     MADMAN_STRATEGY_SYSTEM_PROMPT,
     VILLAGER_STRATEGY_SYSTEM_PROMPT,
-    INITIAL_STRATEGY_SYSTEM_PROMPT,
-    ONE_NIGHT_WEREWOLF_RULES,
 )
 from src.core.memory.strategy import Strategy, StrategyPlan
 from src.core.types.player import PlayerMemory
-from src.config.llm import create_strategy_llm, create_strategy_plan_llm
+from src.config.llm import create_strategy_llm
 
 # 役職ごとのプロンプトマッピング
 ROLE_STRATEGY_PROMPTS: Dict[str, str] = {
@@ -25,40 +23,15 @@ ROLE_STRATEGY_PROMPTS: Dict[str, str] = {
 
 class StrategyGenerator:
     """
-    プレイヤーの戦略（長期計画・短期指針）を生成するクラス。
+    プレイヤーの議論フェーズごとの行動指針（Local Strategy）を生成するクラス。
 
     責務:
-    - Initial Strategy (Night): ゲーム全体の戦略計画を生成
     - Action Guideline (Day): 議論フェーズごとの行動指針を生成
+    - Note: Initial Strategy (Night) の生成は StrategyPlanGenerator に移譲された。
     """
 
-    def __init__(self, llm: LLMClient, plan_llm: Optional[LLMClient] = None):
+    def __init__(self, llm: LLMClient):
         self.llm = llm
-        self.plan_llm = plan_llm
-
-    def generate_initial_strategy(self, memory: PlayerMemory) -> Optional[StrategyPlan]:
-        """
-        [Night Phase] ゲーム開始時点の初期戦略計画を生成する。
-        """
-        if self.plan_llm is None:
-            print("[StrategyGenerator] plan_llm is not set. Skipping initial strategy.")
-            return None
-
-        try:
-            prompt = self._build_initial_prompt(memory)
-            plan: StrategyPlan = self.plan_llm.generate(
-                system=INITIAL_STRATEGY_SYSTEM_PROMPT.format(
-                    rules=ONE_NIGHT_WEREWOLF_RULES,
-                    role=memory.self_role
-                ),
-                prompt=prompt,
-            )
-            print(f"[StrategyGenerator] Generated Initial Plan for {memory.self_name}")
-            print(plan)
-            return plan
-        except Exception as e:
-            print(f"[StrategyGenerator] Failed to generate initial strategy: {e}")
-            return None
 
     def generate_action_guideline(
         self,
@@ -73,9 +46,6 @@ class StrategyGenerator:
         if plan is None:
             plan = memory.strategy_plan
         
-        # それでもない場合はデフォルト（Planなしで動く）かもしくはNone
-        # ここではWarningだけ出して進める（既存互換）
-
         role = memory.self_role
         system_prompt = ROLE_STRATEGY_PROMPTS.get(
             role, VILLAGER_STRATEGY_SYSTEM_PROMPT
@@ -134,19 +104,6 @@ class StrategyGenerator:
         if own_co_statements:
             return True, own_co_statements[-1]  # 最新のCO発言を返す
         return False, ""
-
-    def _build_initial_prompt(self, memory: PlayerMemory) -> str:
-        """
-        初期戦略生成用のプロンプトを構築する。
-        """
-        return f"""
-You are {memory.self_name}.
-Your role is: {memory.self_role}
-
-Players in this game: {', '.join(memory.players)}
-
-Think about your initial strategy.
-"""
 
     def _build_guideline_prompt(self, memory: PlayerMemory, plan: Optional[StrategyPlan]) -> str:
         """
@@ -239,19 +196,29 @@ If you decide to CO (co_decision = "co_now"), set:
 """
                     break
 
-        # 戦略計画の埋め込み
+        # 戦略計画の埋め込み (Modified for new fields)
         strategy_plan_section = ""
         if plan:
+            must_not_do_text = "\n".join(f"- {item}" for item in plan.must_not_do)
             strategy_plan_section = f"""
 ==============================
-YOUR STRATEGIC PLAN (Must Follow)
+YOUR STRATEGIC PLAN (The Source of Truth)
 ==============================
-- Initial Goal: {plan.initial_goal}
+[Objective]
+- Final Goal: {plan.initial_goal}
+- Victory Condition: {plan.victory_condition}
+- Defeat Condition: {plan.defeat_condition}
+
+[Policy]
 - Role Behavior: {plan.role_behavior}
 - CO Policy: {plan.co_policy}
 - Intended CO Role: {plan.intended_co_role}
 
-Stay consistent with this plan unless specific circumstances require a change.
+[MUST NOT DO]
+{must_not_do_text}
+
+Act according to this plan.
+If the current situation conflicts with "Defeat Condition", prioritize avoiding it immediately.
 """
 
         return f"""
@@ -284,6 +251,5 @@ Output JSON only.
 
 # --- グローバルインスタンス ---
 strategy_generator = StrategyGenerator(
-    llm=create_strategy_llm(),
-    plan_llm=create_strategy_plan_llm()
+    llm=create_strategy_llm()
 )
