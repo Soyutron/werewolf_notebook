@@ -150,6 +150,12 @@ class GMInternalState(BaseModel):
 
     gm_comment_review_count: int = 0
 
+    log_summary: str = ""
+    # 要約済みのログテキスト
+
+    last_summarized_event_index: int = 0
+    # 最後に要約したイベントのインデックス
+
 
 # =========================
 # GMGraph が扱う State

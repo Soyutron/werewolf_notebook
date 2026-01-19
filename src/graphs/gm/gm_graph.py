@@ -15,6 +15,7 @@ from src.graphs.gm.node.gm_generate import gm_generate_node
 from src.graphs.gm.node.gm_commit import gm_commit_node
 from src.graphs.gm.node.gm_comment_review_router import gm_comment_review_router_node
 from src.graphs.gm.node.gm_refine import gm_refine_node
+from src.graphs.gm.node.log_summarize_node import gm_log_summarize_node
 
 
 class GMGraph(Protocol):
@@ -59,6 +60,7 @@ def build_gm_graph():
     # ノード登録
     graph.add_node("night", night_phase_node)
     graph.add_node("day", day_phase_entry_node)
+    graph.add_node("log_summarize", gm_log_summarize_node)
     graph.add_node("gm_generate", gm_generate_node)
     graph.add_node("gm_commit", gm_commit_node)
     graph.add_node("gm_refine", gm_refine_node)
@@ -71,10 +73,12 @@ def build_gm_graph():
         "day",
         day_phase_router_node,
         {
-            "continue": "gm_generate",
+            "continue": "log_summarize",
             "vote": END,
         },
     )
+    # log_summarize → gm_generate
+    graph.add_edge("log_summarize", "gm_generate")
     # graph.add_edge("gm_generate", "gm_commit")
     graph.add_conditional_edges(
         "gm_generate",

@@ -23,6 +23,7 @@ from src.core.memory.gm_maturity import GMMaturityDecision
 from src.core.memory.vote import VoteOutput
 from src.core.memory.gm_comment_review import GMCommentReviewResult
 from src.core.memory.strategy import Strategy, StrategyReview, SpeakReview
+from src.core.memory.log_summary import LogSummaryOutput
 
 # =========================================================
 # LLM 切り替えフラグ
@@ -369,3 +370,29 @@ def create_speak_refiner_llm() -> LLMClient[Speak]:
 
     return OllamaLangChainClient(model="nemotron-3-nano:30b", output_model=Speak)
 
+
+# =========================================================
+# ログ要約（Log Summary）用 LLM
+# =========================================================
+def create_log_summarizer_llm() -> LLMClient[LogSummaryOutput]:
+    """
+    ゲームログの差分要約を行うための LLM を返す。
+    
+    特徴:
+    - 要約能力が重要
+    - 情報の選別・圧縮が求められる
+    """
+    if USE_DUMMY:
+        return DummyLLMClient()
+
+    if USE_GEMINI:
+        return GeminiLangChainClient(model=GEMINI_MODEL, output_model=LogSummaryOutput)
+
+    if USE_VLLM:
+        return VLLMLangChainClient(
+            model="google/gemma-3-12b-it", output_model=LogSummaryOutput
+        )
+
+    return OllamaLangChainClient(
+        model="nemotron-3-nano:30b", output_model=LogSummaryOutput
+    )

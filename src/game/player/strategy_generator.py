@@ -123,6 +123,9 @@ class StrategyGenerator:
             for e in reversed(memory.observed_events[-10:])
         )
 
+        # 要約済みログを使用（差分要約結果）
+        log_summary = memory.log_summary if memory.log_summary else ""
+
         # CO済み検出
         has_already_co, last_co_text = self._detect_own_co(memory)
         
@@ -198,7 +201,13 @@ Your role is: {memory.self_role}
 Players in this game: {', '.join(memory.players)}
 {post_co_enforcement}
 {divine_result_section}
-Recent game events:
+
+==============================
+GAME LOG SUMMARY
+==============================
+{log_summary if log_summary else "(No events summarized yet)"}
+
+Recent game events (raw, for reference):
 {observed_events_text if observed_events_text else "(none yet)"}
 
 Your current beliefs about other players:

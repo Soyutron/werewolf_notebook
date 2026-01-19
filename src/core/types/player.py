@@ -127,6 +127,14 @@ class PlayerMemory(BaseModel):
     # - 基本的には GameEvent 相当の dict（発言・投票結果など）
     # - 将来的に自己思考や推論ログも混在する想定
 
+    log_summary: str = ""
+    # 要約済みのログテキスト
+    # 差分要約の結果がここに蓄積される
+
+    last_summarized_event_index: int = 0
+    # 最後に要約したイベントのインデックス
+    # 次回は observed_events[last_summarized_event_index:] を対象とする
+
 
 # =========================
 # プレイヤーへの入力

@@ -125,6 +125,9 @@ PHASE: MID/LATE GAME
             str(r) for r in reversed(recent_reflections_list)
         )
 
+        # 要約済みログを使用
+        log_summary = memory.log_summary if memory.log_summary else ""
+
         # 戦略コンテキストの構築
         strategy_section = ""
         co_enforcement_section = ""
@@ -211,6 +214,11 @@ YOU ARE {self_name}
 {co_enforcement_section}
 {strategy_section}
 {phase_instruction}
+
+==============================
+GAME LOG SUMMARY
+==============================
+{log_summary if log_summary else "(No events summarized yet)"}
 
 ==============================
 PUBLIC FACTS (What everyone knows)

@@ -58,6 +58,7 @@ def build_player_graph():
     from src.graphs.player.node.speak_refine import speak_refine_node
     from src.graphs.player.node.speak_commit import speak_commit_node
     from src.graphs.player.node.belief_update_node import belief_update_node
+    from src.graphs.player.node.log_summarize_node import log_summarize_node
 
     graph = StateGraph(PlayerState)
 
@@ -75,6 +76,7 @@ def build_player_graph():
 
     # === 戦略→発言フローのノード ===
     graph.add_node("belief_update", belief_update_node)
+    graph.add_node("log_summarize", log_summarize_node)
     graph.add_node("strategy_generate", strategy_generate_node)
     graph.add_node("speak_generate", speak_generate_node)
     graph.add_node("speak_refine", speak_refine_node)
@@ -93,8 +95,9 @@ def build_player_graph():
     graph.add_edge("vote", END)
 
     # === 戦略→発言フローのエッジ ===
-    # belief_update → strategy_generate → speak_generate
-    graph.add_edge("belief_update", "strategy_generate")
+    # belief_update → log_summarize → strategy_generate → speak_generate
+    graph.add_edge("belief_update", "log_summarize")
+    graph.add_edge("log_summarize", "strategy_generate")
     graph.add_edge("strategy_generate", "speak_generate")
 
     # speak_generate → speak_review_router

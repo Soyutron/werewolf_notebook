@@ -29,6 +29,7 @@ class GMCommentGenerator:
         *,
         public_events: list[GameEvent],
         players: list[PlayerName],
+        log_summary: str = "",
     ) -> Optional[GMComment]:
         """
         直近の public_event をもとに GM コメントを生成する。
@@ -94,6 +95,7 @@ class GMCommentGenerator:
             speak_counts=speak_counts,
             last_speaker=last_speaker,
             all_have_spoken=all_have_spoken,
+            log_summary=log_summary,
         )
 
         try:
@@ -146,6 +148,7 @@ class GMCommentGenerator:
         speak_counts: dict[PlayerName, int],
         last_speaker: Optional[PlayerName],
         all_have_spoken: bool,
+        log_summary: str = "",
     ) -> str:
         """
         GM 用 user prompt を構築する。
@@ -185,8 +188,19 @@ Phase:
 - There are no accusations or opinions yet.
 """
 
+        # Log summary section
+        log_summary_section = ""
+        if log_summary:
+            log_summary_section = f"""
+==============================
+GAME LOG SUMMARY
+==============================
+{log_summary}
+"""
+
         return f"""
 {opening_text}
+{log_summary_section}
 
 Player Status:
 {stats_text}
