@@ -7,7 +7,7 @@ from src.core.memory.strategy import Strategy, SpeakReview
 from src.core.memory.speak import Speak
 from src.core.types.player import PlayerMemory
 from src.config.llm import create_speak_reviewer_llm
-from src.game.player.belief_utils import build_belief_analysis_section, get_role_guidance
+from src.game.player.belief_utils import build_belief_analysis_section
 
 
 class SpeakReviewer:
@@ -70,7 +70,7 @@ class SpeakReviewer:
 
         # --- Belief分析セクションの構築 ---
         belief_analysis = build_belief_analysis_section(memory)
-        role_guidance = get_role_guidance(memory.self_role)
+
 
         return f"""
 ==============================
@@ -118,7 +118,7 @@ Check for BELIEF CONTRADICTION:
 ROLE-APPROPRIATE BEHAVIOR CHECK
 ==============================
 
-As {memory.self_role}, you should: {role_guidance}
+
 
 Check for ROLE-INAPPROPRIATE BEHAVIOR:
 - 占い師: Should share facts and organize information, NOT hide divination results

@@ -9,7 +9,7 @@ INITIAL_STRATEGY_OUTPUT_FORMAT = """
   "must_not_do": [
     "List of actions or situations to strictly avoid (e.g., 'Contradicting myself', 'staying too silent')"
   ],
-  "co_policy": "immediate" | "wait_and_see" | "no_co" | "counter_co",
+  "co_policy": "immediate" | "wait_and_see" | "counter_co",
   "intended_co_role": "seer" | "villager" | "werewolf" | "madman" | null
 }
 """

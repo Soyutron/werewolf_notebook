@@ -7,7 +7,7 @@ from src.core.memory.strategy import Strategy, SpeakReview
 from src.core.memory.speak import Speak
 from src.core.types.player import PlayerMemory
 from src.config.llm import create_speak_refiner_llm
-from src.game.player.belief_utils import build_belief_analysis_section, get_role_guidance
+from src.game.player.belief_utils import build_belief_analysis_section
 
 
 class SpeakRefiner:
@@ -79,7 +79,7 @@ class SpeakRefiner:
 
         # --- Belief分析セクションの構築 ---
         belief_analysis = build_belief_analysis_section(memory)
-        role_guidance = get_role_guidance(memory.self_role)
+
 
         # ターゲット未発言の警告と戦略の無効化
         target_warning = ""
@@ -143,7 +143,7 @@ When refining, ensure:
    - If you believe X is 人狼(70%), don't say "X is trustworthy"
    - If you believe X is 占い師(80%), treat their claim with respect
 2. Speech is ROLE-APPROPRIATE
-   - As {memory.self_role}, you should: {role_guidance}
+
 3. Maintain role-based conviction
    - 人狼: Be careful not to expose yourself or help village
    - 占い師: Be confident about your divination result
