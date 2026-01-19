@@ -10,8 +10,9 @@ GM 進行管理の型定義
 from typing import List, Dict, Optional, TypedDict
 from pydantic import BaseModel, Field
 
-from src.core.types.phases import Phase, WorldState
+from src.core.types.phases import Phase, WorldState, GameDefinition
 from src.core.types.events import GameEvent, PlayerRequest
+from src.core.types.roles import RoleName, RoleDefinition, Side
 from src.core.types.player import PlayerName
 from src.core.memory.gm_comment_review import GMCommentReviewResult
 from src.core.memory.gm_comment import GMComment
@@ -156,6 +157,9 @@ class GMInternalState(BaseModel):
     last_summarized_event_index: int = 0
     # 最後に要約したイベントのインデックス
 
+    progression_plan: str = ""
+    # ゲーム全体の進行計画（夜フェーズで生成）
+
 
 # =========================
 # GMGraph が扱う State
@@ -189,3 +193,7 @@ class GMGraphState(TypedDict):
     # 例:
     # ・夜フェーズの未完了プレイヤー管理
     # ・将来的な「タイムアウト」「自動スキップ」判定
+
+    game_def: GameDefinition
+    # ゲームの定義情報（役職構成など）
+    # GM は個別の役職割り当てを知らず、この定義と公開イベントのみから判断を行う。

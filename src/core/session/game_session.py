@@ -290,6 +290,7 @@ class GameSession:
             world_state=self.world_state,
             decision=GameDecision(),
             internal=self.gm_internal,
+            game_def=self.definition,
         )
 
         # --- GMGraph を 1 ステップ実行 ---

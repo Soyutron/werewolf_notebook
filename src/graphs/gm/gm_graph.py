@@ -6,6 +6,8 @@ from src.core.types import (
 )
 from typing import Protocol
 from langgraph.graph import StateGraph, START, END
+from src.graphs.gm.node.gm_plan import gm_plan_node
+
 from src.graphs.gm.node.night_phase import night_phase_node
 from src.graphs.gm.node.day_phase_entry import day_phase_entry_node
 from src.graphs.gm.node.day_phase_router import day_phase_router_node
@@ -16,6 +18,7 @@ from src.graphs.gm.node.gm_commit import gm_commit_node
 from src.graphs.gm.node.gm_comment_review_router import gm_comment_review_router_node
 from src.graphs.gm.node.gm_refine import gm_refine_node
 from src.graphs.gm.node.log_summarize_node import gm_log_summarize_node
+
 
 
 class GMGraph(Protocol):
@@ -58,7 +61,11 @@ def build_gm_graph():
     graph = StateGraph(GMGraphState)
 
     # ノード登録
-    graph.add_node("night", night_phase_node)
+    # "night" ノードを gm_plan_node に割り当て（入口）
+    graph.add_node("night", gm_plan_node)
+    # 実際の夜行動処理を "night_action" として登録
+    graph.add_node("night_action", night_phase_node)
+    
     graph.add_node("day", day_phase_entry_node)
     graph.add_node("log_summarize", gm_log_summarize_node)
     graph.add_node("gm_generate", gm_generate_node)
@@ -77,6 +84,11 @@ def build_gm_graph():
             "vote": END,
         },
     )
+    
+    # night (plan) -> night_action (action request)
+    graph.add_edge("night", "night_action")
+    graph.add_edge("night_action", END)
+
     # log_summarize → gm_generate
     graph.add_edge("log_summarize", "gm_generate")
     graph.add_edge("gm_generate", "gm_commit")
@@ -98,11 +110,12 @@ def build_gm_graph():
     )
 
     # 1ノードで終了
-    graph.add_edge("night", END)
+    # "night" (gm_plan) -> "night_action" -> END is already defined above
     graph.add_edge("vote", END)
     graph.add_edge("gm_commit", END)
 
     return graph.compile()
+
 
 
 class DummyGMGraph:

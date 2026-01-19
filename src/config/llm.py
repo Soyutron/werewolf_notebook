@@ -24,6 +24,7 @@ from src.core.memory.vote import VoteOutput
 from src.core.memory.gm_comment_review import GMCommentReviewResult
 from src.core.memory.strategy import Strategy, StrategyReview, SpeakReview, StrategyPlan
 from src.core.memory.log_summary import LogSummaryOutput
+from src.core.memory.gm_plan import GMProgressionPlan
 
 # =========================================================
 # LLM 切り替えフラグ
@@ -220,12 +221,12 @@ def create_vote_llm() -> LLMClient[VoteOutput]:
     if USE_VLLM:
         return VLLMLangChainClient(
             model="google/gemma-3-12b-it",
-            output_model=RoleBeliefsOutput,
+            output_model=VoteOutput,
         )
 
     return OllamaLangChainClient(
         model="nemotron-3-nano:30b",
-        output_model=RoleBeliefsOutput,
+        output_model=VoteOutput,
     )
 
 
@@ -413,4 +414,27 @@ def create_log_summarizer_llm() -> LLMClient[LogSummaryOutput]:
 
     return OllamaLangChainClient(
         model="nemotron-3-nano:30b", output_model=LogSummaryOutput
+    )
+
+
+# =========================================================
+# GM 進行計画（Progression Plan）用 LLM
+# =========================================================
+def create_gm_plan_llm() -> LLMClient[GMProgressionPlan]:
+    """
+    GM の進行計画（Progression Plan）を生成するための LLM を返す。
+    """
+    if USE_DUMMY:
+        return DummyLLMClient(output=GMProgressionPlan(content="Dummy Plan"))
+
+    if USE_GEMINI:
+        return GeminiLangChainClient(model=GEMINI_MODEL, output_model=GMProgressionPlan)
+
+    if USE_VLLM:
+        return VLLMLangChainClient(
+            model="google/gemma-3-12b-it", output_model=GMProgressionPlan
+        )
+
+    return OllamaLangChainClient(
+        model="nemotron-3-nano:30b", output_model=GMProgressionPlan
     )
