@@ -14,7 +14,7 @@ COMMON_STRATEGY_OUTPUT_FORMAT = """
   "aggression_level": 1-10 (integer),
   "doubt_level": 1-10 (integer),
   "action_type": "co" | "agree" | "disagree" | "question" | "vote_inducement" | "skip",
-  "style_instruction": "Short style guideline (e.g., 'calmly explain', 'aggressively question')"
+  "style_instruction": "Short style guideline"
 }
 """
 

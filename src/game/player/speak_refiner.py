@@ -141,8 +141,8 @@ Your current beliefs about other players:
 
 When refining, ensure:
 1. Speech is CONSISTENT with your beliefs
-   - If you believe X is 人狼(70%), don't say "X is trustworthy"
-   - If you believe X is 占い師(80%), treat their claim with respect
+   - If you trust X, treat their claim with respect.
+   - If you suspect X, do not validate them.
 2. Speech is ROLE-APPROPRIATE
 
 3. Maintain role-based conviction

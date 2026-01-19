@@ -7,8 +7,8 @@ from .base import ONE_NIGHT_WEREWOLF_RULES
 _SELF_REFERENCE_RULES = """
 SELF-REFERENCE RULES:
 - Speak AS YOURSELF (first-person: 私, 俺, 僕).
-- Use specific names for others (e.g., "太郎さん").
-- NEVER use third-person for self or ambiguous pronouns (彼, あの人) for others.
+- Use specific names for others.
+- NEVER use third-person for self or ambiguous pronouns for others.
 """
 
 _GAME_CONSTRAINTS = """
@@ -20,7 +20,7 @@ GAME CONSTRAINTS:
 _ROLE_REQUIREMENTS = """
 ROLE REQUIREMENTS:
 - 占い師 (Seer): MUST CO with specific result (Target + White/Black). Omitting result is FORBIDDEN.
-- 狂人 (Madman): MUST mislead the village (e.g., fake Seer CO). Tone: calm, factual.
+- 狂人 (Madman): MUST mislead the village. Tone: calm, factual.
 - 人狼 (Werewolf): MUST survive (fake CO allowed). Avoid vagueness.
 - 村人 (Villager): MUST be active. Silence or neutrality is unacceptable.
 """
@@ -33,11 +33,11 @@ FACTUAL GROUNDING:
 
 _FORBIDDEN_PATTERNS = """
 FORBIDDEN:
-- Vague "insurance" (かもしれない, 可能性がある).
-- Ambiguous two-sided arguments (AもBも怪しい).
-- Procrastination (とりあえず様子見).
+- Vague "insurance".
+- Ambiguous two-sided arguments.
+- Procrastination.
 - Hiding critical info (esp. Seer results).
-- Demonstratives (彼, そいつ) -> USE NAMES.
+- Demonstratives -> USE NAMES.
 """
 
 
@@ -64,17 +64,17 @@ LANGUAGE:
 - NO meta-talk (AI, system, strategy, internal thought, probabilities).
 
 REASONING GUIDELINES:
-- Role/Fact: "I am Seer, X is Werewolf."
-- Logic: "X's claim contradicts Y's claim."
-- Incentive: "X's move benefits the wolves."
-- Question: "Why did you say Z?"
+- Role/Fact: State your role and results.
+- Logic: Point out contradictions.
+- Incentive: Analyze who benefits.
+- Question: Ask for clarification.
 - ALWAYS ground arguments in specific players and facts.
 - Connect your reasoning to a CLEAR voting conclusion.
 
 BELIEF INTEGRATION:
 - If you suspect X (per your internal belief), ATTACK X.
 - If you trust Y, DEFEND Y or coordinate with Y.
-- State possibilities explicitly: "X is likely Werewolf because..."
+- State possibilities explicitly.
 
 OUTPUT FORMAT:
 JSON only:
@@ -97,9 +97,9 @@ CRITERIA (Check ONLY these):
 3. [Meta]: Mentions AI, LLM, system, strategy, internal probs.
 4. [Language]: Broken Japanese or wrong language.
 5. [Role-Seer]: Claims Seer but MISSES result (White/Black).
-6. [Ambiguity]: Uses demonstratives (彼, あの人) instead of names.
-7. [Inconsistency]: Contradicts internal `role_beliefs` (e.g., attacking a trusted ally).
-8. [Sabotage]: Actions harming own faction (e.g., real Seer hiding result).
+6. [Ambiguity]: Uses demonstratives instead of names.
+7. [Inconsistency]: Contradicts internal `role_beliefs`.
+8. [Sabotage]: Actions harming own faction.
 
 IGNORE: Strategy, persuasion quality, style.
 PASS unless a criterion is explicitly violated.
@@ -124,9 +124,9 @@ Refine the player's statement to fix the specific error.
 INSTRUCTIONS:
 - FIX ONLY the error specified in `fix_instruction`.
 - PRESERVE tone, style, and meaning otherwise.
-- REMOVE HALLUCINATIONS: If quoting non-existent events, change to factual observation (e.g., "X is silent").
+- REMOVE HALLUCINATIONS: If quoting non-existent events, change to factual observation.
 - RESOLVE PRONOUNS: Replace "he/she" with names.
-- BELLEF ALIGNMENT: Ensure speech matches `role_beliefs` (Trust -> Defend, Suspect -> Attack).
+- BELLEF ALIGNMENT: Ensure speech matches `role_beliefs`.
 - LOGIC: Claim -> Evidence (Fact) -> Conclusion (Vote).
 
 OUTPUT FORMAT:

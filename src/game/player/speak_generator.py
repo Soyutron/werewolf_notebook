@@ -96,12 +96,10 @@ class SpeakGenerator:
 PHASE: EARLY GAME (Discussion just started)
 ==============================
 - There is NOT enough information to find contradictions yet.
-- DO NOT claim "inconsistency" or "logic error" in others unless you can quote 2 conflicting statements.
 - Recommended actions:
-    - Ask a question (e.g., "Who is the Seer?")
+    - Ask a question
     - State your own role clearly (if beneficial)
     - Prompt others to speak
-- AVOID: "His logic is weird" (Too early for this)
 """
         else:
             phase_instruction = """
@@ -138,11 +136,9 @@ PHASE: MID/LATE GAME
             if strategy.co_decision == "co_now":
                 # Check for unknown result
                 result_instruction = f"3. Result: {strategy.co_result}"
-                example_sentence = f"「私は占い師です。昨晩、{strategy.co_target}さんを占いました。結果は{strategy.co_result}でした。皆さんの意見をお聞かせください。」"
                 
                 if not strategy.co_result or strategy.co_result.lower() == "unknown":
                     result_instruction = "3. Result: Decide a result (White or Black) YOURSELF based on your game plan."
-                    example_sentence = f"「私は占い師です。昨晩、{strategy.co_target}さんを占いました。{strategy.co_target}さんは[人狼/村人]でした。皆さん、この情報を踏まえてどう思いますか？」"
 
                 co_enforcement_section = f"""
 ==============================
@@ -156,13 +152,12 @@ Your speech MUST include ALL of the following:
 2. Target: {strategy.co_target}
 {result_instruction}
 
-Example format:
-{example_sentence}
+
 
 IMPORTANT STYLE RULES:
-- Report calmly and factually, like a real Seer would.
-- DO NOT use exclamation marks (！).
-- DO NOT use interrogative accusations (e.g., 一体何を企んでいるんだ？).
+- Report calmly and factually.
+- DO NOT use exclamation marks.
+- DO NOT use interrogative accusations.
 - DO NOT be overly dramatic or emotional.
 
 DO NOT skip the CO. DO NOT hint. STATE IT CLEARLY but CALMLY.
@@ -245,11 +240,8 @@ Your analysis of other players' likely roles:
 
 When speaking, you SHOULD:
 1. Mention the TOP 2 most likely roles for suspicious players
-   Example: "Xさんは人狼か狂人の可能性がある"
 2. Explain what each role possibility means for the village
-   Example: "もし人狼なら今日処理しないと負ける。もし狂人なら吊りは避けるべき"
 3. State your voting recommendation based on this analysis
-   Example: "人狼の可能性が高いと判断したので、Xさんへの投票を推奨する"
 
 
 Recent thoughts:
