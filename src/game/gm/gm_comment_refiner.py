@@ -34,24 +34,7 @@ class GMCommentRefiner:
         public_events: list[GameEvent],
         players: list[PlayerName],
     ) -> Optional[GMComment]:
-        # Speak counts and last speaker logic
-        speak_counts = {p: 0 for p in players}
-        last_speaker = None
-        for event in public_events:
-            if event.event_type == "speak":
-                speaker = event.payload.get("player")
-                if speaker in speak_counts:
-                    speak_counts[speaker] += 1
-                last_speaker = speaker
-
-        # Format speaking stats
-        stats_lines = []
-        for p in players:
-            count = speak_counts.get(p, 0)
-            stats_lines.append(f"- {p}: {count}回")
-        stats_text = "\n".join(stats_lines)
-        last_speaker_text = f"Last Speaker: {last_speaker}" if last_speaker else "Last Speaker: None"
-
+        
         combined_review = (
             f"主要な指摘:\n{review.reason}\n\n補足:\n{review.fix_instruction}"
         )
@@ -59,11 +42,6 @@ class GMCommentRefiner:
         user_prompt = f"""
 Context (Public Events):
 {context_str}
-
-Player Status:
-{stats_text}
-
-{last_speaker_text}
 
 Original GM Comment:
 {original}
