@@ -79,15 +79,15 @@ def build_gm_graph():
     )
     # log_summarize → gm_generate
     graph.add_edge("log_summarize", "gm_generate")
-    # graph.add_edge("gm_generate", "gm_commit")
-    graph.add_conditional_edges(
-        "gm_generate",
-        gm_comment_review_router_node,
-        {
-            "commit": "gm_commit",
-            "refine": "gm_refine",
-        },
-    )
+    graph.add_edge("gm_generate", "gm_commit")
+    # graph.add_conditional_edges(
+    #     "gm_generate",
+    #     gm_comment_review_router_node,
+    #     {
+    #         "commit": "gm_commit",
+    #         "refine": "gm_refine",
+    #     },
+    # )
     graph.add_conditional_edges(
         "gm_refine",
         gm_comment_review_router_node,
