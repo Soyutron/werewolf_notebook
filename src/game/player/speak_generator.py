@@ -124,7 +124,7 @@ PHASE: MID/LATE GAME
         )
 
         # 要約済みログを使用
-        log_summary = memory.log_summary if memory.log_summary else ""
+        log_summary = memory.log_summary if memory.log_summary else "(No events summarized yet)"
 
         # 戦略コンテキストの構築
         strategy_section = ""
@@ -214,16 +214,7 @@ YOU ARE {self_name}
 ==============================
 GAME LOG SUMMARY
 ==============================
-{log_summary if log_summary else "(No events summarized yet)"}
-
-==============================
-PUBLIC FACTS (What everyone knows)
-==============================
-The following is the ONLY objective history. 
-- If an event is NOT listed below, IT DID NOT HAPPEN.
-- You CANNOT quote a player who is not in this list.
-- If your Strategy says "Refute A", but A is not here, then A did not speak. In that case, IGNORE the strategy's specific instruction and just say "A is silent".
-{public_history_text if public_history_text else "(No one has spoken yet)"}
+{log_summary}
 
 ==============================
 YOUR PRIVATE BELIEFS (Hidden)

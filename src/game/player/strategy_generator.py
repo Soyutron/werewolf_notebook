@@ -109,14 +109,15 @@ Act according to this plan while adapting to the immediate situation.
         # ログ要約と履歴を使用
         log_summary = memory.log_summary if memory.log_summary else "(No discussion summary yet)"
         
-        # 直近のイベント (軽量化)
-        recent_events = memory.observed_events[-5:]
-        recent_events_text = "\n".join(
-            f"- {e.event_type}: {e.payload}" for e in recent_events
-        ) if recent_events else "(No recent events)"
-
+        # 直近のイベント (最新1件のみ表示して即時反応を促す、あるいは完全に削除)
+        # ユーザー要望は「リストを渡さない」なので、ここも基本はSummaryに任せる。
+        # ただし、Summaryに含まれていない「たった今」の出来事があるかもしれないが、
+        # LogSummarizerが直前に走っている前提なら不要。
+        # 安全のため、"Last Event" として1件だけ出すか、あるいは完全に消すか。
+        # 方針: 完全にSummaryに任せる。
+        
         return f"""
-You are {memory.self_name} ({memory.self_role}).
+Are you {memory.self_name} ({memory.self_role}).
 Players: {players_list}
 {private_knowledge}
 {strategy_section}
@@ -126,9 +127,6 @@ CURRENT SITUATION
 ==============================
 [Summary]
 {log_summary}
-
-[Recent Events]
-{recent_events_text}
 
 Based on your Strategic Plan and the Current Situation, generate your next action guideline.
 Output JSON only.

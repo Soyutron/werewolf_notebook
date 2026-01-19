@@ -8,11 +8,7 @@ from src.core.types import PlayerName, GameEvent
 from src.config.llm import create_gm_comment_llm
 
 
-def format_events_for_gm(events: list[GameEvent]) -> str:
-    """
-    GM が観測した出来事を LLM 向けテキストに整形する。
-    """
-    return "\n".join(f"- [{e.event_type}] {e.payload}" for e in events)
+
 
 
 class GMCommentGenerator:
@@ -51,7 +47,6 @@ class GMCommentGenerator:
 
         # 直近15件だけを見る
         recent_events = public_events[-15:]
-        events_text = format_events_for_gm(list(reversed(recent_events)))
 
         is_opening = (
             len(recent_events) > 0 and recent_events[-1].event_type == "night_started"
@@ -66,7 +61,6 @@ class GMCommentGenerator:
         )
 
         prompt = self._build_prompt(
-            events_text=events_text,
             players=players,
             next_speaker=next_speaker,
             selection_reason=selection_reason,
@@ -150,7 +144,6 @@ class GMCommentGenerator:
     def _build_prompt(
         self,
         *,
-        events_text: str,
         players: list[PlayerName],
         next_speaker: PlayerName,
         selection_reason: str,
@@ -208,8 +201,7 @@ class GMCommentGenerator:
 
 次の発言者: {next_speaker} {reason_hint}
 
-直近のイベント:
-{events_text}
+(直近のイベント詳細はログ要約を参照してください)
 """
 
 
