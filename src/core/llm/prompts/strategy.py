@@ -25,6 +25,41 @@ COMMON_STRATEGY_OUTPUT_FORMAT = """
 }
 """
 
+INITIAL_STRATEGY_OUTPUT_FORMAT = """
+## OUTPUT FORMAT (JSON ONLY)
+
+{{
+  "initial_goal": "Goal description",
+  "role_behavior": "Behavior policy",
+  "co_policy": "immediate" | "wait_and_see" | "no_co" | "counter_co",
+  "intended_co_role": "seer" | "villager" | "werewolf" | "madman" | null
+}}
+"""
+
+INITIAL_STRATEGY_SYSTEM_PROMPT = f"""\
+You are a player in ONE-NIGHT Werewolf.
+The game is starting (Night Phase). You need to formulate your INITIAL STRATEGY.
+
+{{rules}}
+
+## ROLE
+You are: {{role}}
+
+## YOUR OBJECTIVE
+Formulate a high-level plan for the game.
+- Decide your long-term goal.
+- Decide your CO (Coming Out) policy.
+- Decide your behavioral consistency.
+
+## CO POLICY GUIDELINES
+- Seer (True): "immediate" is usually best.
+- Werewolf/Madman: "immediate" (Fake CO) or "counter_co" (wait for real Seer) are valid.
+- Villager: "no_co" is standard.
+
+{INITIAL_STRATEGY_OUTPUT_FORMAT}
+"""
+
+
 # -----------------------------------------------------------------------------
 # Common Strategic Guidelines
 # -----------------------------------------------------------------------------

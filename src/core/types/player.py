@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field, model_validator
 
 from src.core.types.roles import RoleName
 from src.core.types.events import GameEvent, PlayerRequest, PlayerRequestType
-from src.core.memory import Reflection, Reaction, Strategy, StrategyReview, SpeakReview
+from src.core.memory import Reflection, Reaction, Strategy, StrategyPlan, StrategyReview, SpeakReview
 from src.core.memory.speak import Speak
 
 __all__ = [
@@ -126,6 +126,10 @@ class PlayerMemory(BaseModel):
     # 観測・推論・内省の履歴ログ
     # - 基本的には GameEvent 相当の dict（発言・投票結果など）
     # - 将来的に自己思考や推論ログも混在する想定
+
+    strategy_plan: Optional[StrategyPlan] = None
+    # 長期的な戦略計画（Night Phaseで生成し、ゲーム中保持する）
+
 
     log_summary: str = ""
     # 要約済みのログテキスト

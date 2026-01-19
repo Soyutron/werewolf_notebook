@@ -19,7 +19,22 @@ def strategy_generate_node(state: PlayerState) -> PlayerState:
     memory = state["memory"]
     internal = state["internal"]
 
-    strategy = strategy_generator.generate(memory=memory)
+    # 1. 初期戦略計画（Night Phase）が未生成なら生成する
+    #    本来は夜フェーズでやるべきだが、現状のグラフ構造上、初回の発言機会に生成する
+    if memory.strategy_plan is None:
+        print("[strategy_generate_node] generating initial strategy plan...")
+        plan = strategy_generator.generate_initial_strategy(memory)
+        if plan:
+            memory.strategy_plan = plan
+        else:
+            print("[strategy_generate_node] Failed to generate initial strategy plan")
+            # 失敗してもAction Guideline生成は試みる（Planなしで）
+
+    # 2. 今回の発言のための行動指針（Action Guideline）を生成する
+    strategy = strategy_generator.generate_action_guideline(
+        memory=memory,
+        plan=memory.strategy_plan
+    )
 
     if strategy is None:
         print("[strategy_generate_node] Failed to generate strategy")

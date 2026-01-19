@@ -3,31 +3,14 @@ from typing import List, Optional, Literal
 from pydantic import BaseModel, Field
 
 
-class StrategyPlan(BaseModel):
-    """
-    ゲーム全体を通じた長期的な戦略計画（Night Phaseで生成）。
-    """
-    kind: Literal["strategy_plan"] = "strategy_plan"
-
-    initial_goal: str = Field(
-        description="このゲームにおける最終的な勝利条件・目標（例: '占い師として信頼を勝ち取る', '人狼として処刑を回避する'）"
-    )
-    role_behavior: str = Field(
-        description="役職としての振る舞い方針（例: '潜伏して情報を集める', '積極的にCOして場を乱す'）"
-    )
-    co_policy: Literal["immediate", "wait_and_see", "no_co", "counter_co"] = Field(
-        description="CO（カミングアウト）に関する基本方針"
-    )
-    intended_co_role: Optional[Literal["seer", "villager", "werewolf", "madman"]] = Field(
-        default=None,
-        description="COする予定の役職（COしない場合はNone）"
-    )
-
-
 class Strategy(BaseModel):
     """
-    議論フェーズごとの具体的な行動指針（Action Guideline）。
-    StrategyPlanに基づき、そのターンの状況に合わせて生成される。
+    プレイヤーの発言前戦略（軽量版）。
+    
+    設計方針:
+    - LLM出力コスト削減のため、複雑なネスト構造を排除
+    - アクション指向のシンプルな構造
+    - 占い師のCO判断を明示的にサポート
     """
 
     kind: Literal["strategy"] = "strategy"

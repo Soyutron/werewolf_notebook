@@ -7,10 +7,12 @@ from src.core.llm.prompts import (
     WEREWOLF_STRATEGY_SYSTEM_PROMPT,
     MADMAN_STRATEGY_SYSTEM_PROMPT,
     VILLAGER_STRATEGY_SYSTEM_PROMPT,
+    INITIAL_STRATEGY_SYSTEM_PROMPT,
+    ONE_NIGHT_WEREWOLF_RULES,
 )
-from src.core.memory.strategy import Strategy
+from src.core.memory.strategy import Strategy, StrategyPlan
 from src.core.types.player import PlayerMemory
-from src.config.llm import create_strategy_llm
+from src.config.llm import create_strategy_llm, create_strategy_plan_llm
 
 # 役職ごとのプロンプトマッピング
 ROLE_STRATEGY_PROMPTS: Dict[str, str] = {
@@ -23,45 +25,75 @@ ROLE_STRATEGY_PROMPTS: Dict[str, str] = {
 
 class StrategyGenerator:
     """
-    プレイヤーの発言前戦略を生成するクラス。
+    プレイヤーの戦略（長期計画・短期指針）を生成するクラス。
 
-    設計方針:
-    - 役職ごとに異なるプロンプトを使用
-    - 現在のゲーム状況（memory）を考慮した戦略生成
-    - 生成のみを担当（state は変更しない）
+    責務:
+    - Initial Strategy (Night): ゲーム全体の戦略計画を生成
+    - Action Guideline (Day): 議論フェーズごとの行動指針を生成
     """
 
-    def __init__(self, llm: LLMClient):
+    def __init__(self, llm: LLMClient, plan_llm: Optional[LLMClient] = None):
         self.llm = llm
+        self.plan_llm = plan_llm
 
-    def generate(
+    def generate_initial_strategy(self, memory: PlayerMemory) -> Optional[StrategyPlan]:
+        """
+        [Night Phase] ゲーム開始時点の初期戦略計画を生成する。
+        """
+        if self.plan_llm is None:
+            print("[StrategyGenerator] plan_llm is not set. Skipping initial strategy.")
+            return None
+
+        try:
+            prompt = self._build_initial_prompt(memory)
+            plan: StrategyPlan = self.plan_llm.generate(
+                system=INITIAL_STRATEGY_SYSTEM_PROMPT.format(
+                    rules=ONE_NIGHT_WEREWOLF_RULES,
+                    role=memory.self_role
+                ),
+                prompt=prompt,
+            )
+            print(f"[StrategyGenerator] Generated Initial Plan for {memory.self_name}")
+            print(plan)
+            return plan
+        except Exception as e:
+            print(f"[StrategyGenerator] Failed to generate initial strategy: {e}")
+            return None
+
+    def generate_action_guideline(
         self,
         *,
         memory: PlayerMemory,
+        plan: Optional[StrategyPlan] = None,
     ) -> Optional[Strategy]:
         """
-        役職に応じた戦略を生成する。
-
-        失敗した場合は None を返す。
+        [Discussion Phase] 現在の状況と戦略計画に基づき、行動指針を生成する。
         """
+        # plan が指定されていない場合は memory から取得
+        if plan is None:
+            plan = memory.strategy_plan
+        
+        # それでもない場合はデフォルト（Planなしで動く）かもしくはNone
+        # ここではWarningだけ出して進める（既存互換）
+
         role = memory.self_role
         system_prompt = ROLE_STRATEGY_PROMPTS.get(
             role, VILLAGER_STRATEGY_SYSTEM_PROMPT
         )
 
-        prompt = self._build_prompt(memory)
+        prompt = self._build_guideline_prompt(memory, plan)
 
         try:
             strategy: Strategy = self.llm.generate(
                 system=system_prompt,
                 prompt=prompt,
             )
-            print(f"[StrategyGenerator] Generated strategy for {memory.self_name}")
+            print(f"[StrategyGenerator] Generated Action Guideline for {memory.self_name}")
             print(strategy)
             return strategy
 
         except Exception as e:
-            print(f"[StrategyGenerator] Failed to generate strategy: {e}")
+            print(f"[StrategyGenerator] Failed to generate action guideline: {e}")
             return None
 
     def _contains_co_statement(self, text: str) -> bool:
@@ -103,9 +135,22 @@ class StrategyGenerator:
             return True, own_co_statements[-1]  # 最新のCO発言を返す
         return False, ""
 
-    def _build_prompt(self, memory: PlayerMemory) -> str:
+    def _build_initial_prompt(self, memory: PlayerMemory) -> str:
         """
-        戦略生成用のプロンプトを構築する。
+        初期戦略生成用のプロンプトを構築する。
+        """
+        return f"""
+You are {memory.self_name}.
+Your role is: {memory.self_role}
+
+Players in this game: {', '.join(memory.players)}
+
+Think about your initial strategy.
+"""
+
+    def _build_guideline_prompt(self, memory: PlayerMemory, plan: Optional[StrategyPlan]) -> str:
+        """
+        行動指針生成用のプロンプトを構築する。
         """
         role_beliefs_text = "\n".join(
             f"- {player}: {belief.probs}"
@@ -194,11 +239,27 @@ If you decide to CO (co_decision = "co_now"), set:
 """
                     break
 
+        # 戦略計画の埋め込み
+        strategy_plan_section = ""
+        if plan:
+            strategy_plan_section = f"""
+==============================
+YOUR STRATEGIC PLAN (Must Follow)
+==============================
+- Initial Goal: {plan.initial_goal}
+- Role Behavior: {plan.role_behavior}
+- CO Policy: {plan.co_policy}
+- Intended CO Role: {plan.intended_co_role}
+
+Stay consistent with this plan unless specific circumstances require a change.
+"""
+
         return f"""
 You are {memory.self_name}.
 Your role is: {memory.self_role}
 
 Players in this game: {', '.join(memory.players)}
+{strategy_plan_section}
 {post_co_enforcement}
 {divine_result_section}
 
@@ -222,4 +283,7 @@ Output JSON only.
 
 
 # --- グローバルインスタンス ---
-strategy_generator = StrategyGenerator(llm=create_strategy_llm())
+strategy_generator = StrategyGenerator(
+    llm=create_strategy_llm(),
+    plan_llm=create_strategy_plan_llm()
+)
