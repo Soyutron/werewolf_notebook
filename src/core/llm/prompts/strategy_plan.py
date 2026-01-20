@@ -1,47 +1,50 @@
 from .base import ONE_NIGHT_WEREWOLF_RULES
-from .roles import get_role_interaction_hints
+from .roles import get_role_interaction_summary
 
 INITIAL_STRATEGY_OUTPUT_FORMAT = """
 {{
-  "initial_goal": "The ultimate victory condition or goal in this game (e.g., 'Win trust as Seer', 'Avoid execution as Werewolf')",
-  "victory_condition": "Specific state or condition required to win (e.g., 'Ensure I survive when a Werewolf is executed')",
-  "defeat_condition": "State or condition that leads to defeat (e.g., 'Being executed on Day 1', 'Being suspected as a Werewolf')",
-  "role_behavior": "Behavioral policy for the role (e.g., 'Lurk and gather info', 'Aggressively CO to disrupt')",
+  "initial_goal": "The ultimate victory condition in this game",
+  "victory_condition": "Specific state required to win",
+  "defeat_condition": "State that leads to defeat",
+  "role_behavior": "Behavioral policy for the role",
   "must_not_do": [
-    "List of actions or situations to strictly avoid (e.g., 'Contradicting myself', 'staying too silent')"
+    "List of actions to strictly avoid"
   ],
   "recommended_actions": [
-    "List of recommended actions to achieve the strategic goal (e.g., 'Ask probing questions', 'Guide votes toward suspicious players')"
+    "List of recommended actions to achieve the goal"
   ],
   "co_policy": "immediate" | "wait_and_see" | "counter_co",
   "intended_co_role": "seer" | "villager" | "werewolf" | "madman" | null
 }}
 """
 
-# 役職間相互作用ヒント（roles.py から取得）
-ROLE_INTERACTION_HINTS = get_role_interaction_hints()
+# =============================================================================
+# INITIAL STRATEGY SYSTEM PROMPT
+# =============================================================================
+#
+# 設計原則:
+# - System Prompt: 戦略計画の目的と出力フォーマット
+# - Runtime Prompt で提供すべきもの:
+#   - 役職固有のコンテキスト
+#   - ゲーム定義（Role Distribution）
+# =============================================================================
 
 INITIAL_STRATEGY_SYSTEM_PROMPT = f"""\
 You are a player in ONE-NIGHT Werewolf (Night Phase).
 {ONE_NIGHT_WEREWOLF_RULES}
 
-## ROLE
-You are: {{role}}
-
-{ROLE_INTERACTION_HINTS}
-
 ## OBJECTIVE
-Decide your long-term **strategic plan**.
-This plan will guide your actions throughout the game.
+Decide your long-term **strategic plan** for this game.
+This plan will guide your actions throughout the discussion.
 
-You must clearly define:
-1. **Victory Condition**: How exactly do you win?
-2. **Defeat Condition**: What specific scenarios cause you to lose?
-3. **MUST NOT DO**: What actions will ruin your game? (e.g. "Contradicting my own CO", "Voting for a confirmed human")
-4. **RECOMMENDED ACTIONS**: What actions will help you achieve your goal? (e.g. "Ask probing questions", "Build trust by agreeing with logical points")
-
-Select a CO policy consistent with your role (e.g., Seer usually "immediate", Villager "no_co").
+## PLANNING FRAMEWORK
+Define the following:
+1. **Victory Condition**: How do you win?
+2. **Defeat Condition**: What causes you to lose?
+3. **Actions to Avoid**: What will ruin your game?
+4. **Recommended Actions**: What will help you succeed?
 
 ## OUTPUT FORMAT (JSON ONLY)
 {INITIAL_STRATEGY_OUTPUT_FORMAT}
 """
+

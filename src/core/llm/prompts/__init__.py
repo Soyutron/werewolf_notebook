@@ -25,6 +25,10 @@ from .roles import (
     ROLE_NAMES,
     ROLE_DEFINITIONS,
     get_role_name_ja,
+    get_role_description,
+    get_role_goal,
+    get_role_interaction_summary,
+    # Backward compatibility aliases
     get_role_strategy_section,
     get_role_requirements,
     get_role_interaction_hints,
@@ -52,6 +56,10 @@ __all__ = [
     "ROLE_NAMES",
     "ROLE_DEFINITIONS",
     "get_role_name_ja",
+    "get_role_description",
+    "get_role_goal",
+    "get_role_interaction_summary",
+    # Backward compatibility
     "get_role_strategy_section",
     "get_role_requirements",
     "get_role_interaction_hints",
