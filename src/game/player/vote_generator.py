@@ -77,6 +77,10 @@ class VoteGenerator:
 
         discussion_history = "\n".join(f"- {e}" for e in reversed(memory.history))
 
+        from src.core.llm.prompts.roles import get_role_goal
+
+        role_goal = get_role_goal(memory.self_role)
+
         return f"""
 {ONE_NIGHT_WEREWOLF_RULES}
 
@@ -90,6 +94,9 @@ Your own name:
 
 Your own role (fixed, secret):
 {memory.self_role}
+
+Your Goal:
+{role_goal}
 
 Your private role beliefs:
 {current_beliefs}
@@ -105,7 +112,7 @@ Details:
 Rules:
 - Choose exactly ONE player to vote for.
 - You CANNOT vote for yourself.
-- Vote for the player you most suspect as a werewolf.
+- Vote for the player that helps you achieve your Goal: {role_goal}
 - Do NOT explain your reasoning.
 - Output JSON only.
 

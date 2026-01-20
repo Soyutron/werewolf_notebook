@@ -133,9 +133,12 @@ class ActionResolver:
                 # 占いの真実を取得
                 role = self.assigned_roles[target]
 
-                # 狂人の占いは必ず「村人」に見える
-                if role == "madman":
-                    visible_role = "villager"
+                # 役職定義から「占われた時の見え方」を取得
+                # デフォルトは役職名そのものだが、狂人のように偽装する場合がある
+                from src.core.roles import get_role_config
+                role_config = get_role_config(role)
+                if role_config and role_config.divine_result_as_role:
+                    visible_role = role_config.divine_result_as_role
                 else:
                     visible_role = role
 

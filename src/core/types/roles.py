@@ -36,10 +36,8 @@ RoleName = str
 # ・昼フェーズでの立場（DaySide）
 # ・最終的な勝利条件の帰属（WinSide）
 # の両方で使用される
-Side = Literal[
-    "village",
-    "werewolf",
-]
+Side = str
+# 元の定義（参考）: Literal["village", "werewolf"]
 
 # =========================
 # 昼の議論・投票構造における立場

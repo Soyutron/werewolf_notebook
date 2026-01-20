@@ -33,6 +33,7 @@ class RoleConfig(BaseModel):
     ability: str  # 特殊能力（なければ空文字）
     core_principle: str  # 役職の本質的な行動原則（1文）
     strategy_advice: str  # 戦略計画生成用の詳細アドバイス
+    divine_result_as_role: Optional[str] = None  # 占われた時に見える役職名（None の場合は name を使用）
 
 
 class RoleRegistry:
@@ -168,7 +169,8 @@ role_registry.register(RoleConfig(
 - または **村人CO** で潜伏し、村人の投票先を誤らせることも有効です。
 - 人狼が誰かわからないため、無差別に混乱を招くことが目標です。
 - 真の占い師を攻撃して信用を落とすことで、人狼を間接的に守れます。
-"""
+""",
+    divine_result_as_role="villager",  # 占われると村人に見える
 ))
 
 
