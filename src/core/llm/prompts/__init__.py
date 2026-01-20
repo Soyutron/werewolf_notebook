@@ -22,8 +22,6 @@ from .strategy import (
 )
 from .strategy_plan import INITIAL_STRATEGY_SYSTEM_PROMPT
 from .roles import (
-    ROLE_NAMES,
-    ROLE_DEFINITIONS,
     get_role_name_ja,
     get_role_description,
     get_role_goal,
@@ -53,8 +51,7 @@ __all__ = [
     "STRATEGY_REVIEW_SYSTEM_PROMPT",
     "STRATEGY_REFINE_SYSTEM_PROMPT",
     "INITIAL_STRATEGY_SYSTEM_PROMPT",
-    "ROLE_NAMES",
-    "ROLE_DEFINITIONS",
+    "INITIAL_STRATEGY_SYSTEM_PROMPT",
     "get_role_name_ja",
     "get_role_description",
     "get_role_goal",

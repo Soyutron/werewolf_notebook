@@ -8,11 +8,7 @@ LLMが自然に解釈できる文脈表現への変換を担当する。
 """
 
 from src.core.types import PlayerMemory
-from src.core.llm.prompts.roles import ROLE_NAMES
-
-# 役職名の日本語マッピング（roles.py から取得）
-ROLE_NAMES_JA = {k: v["ja"] for k, v in ROLE_NAMES.items()}
-
+from src.core.roles import get_role_display_name
 
 def build_belief_analysis_section(memory: PlayerMemory) -> str:
     """
@@ -41,7 +37,7 @@ def build_belief_analysis_section(memory: PlayerMemory) -> str:
         )
         
         top_role, top_prob = sorted_roles[0]
-        top_role_ja = ROLE_NAMES_JA.get(top_role, top_role)
+        top_role_ja = get_role_display_name(top_role, "ja")
         
         # 状況の言語化
         if top_prob >= 0.6:
@@ -54,7 +50,7 @@ def build_belief_analysis_section(memory: PlayerMemory) -> str:
         elif top_prob >= 0.4:
             # ある程度傾向が見える場合
             second_role, second_prob = sorted_roles[1]
-            second_role_ja = ROLE_NAMES_JA.get(second_role, second_role)
+            second_role_ja = get_role_display_name(second_role, "ja")
             uncertain.append(f"{player}: {top_role_ja} の傾向 ({top_prob:.0%}), 次点 {second_role_ja} ({second_prob:.0%})")
             
         else:

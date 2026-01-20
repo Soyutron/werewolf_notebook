@@ -59,12 +59,23 @@ class BeliefGenerator:
 
             for item in result.beliefs:
                 # RoleProbOutput -> RoleProb convert
-                probs = {
-                    "villager": item.belief.villager,
-                    "seer": item.belief.seer,
-                    "werewolf": item.belief.werewolf,
-                    "madman": item.belief.madman,
-                }
+                # 動的に全役職の確率を抽出
+                from src.core.roles import get_all_role_names
+                
+                probs = {}
+                for role_name in get_all_role_names():
+                    # Pydanticモデルのフィールドから動的に取得を試みる
+                    # getattr(item.belief, role_name, 0.0)
+                    # NOTE: item.belief は RoleProbOutput (Pydantic) なので、
+                    # 固定フィールドしか持っていない場合は、動的役職に対応するために
+                    # RoleProbOutput 自体の定義変更も必要になる可能性がある。
+                    # 現状は RoleProbOutput が Dict[str, float] または全役職フィールドを持つと仮定
+                    
+                    val = getattr(item.belief, role_name, None)
+                    if val is None:
+                        # item.belief が辞書型のように振る舞う場合、あるいは extra fields
+                        val = 0.0
+                    probs[role_name] = val
                 
                 # Normalize manually since RoleProb.normalize doesn't exist
                 total = sum(probs.values())
@@ -92,6 +103,8 @@ class BeliefGenerator:
         """
         system / user prompt を構築する。
         """
+        from src.core.roles import get_all_role_names
+
         observed_type = observed.__class__.__name__
 
         current_beliefs = "\n".join(
@@ -99,7 +112,11 @@ class BeliefGenerator:
             for player, belief in memory.role_beliefs.items()
         )
 
-        system = """
+        # 全役職のリストを動的に生成
+        all_roles = get_all_role_names()
+        role_fields = "\n        ".join(f'"{role}": 0.X,' for role in all_roles)
+
+        system = f"""
 You are an AI player in a Werewolf-style social deduction game.
 You must update your private beliefs about each player's role based on a new observation.
 
@@ -113,23 +130,20 @@ Rules:
 - Output JSON list of objects.
 
 Output format:
-{
+{{
   "beliefs": [
-    {
+    {{
       "player": "Alice",
-      "belief": {
-        "villager": 0.4,
-        "seer": 0.3,
-        "werewolf": 0.3,
-        "madman": 0.0
-      }
-    },
-    {
+      "belief": {{
+        {role_fields}
+      }}
+    }},
+    {{
       "player": "Bob",
-      "belief": { ... }
-    }
+      "belief": {{ ... }}
+    }}
   ]
-}
+}}
 """
         user = f"""
 Current players:

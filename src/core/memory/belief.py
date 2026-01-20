@@ -3,15 +3,18 @@ from pydantic import BaseModel
 from src.core.types import PlayerName
 
 
-class RoleProbOutput(BaseModel):
-    """
-    vLLM grammar 対応のための固定フィールド構造。
-    Dict[RoleName, float] だと propertyNames エラーが出る可能性があるため。
-    """
-    villager: float
-    seer: float
-    werewolf: float
-    madman: float
+from pydantic import create_model
+from src.core.roles import get_all_role_names
+
+# RoleProbOutput を動的に生成
+# vLLM grammar 対応のため、現在登録されている全役職をフィールドとして持つモデルを作成
+# equivalent to:
+# class RoleProbOutput(BaseModel):
+#     villager: float = 0.0
+#     seer: float = 0.0
+#     ...
+roles = {role: (float, 0.0) for role in get_all_role_names()}
+RoleProbOutput = create_model('RoleProbOutput', **roles)
 
 
 class PlayerBeliefItem(BaseModel):

@@ -49,7 +49,7 @@ MOCK_STRATEGY_PLAN = StrategyPlan(
     role_behavior="積極的にCOして情報を共有",
     must_not_do=["矛盾した発言をする"],
     recommended_actions=["積極的に質問を投げかける"],
-    co_policy="immediate",
+    co_policy="co_seer",
     intended_co_role="seer",
     milestone_plan=MOCK_MILESTONE_PLAN
 )

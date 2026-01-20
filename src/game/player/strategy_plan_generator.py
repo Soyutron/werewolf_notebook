@@ -32,6 +32,8 @@ class StrategyPlanGenerator:
             return None
 
     def _build_prompt(self, memory: PlayerMemory) -> str:
+        from src.core.roles import get_role_advice
+
         return f"""
 You are {memory.self_name}.
 Your role is: {memory.self_role}
@@ -42,19 +44,7 @@ Think about your initial strategy carefully.
 Consider your victory conditions, what actions you must avoid, and what actions are recommended to achieve your goal.
 
 ## Role-Specific Advice based on {memory.self_role}:
-- If you are a **Werewolf**:
-  - You can fake playing the Seer (`co_seer`) to mislead the village.
-  - Or you can pretend to be a Villager (`co_villager`) to fly under the radar.
-  - Staying silent (`silent`) is also a valid valid strategy if you want to avoid contradictions.
-- If you are a **Madman**:
-  - Your goal is to help the Werewolves win (or have the Werewolves survive, or be executed depending on specific rules, but generally support Evil).
-  - Disrupt the discussion by faking Seer (`co_seer`) with false results.
-  - Or claim Villager (`co_villager`) to reduce the suspect pool for Werewolves.
-- If you are a **Seer**:
-  - Usually, declaring yourself (`co_seer`) and sharing the truth is strong, but be careful of counter-claims.
-- If you are a **Villager**:
-  - Your info is limited. Deduce who is lying. `co_villager` is standard to clear yourself.
-
+{get_role_advice(memory.self_role)}
 """
 
 
