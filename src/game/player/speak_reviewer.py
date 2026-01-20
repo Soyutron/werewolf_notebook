@@ -29,13 +29,14 @@ class SpeakReviewer:
         speak: Speak,
         strategy: Strategy,
         memory: PlayerMemory,
+        game_def: "GameDefinition",
     ) -> Optional[SpeakReview]:
         """
         発言をレビューする。
 
         失敗した場合は None を返す（安全側に倒す = commit）。
         """
-        prompt = self._build_prompt(speak, strategy, memory)
+        prompt = self._build_prompt(speak, strategy, memory, game_def)
 
         try:
             result: SpeakReview = self.llm.generate(
@@ -51,7 +52,7 @@ class SpeakReviewer:
             return None
 
     def _build_prompt(
-        self, speak: Speak, strategy: Strategy, memory: PlayerMemory
+        self, speak: Speak, strategy: Strategy, memory: PlayerMemory, game_def: "GameDefinition"
     ) -> str:
         """
         レビュー用のプロンプトを構築する。
@@ -67,7 +68,7 @@ class SpeakReviewer:
         log_summary = memory.log_summary if memory.log_summary else "(No events summarized yet)"
 
         # 役職推定分析セクションの構築（整合性チェック用）
-        belief_analysis = build_belief_analysis_section(memory)
+        belief_analysis = build_belief_analysis_section(memory, game_def)
 
         return f"""
 ==============================

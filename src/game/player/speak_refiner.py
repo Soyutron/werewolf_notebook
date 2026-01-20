@@ -30,13 +30,14 @@ class SpeakRefiner:
         strategy: Strategy,
         review: SpeakReview,
         memory: PlayerMemory,
+        game_def: "GameDefinition",
     ) -> Optional[Speak]:
         """
         発言をリファインする。
 
         失敗した場合は None を返す。
         """
-        prompt = self._build_prompt(original, strategy, review, memory)
+        prompt = self._build_prompt(original, strategy, review, memory, game_def)
 
         try:
             refined: Speak = self.llm.generate(
@@ -57,6 +58,7 @@ class SpeakRefiner:
         strategy: Strategy,
         review: SpeakReview,
         memory: PlayerMemory,
+        game_def: "GameDefinition",
     ) -> str:
         """
         リファイン用のプロンプトを構築する。
@@ -81,7 +83,7 @@ class SpeakRefiner:
         log_summary = memory.log_summary if memory.log_summary else "(No events summarized yet)"
 
         # 役職推定分析セクションの構築（整合性確保用）
-        belief_analysis = build_belief_analysis_section(memory)
+        belief_analysis = build_belief_analysis_section(memory, game_def)
 
         # ターゲット未発言の警告と戦略の無効化
         target_warning = ""

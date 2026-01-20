@@ -16,18 +16,26 @@ def handle_use_ability(state: PlayerState) -> PlayerState:
         state["output"] = None
         return state
 
-    role = state["memory"].self_role
+    role_name = state["memory"].self_role
+    game_def = state.get("game_def")
+    
+    # GameDefinition が state に注入されていることを前提とする
+    if not game_def:
+        raise RuntimeError("GameDefinition is not injected in PlayerState")
 
-    if role == "seer":
+    role_def = game_def.roles.get(role_name)
+    if not role_def:
+        raise ValueError(f"Role '{role_name}' is not defined in GameDefinition.roles")
+
+    ability_type = role_def.ability_type
+
+    if ability_type == "seer":
         return handle_seer_ability(state)
-    elif role == "werewolf":
+    elif ability_type == "werewolf":
         return handle_werewolf_ability(state)
-    elif role == "villager":
-        return handle_villager_ability(state)
-    elif role == "madman":
-        return handle_madman_ability(state)
     else:
-        raise ValueError(f"Unknown role: {role}")
+        # ability_type == "none" または未知の能力タイプは能力なしとして扱う
+        return handle_no_ability(state)
 
 
 def handle_seer_ability(state: PlayerState) -> PlayerState:
@@ -54,15 +62,7 @@ def handle_werewolf_ability(state: PlayerState) -> PlayerState:
     return state
 
 
-def handle_villager_ability(state: PlayerState) -> PlayerState:
-    state["output"] = PlayerOutput(
-        action="use_ability",
-        payload=NoAbility(kind="none"),
-    )
-    return state
-
-
-def handle_madman_ability(state: PlayerState) -> PlayerState:
+def handle_no_ability(state: PlayerState) -> PlayerState:
     state["output"] = PlayerOutput(
         action="use_ability",
         payload=NoAbility(kind="none"),

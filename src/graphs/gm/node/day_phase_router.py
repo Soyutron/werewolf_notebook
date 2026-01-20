@@ -29,6 +29,10 @@ def day_phase_router_node(state: GMGraphState) -> str:
     # 1. ハードリミット判定
     # -----------------------------
     if internal.discussion_turn >= internal.max_discussion_turn:
+        # 次のフェーズへ遷移する意思を示す
+        from src.core.types.phases import get_next_phase
+        next_phase = get_next_phase(world.phase, state["game_def"])
+        decision.next_phase = next_phase
         return "vote"
 
     # -----------------------------
@@ -47,6 +51,14 @@ def day_phase_router_node(state: GMGraphState) -> str:
                     },
                 )
             )
+            
+            # 次のフェーズへ遷移する意思を示す
+            from src.core.types.phases import get_next_phase
+            next_phase = get_next_phase(world.phase, state["game_def"])
+            decision.next_phase = next_phase
+            
+            # グラフエッジの識別子として "vote" を返すが、意味としては "end_day_loop"
+            # gm_graph.py で "vote": END になっているため、これで day ループが終了する
             return "vote"
 
     # -----------------------------

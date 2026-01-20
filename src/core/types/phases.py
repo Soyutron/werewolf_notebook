@@ -8,7 +8,7 @@
 - ゲーム結果の表現
 """
 
-from typing import List, Dict, Literal
+from typing import List, Dict, Literal, Optional
 from pydantic import BaseModel
 
 from src.core.types.roles import RoleName, RoleDefinition, Side
@@ -20,6 +20,7 @@ __all__ = [
     "GameDefinition",
     "WorldState",
     "GameResult",
+    "get_next_phase",
 ]
 
 
@@ -149,3 +150,43 @@ class WorldState(BaseModel):
     #
     # WorldState の原則（非公開情報を持たない）の例外だが、
     # 「結果公開フェーズ」でのみ全情報を解禁するため問題ない
+
+
+# =========================
+# ヘルパー関数
+# =========================
+
+def get_next_phase(current_phase: Phase, definition: GameDefinition) -> Optional[Phase]:
+    """
+    GameDefinition に基づいて次のフェーズを取得する。
+
+    Args:
+        current_phase: 現在のフェーズ
+        definition: ゲーム定義（phases リストを含む）
+
+    Returns:
+        次のフェーズ。
+        - 定義された最後のフェーズの次は "result" を返す（まだ result でなければ）。
+        - "result" の次は None を返す。
+        - 定義に含まれないフェーズの場合は None を返す。
+    """
+    if current_phase == "result":
+        return None
+
+    if current_phase not in definition.phases:
+        # current_phase が定義に含まれていないが、
+        # もし定義の最後が終わった後なら result へ
+        # しかし通常は phase リスト外の挙動は未定義
+        # ここでは安全のため "result" を返すかエラーにするかだが、
+        # "result" は特殊フェーズとして扱う
+        return None
+
+    try:
+        idx = definition.phases.index(current_phase)
+        if idx + 1 < len(definition.phases):
+            return definition.phases[idx + 1]
+        else:
+            # 定義されたフェーズの最後 -> result
+            return "result"
+    except ValueError:
+        return None

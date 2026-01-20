@@ -38,21 +38,26 @@ ONE_NIGHT_GAME_DEFINITION = GameDefinition(
             name="villager",
             day_side="village",
             win_side="village",
+            ability_type="none",
         ),
         "seer": RoleDefinition(
             name="seer",
             day_side="village",
             win_side="village",
+            ability_type="seer",
         ),
         "werewolf": RoleDefinition(
             name="werewolf",
             day_side="werewolf",
             win_side="werewolf",
+            ability_type="werewolf",
         ),
         "madman": RoleDefinition(
             name="madman",
             day_side="village",  # 昼は村人扱い
             win_side="werewolf",  # 勝利条件は人狼側
+            ability_type="none",
+            divine_result_as_role="villager",
         ),
     },
     role_distribution=[

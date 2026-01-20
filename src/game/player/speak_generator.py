@@ -39,6 +39,7 @@ class SpeakGenerator:
         *,
         memory: PlayerMemory,
         observed: Observed,
+        game_def: "GameDefinition",
         strategy: Optional[Strategy] = None,
         policy_weights: Optional[PlayerPolicyWeights] = None,
     ) -> Optional[Speak]:
@@ -54,7 +55,7 @@ class SpeakGenerator:
         if strategy is None:
             print(f"[SpeakGenerator] WARNING: No Strategy provided for {memory.self_name}. Generating without strategic guidance.")
         
-        prompt = self._build_prompt(memory, observed, strategy, policy_weights)
+        prompt = self._build_prompt(memory, observed, game_def, strategy, policy_weights)
 
         try:
             speak: Speak = self.llm.generate(
@@ -74,6 +75,7 @@ class SpeakGenerator:
         self,
         memory: PlayerMemory,
         observed: Observed,
+        game_def: "GameDefinition",
         strategy: Optional[Strategy] = None,
         policy_weights: Optional[PlayerPolicyWeights] = None,
     ) -> str:
@@ -102,7 +104,7 @@ class SpeakGenerator:
         # フェーズに応じた戦略判断はstrategy_generator.pyで既に行われている
 
         # 役職推定分析セクションの構築（推論用に整形済み）
-        belief_analysis = build_belief_analysis_section(memory)
+        belief_analysis = build_belief_analysis_section(memory, game_def)
 
         # 要約済みログを使用（議論経緯と観測結果の単一ソース）
         log_summary = memory.log_summary if memory.log_summary else "(No events summarized yet)"

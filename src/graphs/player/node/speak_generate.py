@@ -35,6 +35,7 @@ def speak_generate_node(state: PlayerState) -> PlayerState:
     speak = speak_generator.generate(
         memory=memory,
         observed=request,
+        game_def=state.get("game_def"),
         strategy=internal.pending_strategy,
         policy_weights=memory.policy_weights,
     )

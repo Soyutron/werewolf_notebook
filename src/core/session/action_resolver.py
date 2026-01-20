@@ -135,10 +135,9 @@ class ActionResolver:
 
                 # 役職定義から「占われた時の見え方」を取得
                 # デフォルトは役職名そのものだが、狂人のように偽装する場合がある
-                from src.core.roles import get_role_config
-                role_config = get_role_config(role)
-                if role_config and role_config.divine_result_as_role:
-                    visible_role = role_config.divine_result_as_role
+                role_def = session.definition.roles.get(role)
+                if role_def and role_def.divine_result_as_role:
+                    visible_role = role_def.divine_result_as_role
                 else:
                     visible_role = role
 

@@ -8,7 +8,7 @@
 - 能力結果の表現
 """
 
-from typing import List, Dict, Optional, Literal, TypeAlias, TypedDict, Union
+from typing import List, Dict, Optional, Literal, TypeAlias, TypedDict, Union, Any
 from pydantic import BaseModel, Field, model_validator
 
 from src.core.types.roles import RoleName
@@ -326,3 +326,8 @@ class PlayerState(TypedDict):
     # - 発言生成・レビューの中間状態
     #
     # ※ グラフ実行終了後にリセットされる想定
+
+    game_def: Any
+    # GameSession から動的に注入される GameDefinition
+    # 循環参照回避のために Any としているが、実体は GameDefinition
+    # プレイヤーロジックがルールを参照するために使用する

@@ -44,6 +44,7 @@ def speak_review_router_node(state: PlayerState) -> str:
         speak=pending_speak,
         strategy=pending_strategy,
         memory=memory,
+        game_def=state.get("game_def"),
     )
 
     # レビューに失敗した場合は安全側に倒す

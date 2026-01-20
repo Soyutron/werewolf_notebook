@@ -48,8 +48,10 @@ def vote_phase_node(state: GMGraphState) -> GMGraphState:
     # --- 全員の投票が完了している場合 ---
     else:
         # 次フェーズへの遷移意思のみを示す
-        # 実際の phase 更新・集計・処刑解決は GameSession 側の責務
-        decision.next_phase = "result"
-        # もしくはワンナイト人狼なら "end"
+        from src.core.types.phases import get_next_phase
+        next_phase = get_next_phase(state["world_state"].phase, state["game_def"])
+        
+        if next_phase:
+            decision.next_phase = next_phase
 
     return state

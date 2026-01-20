@@ -47,7 +47,14 @@ def night_phase_node(state: GMGraphState) -> GMGraphState:
     # --- 全員の夜行動が完了している場合 ---
     else:
         # 次フェーズへの遷移意思のみを示す
-        # 実際の phase 更新は GameSession の dispatch が行う
-        decision.next_phase = "day"
+        # GameDefinition から次のフェーズを取得
+        from src.core.types.phases import get_next_phase
+        next_phase = get_next_phase(state["world_state"].phase, state["game_def"])
+        
+        if next_phase:
+            decision.next_phase = next_phase
+        else:
+            # 万が一取得できない場合はエラーログなどを出すべきだが、ここでは安全に停止
+            pass
 
     return state

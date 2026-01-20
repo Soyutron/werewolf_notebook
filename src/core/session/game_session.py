@@ -165,10 +165,10 @@ class GameSession:
 
         # ゲーム開始時の WorldState を生成。
         #
-        # ワンナイト人狼では必ず night フェーズから始まる想定。
+        # ワンナイト人狼では必ず definition.phases の先頭（night）から始まる。
         # public_events はまだ何も起きていないため空。
         world_state = WorldState(
-            phase="night",
+            phase=definition.phases[0],
             players=players,
             public_events=[],
         )
@@ -250,6 +250,10 @@ class GameSession:
         # 今ターンに GM から与えられた入力を注入
         # （イベント通知 / 行動要求）
         working_state["input"] = input
+        
+        # ゲーム定義を注入（PlayerGraph から参照可能にするため）
+        # ※ PlayerState の型には含まれていないが、動的に注入する
+        working_state["game_def"] = self.definition
 
         # 出力はこのターン用に初期化
         # PlayerGraph がここに結果を書き込む

@@ -39,6 +39,7 @@ def speak_refine_node(state: PlayerState) -> PlayerState:
         strategy=internal.pending_strategy,
         review=internal.last_speak_review,
         memory=memory,
+        game_def=state.get("game_def"),
     )
 
     if refined_speak is None:
