@@ -87,7 +87,7 @@ def build_player_graph():
     # === 既存のエッジ（END へ直接接続するもの）===
     # graph.add_edge("night_started", END)  <-- Changed to go to strategy_plan_generate
     graph.add_edge("strategy_plan_generate", END)
-    graph.add_edge("day_started", END)
+    # graph.add_edge("day_started", END)  <-- Changed to go to strategy_plan_generate
     graph.add_edge("vote_started", END)
     graph.add_edge("use_ability", END)
     graph.add_edge("divine_result", END)
@@ -98,7 +98,12 @@ def build_player_graph():
     graph.add_edge("vote", END)
 
     # === Night Phase Edge ===
-    graph.add_edge("night_started", "strategy_plan_generate")
+    # night_started -> END (夜は行動決定して思考終了、戦略生成はまだしない)
+    graph.add_edge("night_started", END)
+
+    # === Day Start Flow ===
+    # day_started -> strategy_plan_generate (昼開始時に戦略生成)
+    graph.add_edge("day_started", "strategy_plan_generate")
 
     # === 戦略→発言フローのエッジ ===
     # belief_update → log_summarize → strategy_generate → speak_generate

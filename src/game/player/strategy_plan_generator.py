@@ -34,12 +34,24 @@ class StrategyPlanGenerator:
     def _build_prompt(self, memory: PlayerMemory) -> str:
         from src.core.roles import get_role_advice
 
+
+        known_roles = []
+        for player_name, belief in memory.role_beliefs.items():
+            # 100% 確定している情報のみ抽出 (浮動小数誤差考慮)
+            for role, prob in belief.probs.items():
+                if prob > 0.99:
+                    known_roles.append(f"- {player_name} is definitely {role}")
+
+        known_info_str = ""
+        if known_roles:
+            known_info_str = "\n## Confirmed Information/Divine Results:\n" + "\n".join(known_roles) + "\n"
+
         return f"""
 You are {memory.self_name}.
 Your role is: {memory.self_role}
 
 Players in this game: {', '.join(memory.players)}
-
+{known_info_str}
 Think about your initial strategy carefully.
 Consider your victory conditions, what actions you must avoid, and what actions are recommended to achieve your goal.
 
