@@ -4,7 +4,7 @@ from typing import Optional, Union
 from src.core.llm.client import LLMClient
 from src.core.llm.prompts import SPEAK_SYSTEM_PROMPT
 from src.core.memory.speak import Speak
-from src.core.memory.strategy import Strategy
+from src.core.memory.strategy import Strategy, PlayerPolicyWeights
 from src.core.types import PlayerMemory, GameEvent, PlayerRequest
 from src.config.llm import create_speak_llm
 from src.game.player.belief_utils import build_belief_analysis_section
@@ -40,6 +40,7 @@ class SpeakGenerator:
         memory: PlayerMemory,
         observed: Observed,
         strategy: Optional[Strategy] = None,
+        policy_weights: Optional[PlayerPolicyWeights] = None,
     ) -> Optional[Speak]:
         """
         発言を1件生成する。
@@ -53,7 +54,7 @@ class SpeakGenerator:
         if strategy is None:
             print(f"[SpeakGenerator] WARNING: No Strategy provided for {memory.self_name}. Generating without strategic guidance.")
         
-        prompt = self._build_prompt(memory, observed, strategy)
+        prompt = self._build_prompt(memory, observed, strategy, policy_weights)
 
         try:
             speak: Speak = self.llm.generate(
@@ -74,6 +75,7 @@ class SpeakGenerator:
         memory: PlayerMemory,
         observed: Observed,
         strategy: Optional[Strategy] = None,
+        policy_weights: Optional[PlayerPolicyWeights] = None,
     ) -> str:
         """
         発言生成用の user prompt を構築する。
@@ -175,6 +177,24 @@ COをスキップしないでください。匂わせるだけにしないでく
    これらのパラメータを実行するような発言を生成してください。
 """
 
+        # policy_weights セクション（マイルストーン状態から算出された重み）
+        policy_weights_section = ""
+        if policy_weights is not None:
+            policy_weights_section = f"""
+==============================
+発言方針調整パラメータ (参考情報)
+==============================
+
+これらの値はゲームの進行状況から動的に算出されたものです。
+発言のトーン調整の参考にしてください（戦略パラメータが優先）。
+
+- 攻撃性: {policy_weights.aggression}/10
+- 信頼構築: {policy_weights.trust_building}/10
+- 情報開示度: {policy_weights.information_reveal}/10
+- 緊急度: {policy_weights.urgency}/10
+{f"- 注目プレイヤー: {policy_weights.focus_player}" if policy_weights.focus_player else ""}
+"""
+
         # 自己言及禁止のガード
         self_name = memory.self_name
         anti_self_ref_section = f"""
@@ -190,6 +210,7 @@ COをスキップしないでください。匂わせるだけにしないでく
 {anti_self_ref_section}
 {co_enforcement_section}
 {strategy_section}
+{policy_weights_section}
 
 ==============================
 ゲームログ要約

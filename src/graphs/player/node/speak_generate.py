@@ -31,10 +31,12 @@ def speak_generate_node(state: PlayerState) -> PlayerState:
     # 戦略を発言生成に渡す
     # Strategy が渡されることで、strategy_plan_generator.py → strategy_generator.py の
     # 戦略フローが speak_generator.py まで一貫して適用される
+    # policy_weights はマイルストーン状態から算出された発言方針調整パラメータ
     speak = speak_generator.generate(
         memory=memory,
         observed=request,
         strategy=internal.pending_strategy,
+        policy_weights=memory.policy_weights,
     )
 
     if speak is None:
