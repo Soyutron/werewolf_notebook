@@ -64,23 +64,30 @@ def verify_speak_generator():
     memory = MagicMock(spec=PlayerMemory)
     memory.self_name = "Alice"
     memory.role_beliefs = {"Bob": MagicMock(probs={"villager": 1.0})}
-    memory.history = ["Reflection 1", "Reflection 2", "Reflection 3"]
-    memory.log_summary = "Summary of past events"
+    memory.history = ["Reflection 1", "Reflection 2", "Reflection 3"] # Not used directly anymore
+    memory.log_summary = "Summary of past events: Alice said hi."
     memory.observed_events = []
     
     observed = create_mock_event(99)
     
     prompt = gen._build_prompt(memory, observed)
-    print("Prompt Snippet (Reflections):")
-    # We expect Reflection 3, then 2, then 1
-    start_idx = prompt.find("Recent thoughts:")
-    snippet = prompt[start_idx:start_idx+200]
+    print("Prompt Snippet (Log Summary & Headers):")
+    
+    # Check if log_summary is included (Japanese header)
+    header_idx = prompt.find("ゲームログ要約")
+    snippet = prompt[header_idx:header_idx+200]
     print(snippet)
     
-    if "Reflection 3" in snippet and snippet.find("Reflection 3") < snippet.find("Reflection 1"):
-         print("SUCCESS: Reflection 3 appears before Reflection 1")
+    if header_idx != -1 and "Summary of past events: Alice said hi." in snippet:
+         print("SUCCESS: Log summary found under Japanese header.")
     else:
-         print("FAILURE: Order incorrect")
+         print("FAILURE: Log summary or Japanese header missing.")
+
+    # Check for Belief Analysis (Japanese header)
+    if "役職推定分析" in prompt:
+        print("SUCCESS: Belief analysis header found.")
+    else:
+        print("FAILURE: Belief analysis header missing.")
 
 def verify_strategy_generator():
     print("\n--- Verifying StrategyGenerator ---")

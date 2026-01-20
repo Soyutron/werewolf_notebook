@@ -114,76 +114,76 @@ class SpeakGenerator:
 
             if strategy.co_decision == "co_now":
                 # Check for unknown result
-                result_instruction = f"3. Result: {strategy.co_result}"
+                result_instruction = f"3. 結果: {strategy.co_result}"
                 
                 if not strategy.co_result or strategy.co_result.lower() == "unknown":
-                    result_instruction = "3. Result: Decide a result (White or Black) YOURSELF based on your game plan."
+                    result_instruction = "3. 結果: あなたのゲームプランに基づいて、結果（白か黒か）を自分自身で決定してください。"
 
                 co_enforcement_section = f"""
 ==============================
-MANDATORY CO (YOU MUST DO THIS)
+CO強制 (必ず実行してください)
 ==============================
 
-Your strategy requires you to CO (Come Out) NOW.
+あなたの戦略は、今すぐCO（カミングアウト）することを要求しています。
 
-Your speech MUST include ALL of the following:
-1. 「私は占い師です」or equivalent CO statement
-2. Target: {strategy.co_target}
+あなたの発言には、以下のすべてを必ず含めてください:
+1. 「私は占い師です」または同等のCO発言
+2. ターゲット: {strategy.co_target}
 {result_instruction}
 
 
 
-IMPORTANT STYLE RULES:
-- Report calmly and factually.
-- DO NOT use exclamation marks.
-- DO NOT use interrogative accusations.
-- DO NOT be overly dramatic or emotional.
+重要なスタイルルール:
+- 冷静かつ事実に基づいて報告してください。
+- 感嘆符（！）を多用しないでください。
+- 尋問調や攻撃的な口調を避けてください。
+- 過度にドラマチックにしないでください。
 
-DO NOT skip the CO. DO NOT hint. STATE IT CLEARLY but CALMLY.
+COをスキップしないでください。匂わせるだけにしないでください。冷静に、しかし明確に宣言してください。
 """
             
             # ターゲットが未発言かどうかのチェック
             target_warning = ""
             if strategy.target_player and strategy.target_player not in speakers:
                 target_warning = f"""
-!!! WARNING: TARGET '{strategy.target_player}' HAS NOT SPOKEN !!!
-- You CANNOT claim they said something.
-- You CANNOT find contradictions in their speech.
-- You CAN only ask them to speak or question their silence.
-- IGNORE any strategy instruction that implies they spoke.
+!!! 警告: ターゲット '{strategy.target_player}' はまだ発言していません !!!
+- 彼らが何か言ったと主張することはできません。
+- 彼らの発言の矛盾を指摘することはできません。
+- 彼らに発言を求めたり、沈黙を怪しむことしかできません。
+- 彼らが発言したことを前提とする戦略指示は無視してください。
 """
 
             strategy_section = f"""
 ==============================
-STRATEGY PARAMETERS (EXECUTE THIS - DO NOT REINTERPRET)
+戦略パラメータ (これを実行してください - 再解釈禁止)
 ==============================
 
-Your action is determined by these parameters. Execute them faithfully.
-Do NOT make independent strategic decisions - the strategy has already been decided.
+あなたの行動はこれらのパラメータによって決定されます。誠実に実行してください。
+独自の戦略的決定を行わないでください - 戦略はすでに決定されています。
 
-1. [ACTION] Type: {strategy.action_type}
-   - Target: {strategy.target_player or "(None)"} {target_warning}
+1. [行動] タイプ: {strategy.action_type}
+   - ターゲット: {strategy.target_player or "(なし)"} {target_warning}
    
-2. [TONE & STYLE]
-   - Aggression: {strategy.aggression_level}/10 (1=Calm/Polite, 10=Furious/Assertive)
-   - Doubt: {strategy.doubt_level}/10 (1=Trusting, 10=Accusing)
-   - Focus: {strategy.value_focus} (Make your argument based on this)
-   - Instruction: "{strategy.style_instruction}"
+2. [トーンとスタイル]
+   - 積極性: {strategy.aggression_level}/10 (1=冷静/丁寧, 10=激昂/断定的)
+   - 疑念度: {strategy.doubt_level}/10 (1=信頼している, 10=強く疑っている)
+   - 焦点: {strategy.value_focus} (これに基づいて議論を組み立ててください)
+   - 指示: "{strategy.style_instruction}"
 
-3. [GOAL]
-   Achieve the action type with the specified tone.
-   Generate speech that EXECUTES these parameters.
+3. [目標]
+   指定されたトーンで、行動タイプを達成してください。
+   これらのパラメータを実行するような発言を生成してください。
 """
 
         # 自己言及禁止のガード
         self_name = memory.self_name
         anti_self_ref_section = f"""
 ==============================
-YOU ARE {self_name}
+あなたは {self_name} です
 ==============================
 
-- Use first-person (私/俺/僕)
-- NEVER say "{self_name}さん" or refer to yourself in third person
+- 一人称を使ってください（私/俺/僕など）
+- 決して「{self_name}さん」と言ったり、自分を三人称で呼ばないでください
 """
 
         return f"""
@@ -192,23 +192,23 @@ YOU ARE {self_name}
 {strategy_section}
 
 ==============================
-GAME LOG SUMMARY
+ゲームログ要約
 ==============================
 {log_summary}
 
 ==============================
-ROLE BELIEF ANALYSIS
+役職推定分析
 ==============================
 
-Your analysis of other players' likely roles:
+他プレイヤーの役職に関するあなたの分析:
 {belief_analysis}
 
-When generating your speech:
-1. EXECUTE the strategy parameters faithfully - do not reinterpret or override them
-2. Use the log summary for context to make your speech concrete and relevant
-3. Use belief analysis as reference information only (not for strategic decisions)
+発言生成時の注意:
+1. 戦略パラメータを誠実に実行してください - 再解釈や無視は禁止です。
+2. ログ要約を文脈として使用し、具体的で関連性のある発言にしてください。
+3. 役職推定分析は参考情報としてのみ使用してください（戦略的決定には使用しないでください）。
 
-Generate a public statement that executes the given strategy. Output JSON only.
+与えられた戦略を実行する公の発言を生成してください。出力はJSONのみです。
 """
 
 

@@ -47,38 +47,38 @@ def build_belief_analysis_section(memory: PlayerMemory) -> str:
         if top_prob >= 0.6:
             # 確信度が高い場合
             if top_role in ["werewolf", "madman"]:
-                suspicious.append(f"{player} is likely {top_role_ja} ({top_prob:.0%})")
+                suspicious.append(f"{player} は {top_role_ja} の可能性が高い ({top_prob:.0%})")
             else:
-                trusted.append(f"{player} seems to be {top_role_ja} ({top_prob:.0%})")
+                trusted.append(f"{player} は {top_role_ja} と思われる ({top_prob:.0%})")
         
         elif top_prob >= 0.4:
             # ある程度傾向が見える場合
             second_role, second_prob = sorted_roles[1]
             second_role_ja = ROLE_NAMES_JA.get(second_role, second_role)
-            uncertain.append(f"{player}: Leaning {top_role_ja} ({top_prob:.0%}), maybe {second_role_ja} ({second_prob:.0%})")
+            uncertain.append(f"{player}: {top_role_ja} の傾向 ({top_prob:.0%}), 次点 {second_role_ja} ({second_prob:.0%})")
             
         else:
             # よくわからない場合
-            uncertain.append(f"{player}: Unclear (top: {top_role_ja} {top_prob:.0%})")
+            uncertain.append(f"{player}: 不明 (最有力: {top_role_ja} {top_prob:.0%})")
 
     # セクション構築
     if trusted:
-        analysis_lines.append("Trusted Players:")
+        analysis_lines.append("信頼できるプレイヤー:")
         for line in trusted:
             analysis_lines.append(f"- {line}")
     
     if suspicious:
-        analysis_lines.append("Suspicious Players:")
+        analysis_lines.append("疑わしいプレイヤー:")
         for line in suspicious:
             analysis_lines.append(f"- {line}")
             
     if uncertain:
-        analysis_lines.append("Uncertain / Observation Needed:")
+        analysis_lines.append("判断保留 / 要観察:")
         for line in uncertain:
             analysis_lines.append(f"- {line}")
     
     if not analysis_lines:
-        return "(No strong beliefs regarding other players yet. Continue observing.)"
+        return "(他プレイヤーに関する確信はまだありません。観察を続けてください。)"
     
     return "\n".join(analysis_lines)
 
