@@ -66,7 +66,7 @@ class RoleDefinition(BaseModel):
     name: RoleName  # 役職名（例: "villager", "werewolf"）
     day_side: DaySide  # 昼の立場
     win_side: WinSide  # 勝利条件の帰属
-    ability_type: Literal["seer", "werewolf", "none"] = "none"  # 能力の種類
+    ability_type: str = "none"  # 能力の種類
     divine_result_as_role: RoleName | None = None  # 占われた時の見え方（Noneの場合はnameと同じ）
     # NOTE:
     # - day_side は「昼フェーズでの扱い」を表す

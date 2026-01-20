@@ -34,6 +34,7 @@ class RoleConfig(BaseModel):
     core_principle: str  # 役職の本質的な行動原則（1文）
     strategy_advice: str  # 戦略計画生成用の詳細アドバイス
     divine_result_as_role: Optional[str] = None  # 占われた時に見える役職名（None の場合は name を使用）
+    ability_type: str = "none"  # 能力の種類 ("none", "seer", "werewolf", etc.)
 
 
 class RoleRegistry:
@@ -109,6 +110,7 @@ role_registry.register(RoleConfig(
     description="特殊能力を持たない基本役職。議論と推理のみで人狼を見つける。",
     goal="人狼を処刑する",
     ability="",
+    ability_type="none",
     core_principle="論理的な推論で人狼を見つけ出し、他者を説得する。",
     strategy_advice="""\
 - **村人**として真実を語り、論理的な議論を展開してください。
@@ -127,6 +129,7 @@ role_registry.register(RoleConfig(
     description="夜フェーズに一人のプレイヤーの役職を占うことができる。",
     goal="人狼を処刑する",
     ability="夜に1人の役職を確認できる",
+    ability_type="seer",
     core_principle="確定情報を活用して、村を正しい投票へと導く。",
     strategy_advice="""\
 - **占い師CO**して、占い結果を共有することで信頼を得られます。
@@ -145,6 +148,7 @@ role_registry.register(RoleConfig(
     description="村を欺く敵陣営。処刑されないように振る舞う。",
     goal="処刑を回避して生き残る",
     ability="",
+    ability_type="werewolf",
     core_principle="村人を欺き、投票による追放を回避する。",
     strategy_advice="""\
 - **占い師CO（偽）** を行い、本物の占い師の信用を落とすことができます。
@@ -163,6 +167,7 @@ role_registry.register(RoleConfig(
     description="人狼陣営の味方。占い判定は「村人」だが、勝利条件は人狼側。",
     goal="人狼の勝利に貢献する",
     ability="",
+    ability_type="none",
     core_principle="誰が人狼か知らぬまま、混乱を招いて人狼を守る。",
     strategy_advice="""\
 - **占い師CO（偽）** で嘘の情報を流し、場を混乱させることができます。
