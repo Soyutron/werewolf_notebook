@@ -106,7 +106,12 @@ class StrategyPlan(BaseModel):
         default=[],
         description="戦略を達成するために推奨される行動のリスト（例: ['積極的に質問を投げかける', '疑わしいプレイヤーに投票を誘導する']）"
     )
-    co_policy: Literal["immediate", "wait_and_see", "no_co", "counter_co"] = Field(
+    co_policy: Literal[
+        "co_seer",       # 占い師としてCOする
+        "co_villager",   # 村人としてCOする
+        "wait_and_see",  # 様子見（後出しジャンケン）
+        "counter_co",    # 対抗COが出たらCOする
+    ] = Field(
         description="CO（カミングアウト）に関する基本方針"
     )
     intended_co_role: Optional[Literal["seer", "villager", "werewolf", "madman"]] = Field(
