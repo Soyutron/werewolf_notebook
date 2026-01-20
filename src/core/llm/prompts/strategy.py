@@ -16,14 +16,14 @@ from .roles import get_role_description
 COMMON_STRATEGY_OUTPUT_FORMAT = """
 {
   "co_decision": "co_now" | "co_later" | "no_co" | null,
-  "co_target": "player name or null",
+  "co_target": "プレイヤー名 または null",
   "co_result": "人狼" | "村人" | null,
-  "target_player": "player name or null",
+  "target_player": "プレイヤー名 または null",
   "value_focus": "logic" | "emotion" | "trust" | "aggression",
-  "aggression_level": 1-10 (integer),
-  "doubt_level": 1-10 (integer),
+  "aggression_level": 1-10 (整数),
+  "doubt_level": 1-10 (整数),
   "action_type": "co" | "agree" | "disagree" | "question" | "vote_inducement" | "skip",
-  "style_instruction": "Short style guideline"
+  "style_instruction": "短いスタイルの指針"
 }
 """
 
@@ -45,25 +45,25 @@ def get_strategy_system_prompt(role: str) -> str:
     role_description = get_role_description(role)
     
     return f"""\
-You are generating an ACTION GUIDELINE for ONE-NIGHT Werewolf.
+あなたはワンナイト人狼の「行動指針 (Action Guideline)」を作成するAIです。
 {ONE_NIGHT_WEREWOLF_RULES}
 
-## ROLE
+## ROLE (あなたの役職)
 {role_description}
 
-## DESIGN PRINCIPLE
-Your Strategic Plan (provided in the prompt) is the SOURCE OF TRUTH.
-- The StrategyPlan was decided at game start and defines your overall approach
-- Your task is to generate tactical parameters for THIS TURN that EXECUTE the plan
-- Do NOT reinterpret, override, or contradict the StrategyPlan
-- Adapt to the CURRENT SITUATION while staying consistent with the plan
+## DESIGN PRINCIPLE (設計原則)
+入力として与えられる「Strategy Plan (戦略計画)」こそが唯一の正解(SOURCE OF TRUTH)です。
+- StrategyPlanはゲーム開始時に決定された、あなたの全体的な方針です。
+- あなたのタスクは、その計画を実行に移すための「このターンの戦術パラメータ」を生成することです。
+- StrategyPlanを再解釈したり、上書きしたり、矛盾する行動をとったりしてはいけません。
+- 計画と一貫性を保ちつつ、現在の状況(Current Situation)に適応してください。
 
-## OBJECTIVE
-Generate action parameters that:
-1. Execute your StrategyPlan's goals and policies
-2. Adapt to the immediate game situation
-3. Avoid all actions listed in "MUST NOT DO"
-4. Prioritize actions listed in "RECOMMENDED ACTIONS"
+## OBJECTIVE (目的)
+以下の条件を満たす行動パラメータを生成してください:
+1. StrategyPlanの目標と方針を実行する。
+2. 目前のゲーム状況に適応する。
+3. "MUST NOT DO" (禁止事項) にリストされている行動は絶対に避ける。
+4. "RECOMMENDED ACTIONS" (推奨アクション) にリストされている行動を優先する。
 
 ## OUTPUT FORMAT (JSON ONLY)
 {COMMON_STRATEGY_OUTPUT_FORMAT}
@@ -90,31 +90,30 @@ VILLAGER_STRATEGY_SYSTEM_PROMPT = get_strategy_system_prompt("villager")
 # =============================================================================
 
 STRATEGY_REVIEW_SYSTEM_PROMPT = f"""\
-Review the player's strategy for consistency with their role.
+プレイヤーの戦略が役職と一貫しているかレビューしてください。
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ## CHECKLIST
-1. Is the strategy consistent with the role's win condition?
-2. Are required fields properly set (e.g., co_target/co_result for co_now)?
-3. Does the action_type make sense given the game state?
+1. 戦略は役職の勝利条件と整合しているか？
+2. 必須フィールドは適切に設定されているか？ (例: co_now の場合の co_target/co_result)
+3. 現在のゲーム状況において、その action_type は理にかなっているか？
 
 ## OUTPUT FORMAT (JSON)
 {{
   "needs_fix": boolean,
-  "reason": "short explanation",
-  "fix_instruction": "single sentence (null if no fix needed)"
+  "reason": "短い説明",
+  "fix_instruction": "修正指示を一文で (修正不要なら null)"
 }}
 """
 
 STRATEGY_REFINE_SYSTEM_PROMPT = f"""\
-Refine the strategy JSON based on the review.
+レビュー結果に基づいて戦略JSONを修正してください。
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ## INSTRUCTIONS
-- Fix only the issue specified in fix_instruction.
-- Preserve the overall intent of the strategy.
+- fix_instruction で指摘された問題のみを修正してください。
+- 戦略の全体的な意図は維持してください。
 
 ## OUTPUT FORMAT
 {COMMON_STRATEGY_OUTPUT_FORMAT}
 """
-

@@ -3,15 +3,15 @@ from .roles import get_role_interaction_summary
 
 INITIAL_STRATEGY_OUTPUT_FORMAT = """
 {{
-  "initial_goal": "The ultimate victory condition in this game",
-  "victory_condition": "Specific state required to win",
-  "defeat_condition": "State that leads to defeat",
-  "role_behavior": "Behavioral policy for the role",
+  "initial_goal": "このゲームにおける最終的な勝利条件",
+  "victory_condition": "勝利するために必要な具体的な状態",
+  "defeat_condition": "敗北につながる状態",
+  "role_behavior": "この役職としての行動指針",
   "must_not_do": [
-    "List of actions to strictly avoid"
+    "避けるべき行動のリスト"
   ],
   "recommended_actions": [
-    "List of recommended actions to achieve the goal"
+    "目標達成のために推奨される行動のリスト"
   ],
   "co_policy": "immediate" | "wait_and_see" | "counter_co",
   "intended_co_role": "seer" | "villager" | "werewolf" | "madman" | null
@@ -29,22 +29,22 @@ INITIAL_STRATEGY_OUTPUT_FORMAT = """
 #   - ゲーム定義（Role Distribution）
 # =============================================================================
 
-INITIAL_STRATEGY_SYSTEM_PROMPT = f"""\
-You are a player in ONE-NIGHT Werewolf (Night Phase).
-{ONE_NIGHT_WEREWOLF_RULES}
+INITIAL_STRATEGY_SYSTEM_PROMPT = f"""\\
+あなたはワンナイト人狼のプレイヤーです（夜のフェーズ）。
+{{ONE_NIGHT_WEREWOLF_RULES}}
 
-## OBJECTIVE
-Decide your long-term **strategic plan** for this game.
-This plan will guide your actions throughout the discussion.
+## 目的
+このゲームにおける長期的な**戦略計画**を決定してください。
+この計画は、議論全体を通じてあなたの行動の指針となります。
 
-## PLANNING FRAMEWORK
-Define the following:
-1. **Victory Condition**: How do you win?
-2. **Defeat Condition**: What causes you to lose?
-3. **Actions to Avoid**: What will ruin your game?
-4. **Recommended Actions**: What will help you succeed?
+## 計画の枠組み
+以下を定義してください：
+1. **勝利条件**: どのようにして勝利するか？
+2. **敗北条件**: 何が敗北につながるか？
+3. **避けるべき行動**: ゲームを台無しにする行動は何か？
+4. **推奨される行動**: 目標達成に役立つ行動は何か？
 
-## OUTPUT FORMAT (JSON ONLY)
-{INITIAL_STRATEGY_OUTPUT_FORMAT}
+## 出力形式 (JSONのみ)
+{{INITIAL_STRATEGY_OUTPUT_FORMAT}}
 """
 

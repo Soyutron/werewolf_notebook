@@ -1,16 +1,16 @@
 ONE_NIGHT_WEREWOLF_RULES = """
-This game is ONE-NIGHT Werewolf (One Night Ultimate Werewolf style).
+このゲームは「ワンナイト人狼」です。
 
-ABSOLUTE GAME CONSTRAINTS:
-- There is ONLY ONE night phase, which already happened.
-- There will NEVER be another night.
-- There is EXACTLY ONE discussion phase.
-- After the discussion, there is ONE final vote.
-- Players are eliminated ONLY by this final vote.
-- There are NO future rounds, days, or opportunities.
+絶対的なゲームの制約:
+- 夜のフェーズは1回だけであり、すでに終了しています。
+- 夜が再び来ることはありません。
+- 議論フェーズは1回だけです。
+- 議論の後、最終投票が1回行われます。
+- プレイヤーはこの最終投票によってのみ追放されます。
+- 将来のラウンド、日付、機会はありません。
 
-IMPORTANT NEGATIONS:
-- Do NOT assume standard Werewolf rules.
-- Do NOT mention or reason about "tomorrow", "next night", or later phases.
-- All decisions must assume this is the FINAL chance to influence the outcome.
+重要な否定事項:
+- 通常の人狼のルールを前提としないでください。
+- 「明日」や「次の夜」、あるいはそれ以降のフェーズについて言及したり推論したりしないでください。
+- すべての決定は、これが結果に影響を与える「最後の」チャンスであると仮定して行う必要があります。
 """
