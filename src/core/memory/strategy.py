@@ -121,56 +121,112 @@ class StrategyPlan(BaseModel):
     )
 
 
+# ===========================================
+# 5. Structured Action & Strategy (New)
+# ===========================================
+
+ActionTrigger = Literal[
+    "immediate",          # 今すぐ実行する（Main Action用）
+    "proactive",          # 自分から能動的に動く
+    "reactive_counter",   # 対抗COが出現した場合
+    "reactive_suspicion", # 自分や仲間が疑われた場合
+    "reactive_vote",      # 投票誘導があった場合
+    "observation",        # 特定の条件を監視する
+]
+
+ActionType = Literal[
+    "co",                 # カミングアウト
+    "vote_inducement",    # 投票誘導
+    "question",           # 質問・詰問
+    "agree",              # 同意・便乗
+    "disagree",           # 反論・否定
+    "observe",            # 様子見・静観
+    "skip",               # 特になし
+]
+
+class COContent(BaseModel):
+    """
+    CO（カミングアウト）を行う際の詳細情報
+    """
+    role: Literal["seer", "medium", "bodyguard", "villager", "werewolf", "madman"] = Field(
+        description="COする役職"
+    )
+    result: Optional[str] = Field(
+        default=None,
+        description="結果がある場合の内容（例: '安西先生は人狼', '白'）"
+    )
+    target: Optional[str] = Field(
+        default=None,
+        description="結果の対象プレイヤー"
+    )
+    reason: Optional[str] = Field(
+        default=None,
+        description="COする理由（発言生成のヒント）"
+    )
+
+class TurnAction(BaseModel):
+    """
+    1ターンにおける具体的な行動単位。
+    メイン行動としても、条件付き行動としても使用できる。
+    """
+    action_type: ActionType = Field(description="行動の種類")
+    trigger: ActionTrigger = Field(description="行動のトリガー条件")
+    target_player: Optional[str] = Field(default=None, description="行動の対象")
+    description: str = Field(description="行動の具体的な内容・指示")
+    
+    # オプション: COする場合の詳細
+    co_content: Optional[COContent] = Field(default=None, description="COする場合の詳細情報")
+    
+    # オプション: 投票誘導や疑念向けの場合の強さ
+    pressure: int = Field(default=5, ge=1, le=10, description="圧力・強さ (1-10)")
+
+
 class Strategy(BaseModel):
     """
     議論フェーズごとの具体的な行動指針（Action Guideline）。
     StrategyPlanに基づき、そのターンの状況に合わせて生成される。
+    
+    [変更点]
+    フラグ管理のCOではなく、メイン行動と条件付き行動のリストとして再定義。
     """
-
     kind: Literal["strategy"] = "strategy"
     
-    # === CO判断（占い師・人狼・狂人向け） ===
-    co_decision: Optional[Literal["co_now", "co_later", "no_co"]] = Field(
-        default=None,
-        description="CO判断: co_now=即CO, co_later=様子見, no_co=COしない"
-    )
-    co_target: Optional[str] = Field(
-        default=None,
-        description="CO時に結果を伝える対象プレイヤー名"
-    )
-    co_result: Optional[str] = Field(
-        default=None,
-        description="CO時に伝える結果（例: '人狼', '村人'）"
+    # 1. Main Action: このターンで最も優先すべき行動
+    main_action: TurnAction = Field(
+        description="このターンの主体となる行動（通常は trigger='immediate' または 'proactive'）"
     )
     
-    # === 戦略パラメータ（抽象） ===
-    # 自然言語ではなく、パラメータで方針を決定する
-    
-    target_player: Optional[str] = Field(
-        default=None,
-        description="このターンの主なターゲット（攻撃・質問・保護対象）"
+    # 2. Conditional Actions: 特定の条件が満たされた場合に発動する行動
+    # 例: "対抗COが出たら即座に反論する", "自分に投票が集まりそうならCOする"
+    conditional_actions: List[TurnAction] = Field(
+        default=[],
+        description="条件付きその他行動（優先順）"
     )
     
-    value_focus: Literal["logic", "emotion", "trust", "aggression"] = Field(
+    # 3. Tone / Style Parameters (以前のパラメータを整理)
+    style_focus: Literal["logic", "emotion", "trust", "aggression"] = Field(
         default="logic",
-        description="発言の重視点: logic=論理矛盾の指摘, emotion=感情への訴え, trust=信用形成, aggression=攻撃性"
+        description="発言の重視点"
+    )
+    text_style: str = Field(
+        description="文体や口調の指示（例: '冷静に', '感情的に', '混乱した様子で'）"
     )
 
-    aggression_level: int = Field(
-        description="攻撃性パラメータ (1-10): 1=防御的・穏便, 10=超攻撃的・断定"
+    # 4. Status Awareness (旧 doubt_level 等の代わりに状況認識を含める)
+    current_priority: str = Field(
+        description="現在の最優先事項（例: '潜伏して生き延びる', '偽占い師を破綻させる'）"
     )
     
-    doubt_level: int = Field(
-        description="疑念の強さ (1-10): 1=信じている, 10=完全に疑っている（嘘つき扱い）"
-    )
-    
-    action_type: Literal["co", "agree", "disagree", "question", "vote_inducement", "skip"] = Field(
-        description="具体的な行動タイプ"
-    )
-    
-    style_instruction: str = Field(
-        description="発言のスタイルの指示（例: '冷静に事実を並べる', '困惑した様子で問いかける', '断定的に追い詰める'）"
-    )
+    def get_co_action(self) -> Optional[TurnAction]:
+        """
+        COを含むアクションがあれば返す（Main優先）
+        """
+        if self.main_action.action_type == "co":
+            return self.main_action
+        for action in self.conditional_actions:
+            if action.action_type == "co":
+                return action
+        return None
 
 
 class StrategyReview(BaseModel):

@@ -109,73 +109,59 @@ class SpeakGenerator:
 
         # 戦略コンテキストの構築
         strategy_section = ""
-        co_enforcement_section = ""
         
         if strategy is not None:
-            # CO強制セクション（co_now の場合）
-
-            if strategy.co_decision == "co_now":
-                # Check for unknown result
-                result_instruction = f"3. 結果: {strategy.co_result}"
-                
-                if not strategy.co_result or strategy.co_result.lower() == "unknown":
-                    result_instruction = "3. 結果: あなたのゲームプランに基づいて、結果（白か黒か）を自分自身で決定してください。"
-
-                co_enforcement_section = f"""
+            # 1. Main Action Interpretation
+            main_action = strategy.main_action
+            
+            # CO Action Special Handling
+            if main_action.action_type == "co" and main_action.co_content:
+                co = main_action.co_content
+                strategy_section += f"""
 ==============================
-CO強制 (必ず実行してください)
+MAIN ACTION: CO (MUST EXECUTE)
 ==============================
+You MUST Come Out (CO) in this turn.
+- Title: {co.role} CO
+- Target: {co.target or "None"}
+- Result: {co.result or "decide yourself based on game log"}
+- Reason: {co.reason or "strategic necessity"}
 
-あなたの戦略は、今すぐCO（カミングアウト）することを要求しています。
-
-あなたの発言には、以下のすべてを必ず含めてください:
-1. 「私は占い師です」または同等のCO発言
-2. ターゲット: {strategy.co_target}
-{result_instruction}
-
-
-
-重要なスタイルルール:
-- 冷静かつ事実に基づいて報告してください。
-- 感嘆符（！）を多用しないでください。
-- 尋問調や攻撃的な口調を避けてください。
-- 過度にドラマチックにしないでください。
-
-COをスキップしないでください。匂わせるだけにしないでください。冷静に、しかし明確に宣言してください。
+Instruction: {main_action.description}
+"""
+            else:
+                strategy_section += f"""
+==============================
+MAIN ACTION: {main_action.action_type.upper()}
+==============================
+- Trigger: {main_action.trigger}
+- Target: {main_action.target_player or "None"}
+- Instruction: {main_action.description}
 """
             
-            # ターゲットが未発言かどうかのチェック
-            target_warning = ""
-            if strategy.target_player and strategy.target_player not in speakers:
-                target_warning = f"""
-!!! 警告: ターゲット '{strategy.target_player}' はまだ発言していません !!!
-- 彼らが何か言ったと主張することはできません。
-- 彼らの発言の矛盾を指摘することはできません。
-- 彼らに発言を求めたり、沈黙を怪しむことしかできません。
-- 彼らが発言したことを前提とする戦略指示は無視してください。
-"""
+            # 2. Conditional Actions
+            if strategy.conditional_actions:
+                strategy_section += "\n[CONDITIONAL ACTIONS]\n"
+                for i, action in enumerate(strategy.conditional_actions, 1):
+                    co_info = f" (CO: {action.co_content.role})" if action.co_content else ""
+                    strategy_section += f"{i}. IF [{action.trigger}]: {action.action_type.upper()}{co_info} -> {action.description}\n"
 
-            strategy_section = f"""
+            # 3. Style & Tone
+            strategy_section += f"""
 ==============================
-戦略パラメータ (これを実行してください - 再解釈禁止)
+STYLE & TONE
 ==============================
-
-あなたの行動はこれらのパラメータによって決定されます。誠実に実行してください。
-独自の戦略的決定を行わないでください - 戦略はすでに決定されています。
-
-1. [行動] タイプ: {strategy.action_type}
-   - ターゲット: {strategy.target_player or "(なし)"} {target_warning}
-   
-2. [トーンとスタイル]
-   - 積極性: {strategy.aggression_level}/10 (1=冷静/丁寧, 10=激昂/断定的)
-   - 疑念度: {strategy.doubt_level}/10 (1=信頼している, 10=強く疑っている)
-   - 焦点: {strategy.value_focus} (これに基づいて議論を組み立ててください)
-   - 指示: "{strategy.style_instruction}"
-
-3. [目標]
-   指定されたトーンで、行動タイプを達成してください。
-   これらのパラメータを実行するような発言を生成してください。
+- Focus: {strategy.style_focus}
+- Style Instruction: "{strategy.text_style}"
+- Current Priority: "{strategy.current_priority}"
 """
+            
+            # Target warning (Keep existing logic)
+            if main_action.target_player and main_action.target_player not in speakers:
+                 strategy_section += f"\n(Note: Target '{main_action.target_player}' has not spoken yet. Adjust your wording to avoid claiming they said something.)\n"
+
+        else:
+             strategy_section = "(No Strategy Provided - Act freely based on your role)"
 
         # policy_weights セクション（マイルストーン状態から算出された重み）
         policy_weights_section = ""
@@ -208,7 +194,6 @@ COをスキップしないでください。匂わせるだけにしないでく
 
         return f"""
 {anti_self_ref_section}
-{co_enforcement_section}
 {strategy_section}
 {policy_weights_section}
 

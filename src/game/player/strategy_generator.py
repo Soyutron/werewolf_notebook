@@ -133,7 +133,20 @@ CURRENT SITUATION
 {log_summary}
 
 Based on your Strategic Plan and the Current Situation, generate your next action guideline.
-Output JSON only.
+
+[GUIDELINE FOR GENERATION]
+1. Main Action: Decide the ONE most important action to take right now (trigger='immediate' or 'proactive').
+   - If you want to CO, set action_type='co' and provide co_content.
+   - If you want to vote/attack, set action_type='vote_inducement' or 'question'.
+   - If nothing special, use 'observe'.
+
+2. Conditional Actions: List actions to take IF specific things happen during this turn.
+   - e.g. "If someone claims to be Seer (counter-co), I will counter-claim immediately."
+   - e.g. "If I am heavily suspected, I will reveal my role."
+
+3. Style: define the tone and focus of your speech.
+
+Output JSON only conforming to the Strategy schema.
 """
 
 # --- グローバルインスタンス ---
