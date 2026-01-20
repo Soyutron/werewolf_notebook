@@ -13,7 +13,16 @@ from pydantic import BaseModel, Field, model_validator
 
 from src.core.types.roles import RoleName
 from src.core.types.events import GameEvent, PlayerRequest, PlayerRequestType
-from src.core.memory import Reflection, Reaction, Strategy, StrategyPlan, StrategyReview, SpeakReview
+from src.core.memory import (
+    Reflection,
+    Reaction,
+    Strategy,
+    StrategyPlan,
+    StrategyReview,
+    SpeakReview,
+    PlayerMilestoneStatus,
+    PlayerPolicyWeights,
+)
 from src.core.memory.speak import Speak
 
 __all__ = [
@@ -138,6 +147,17 @@ class PlayerMemory(BaseModel):
     last_summarized_event_index: int = 0
     # 最後に要約したイベントのインデックス
     # 次回は observed_events[last_summarized_event_index:] を対象とする
+
+    # =========================
+    # 可変情報（毎ターン更新）
+    # =========================
+    milestone_status: Optional[PlayerMilestoneStatus] = None
+    # 各マイルストーンの現在の状態
+    # 議論フェーズごと、またはターンごとに更新
+
+    policy_weights: Optional[PlayerPolicyWeights] = None
+    # milestone_status から動的に算出される発言方針パラメータ
+    # speak_generator の入力として利用
 
 
 # =========================

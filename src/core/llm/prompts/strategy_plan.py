@@ -13,8 +13,18 @@ INITIAL_STRATEGY_OUTPUT_FORMAT = """
   "recommended_actions": [
     "目標達成のために推奨される行動のリスト"
   ],
-  "co_policy": "immediate" | "wait_and_see" | "counter_co",
-  "intended_co_role": "seer" | "villager" | "werewolf" | "madman" | null
+  "co_policy": "immediate" | "wait_and_see" | "no_co" | "counter_co",
+  "intended_co_role": "seer" | "villager" | "werewolf" | "madman" | null,
+  "milestone_plan": {{
+    "milestones": [
+      {{
+        "id": "一意なID（例: ms_co_declaration）",
+        "description": "期待するシグナルの内容",
+        "trigger_condition": "発生とみなす条件",
+        "importance": "high" | "medium" | "low"
+      }}
+    ]
+  }}
 }}
 """
 
@@ -43,8 +53,8 @@ INITIAL_STRATEGY_SYSTEM_PROMPT = f"""\\
 2. **敗北条件**: 何が敗北につながるか？
 3. **避けるべき行動**: ゲームを台無しにする行動は何か？
 4. **推奨される行動**: 目標達成に役立つ行動は何か？
+5. **マイルストーン計画**: 議論中に観測すべき重要なシグナル（例: COの発生、対抗CO、矛盾の発覚など）
 
 ## 出力形式 (JSONのみ)
 {{INITIAL_STRATEGY_OUTPUT_FORMAT}}
 """
-

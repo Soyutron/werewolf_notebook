@@ -1,11 +1,88 @@
 # src/core/memory/strategy.py
-from typing import List, Optional, Literal
+from typing import List, Optional, Literal, Dict
 from pydantic import BaseModel, Field
 
 
+# ===========================================
+# 1. Milestone (固定情報)
+# ===========================================
+class PlayerMilestone(BaseModel):
+    """
+    議論において期待する個別のシグナル・イベント。
+    strategy_plan から導出される。
+    """
+    id: str = Field(description="マイルストーンの一意なID")
+    description: str = Field(description="期待するシグナルの内容（例: '誰かが占いCOする', '対抗COが発生する'）")
+    trigger_condition: str = Field(description="このマイルストーンが発生とみなされる条件")
+    importance: Literal["high", "medium", "low"] = Field(
+        default="medium",
+        description="重要度（戦略に与える影響の大きさ）"
+    )
+
+
+class PlayerMilestonePlan(BaseModel):
+    """
+    マイルストーンの一覧（固定情報）。
+    戦略計画から導出され、ゲーム中は書き換え禁止。
+    """
+    milestones: List[PlayerMilestone] = Field(
+        default_factory=list,
+        description="監視すべきマイルストーンのリスト"
+    )
+
+
+# ===========================================
+# 2. Milestone Status (可変情報)
+# ===========================================
+class PlayerMilestoneStatus(BaseModel):
+    """
+    各マイルストーンの現在の状態（可変情報）。
+    議論フェーズごと、またはターンごとに更新される。
+    """
+    status: Dict[str, Literal["not_occurred", "occurred", "strong", "weak"]] = Field(
+        default_factory=dict,
+        description="マイルストーンIDとその状態のマッピング"
+    )
+
+
+# ===========================================
+# 3. Policy Weights (可変情報)
+# ===========================================
+class PlayerPolicyWeights(BaseModel):
+    """
+    milestone_status の参照結果から動的に算出される重み。
+    発言方針の調整にのみ使用する。
+    speak_generator の入力として利用する。
+    """
+    aggression: int = Field(
+        default=5, ge=1, le=10,
+        description="攻撃性 (1: 防御的・穏便 〜 10: 攻撃的・断定的)"
+    )
+    trust_building: int = Field(
+        default=5, ge=1, le=10,
+        description="信頼構築 (1: 疑念優先 〜 10: 信頼構築優先)"
+    )
+    information_reveal: int = Field(
+        default=5, ge=1, le=10,
+        description="情報開示度 (1: 秘匿 〜 10: 積極的に情報開示)"
+    )
+    urgency: int = Field(
+        default=5, ge=1, le=10,
+        description="緊急度 (1: 慎重・様子見 〜 10: 急いで行動)"
+    )
+    focus_player: Optional[str] = Field(
+        default=None,
+        description="現在注目すべきプレイヤー（いれば）"
+    )
+
+
+# ===========================================
+# 4. Strategy Plan (固定情報)
+# ===========================================
 class StrategyPlan(BaseModel):
     """
     ゲーム全体を通じた長期的な戦略計画（Night Phaseで生成）。
+    ゲーム中は一切書き換えを行わない。
     """
     kind: Literal["strategy_plan"] = "strategy_plan"
 
@@ -35,6 +112,12 @@ class StrategyPlan(BaseModel):
     intended_co_role: Optional[Literal["seer", "villager", "werewolf", "madman"]] = Field(
         default=None,
         description="COする予定の役職（COしない場合はNone）"
+    )
+    
+    # マイルストーン計画（戦略から導出される固定情報）
+    milestone_plan: PlayerMilestonePlan = Field(
+        default_factory=PlayerMilestonePlan,
+        description="戦略計画から導出される、議論中に観測したい期待シグナルの一覧"
     )
 
 
