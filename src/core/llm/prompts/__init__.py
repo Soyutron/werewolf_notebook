@@ -12,6 +12,7 @@ from .player import (
     SPEAK_REFINE_SYSTEM_PROMPT,
 )
 from .strategy import (
+    get_strategy_system_prompt,
     SEER_STRATEGY_SYSTEM_PROMPT,
     WEREWOLF_STRATEGY_SYSTEM_PROMPT,
     MADMAN_STRATEGY_SYSTEM_PROMPT,
@@ -20,6 +21,14 @@ from .strategy import (
     STRATEGY_REFINE_SYSTEM_PROMPT,
 )
 from .strategy_plan import INITIAL_STRATEGY_SYSTEM_PROMPT
+from .roles import (
+    ROLE_NAMES,
+    ROLE_DEFINITIONS,
+    get_role_name_ja,
+    get_role_strategy_section,
+    get_role_requirements,
+    get_role_interaction_hints,
+)
 
 __all__ = [
     "ONE_NIGHT_WEREWOLF_RULES",
@@ -32,6 +41,7 @@ __all__ = [
     "SPEAK_SYSTEM_PROMPT",
     "SPEAK_REVIEW_SYSTEM_PROMPT",
     "SPEAK_REFINE_SYSTEM_PROMPT",
+    "get_strategy_system_prompt",
     "SEER_STRATEGY_SYSTEM_PROMPT",
     "WEREWOLF_STRATEGY_SYSTEM_PROMPT",
     "MADMAN_STRATEGY_SYSTEM_PROMPT",
@@ -39,4 +49,11 @@ __all__ = [
     "STRATEGY_REVIEW_SYSTEM_PROMPT",
     "STRATEGY_REFINE_SYSTEM_PROMPT",
     "INITIAL_STRATEGY_SYSTEM_PROMPT",
+    "ROLE_NAMES",
+    "ROLE_DEFINITIONS",
+    "get_role_name_ja",
+    "get_role_strategy_section",
+    "get_role_requirements",
+    "get_role_interaction_hints",
 ]
+

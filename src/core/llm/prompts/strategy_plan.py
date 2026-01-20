@@ -1,4 +1,5 @@
 from .base import ONE_NIGHT_WEREWOLF_RULES
+from .roles import get_role_interaction_hints
 
 INITIAL_STRATEGY_OUTPUT_FORMAT = """
 {{
@@ -17,14 +18,8 @@ INITIAL_STRATEGY_OUTPUT_FORMAT = """
 }}
 """
 
-ROLE_INTERACTION_HINTS = """
-## ROLE INTERACTIONS & HINTS
-Consider how other roles might act:
-- **Seer**: Can see 1 player. High info, high credibility target.
-- **Werewolf**: Must deceive other players to avoid being identified. Wins if the Werewolf team wins.
-- **Madman**: Wins if Werewolf wins. Zero info. If investigated by the Seer, the result is always “Villager.” Needs to confuse/act as bait/protect Werewolf.
-- **Villager**: No info. Needs to deduce from others' claims and inconsistencies.
-"""
+# 役職間相互作用ヒント（roles.py から取得）
+ROLE_INTERACTION_HINTS = get_role_interaction_hints()
 
 INITIAL_STRATEGY_SYSTEM_PROMPT = f"""\
 You are a player in ONE-NIGHT Werewolf (Night Phase).

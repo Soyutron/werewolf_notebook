@@ -2,23 +2,10 @@
 from typing import Optional, Dict
 
 from src.core.llm.client import LLMClient
-from src.core.llm.prompts import (
-    SEER_STRATEGY_SYSTEM_PROMPT,
-    WEREWOLF_STRATEGY_SYSTEM_PROMPT,
-    MADMAN_STRATEGY_SYSTEM_PROMPT,
-    VILLAGER_STRATEGY_SYSTEM_PROMPT,
-)
+from src.core.llm.prompts.strategy import get_strategy_system_prompt
 from src.core.memory.strategy import Strategy, StrategyPlan
 from src.core.types.player import PlayerMemory
 from src.config.llm import create_strategy_llm
-
-# 役職ごとのプロンプトマッピング
-ROLE_STRATEGY_PROMPTS: Dict[str, str] = {
-    "seer": SEER_STRATEGY_SYSTEM_PROMPT,
-    "werewolf": WEREWOLF_STRATEGY_SYSTEM_PROMPT,
-    "madman": MADMAN_STRATEGY_SYSTEM_PROMPT,
-    "villager": VILLAGER_STRATEGY_SYSTEM_PROMPT,
-}
 
 
 class StrategyGenerator:
@@ -47,9 +34,7 @@ class StrategyGenerator:
             plan = memory.strategy_plan
         
         role = memory.self_role
-        system_prompt = ROLE_STRATEGY_PROMPTS.get(
-            role, VILLAGER_STRATEGY_SYSTEM_PROMPT
-        )
+        system_prompt = get_strategy_system_prompt(role)
 
         prompt = self._build_guideline_prompt(memory, plan)
 

@@ -1,6 +1,7 @@
 from typing import Optional, Union
 
 from src.core.llm.client import LLMClient
+from src.core.llm.prompts import ONE_NIGHT_WEREWOLF_RULES
 from src.core.memory.vote import VoteOutput
 from src.core.types import (
     PlayerMemory,
@@ -77,7 +78,7 @@ class VoteGenerator:
         discussion_history = "\n".join(f"- {e}" for e in reversed(memory.history))
 
         return f"""
-You are an AI player in a ONE-NIGHT Werewolf game.
+{ONE_NIGHT_WEREWOLF_RULES}
 
 Your task is to decide **who to vote for**.
 

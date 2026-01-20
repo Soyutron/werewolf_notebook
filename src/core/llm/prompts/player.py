@@ -1,4 +1,5 @@
 from .base import ONE_NIGHT_WEREWOLF_RULES
+from .roles import get_role_requirements
 
 # =============================================================================
 # SHARED FRAGMENTS
@@ -17,13 +18,8 @@ GAME CONSTRAINTS:
 - This is the FINAL chance to influence the outcome. No retries.
 """
 
-_ROLE_REQUIREMENTS = """
-ROLE REQUIREMENTS:
-- 占い師 (Seer): MUST CO with specific result (Target + White/Black). Omitting result is FORBIDDEN.
-- 狂人 (Madman): MUST mislead the village. Tone: calm, factual.
-- 人狼 (Werewolf): MUST survive (fake CO allowed). Avoid vagueness.
-- 村人 (Villager): MUST be active. Silence or neutrality is unacceptable.
-"""
+# 役職要件（roles.py から取得）
+_ROLE_REQUIREMENTS = get_role_requirements()
 
 _FACTUAL_GROUNDING = """
 FACTUAL GROUNDING:

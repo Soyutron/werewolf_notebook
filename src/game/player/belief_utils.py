@@ -8,14 +8,10 @@ LLMが自然に解釈できる文脈表現への変換を担当する。
 """
 
 from src.core.types import PlayerMemory
+from src.core.llm.prompts.roles import ROLE_NAMES
 
-# 役職名の日本語マッピング
-ROLE_NAMES_JA = {
-    "villager": "村人",
-    "seer": "占い師",
-    "werewolf": "人狼",
-    "madman": "狂人",
-}
+# 役職名の日本語マッピング（roles.py から取得）
+ROLE_NAMES_JA = {k: v["ja"] for k, v in ROLE_NAMES.items()}
 
 
 def build_belief_analysis_section(memory: PlayerMemory) -> str:

@@ -1,4 +1,5 @@
 from .base import ONE_NIGHT_WEREWOLF_RULES
+from .roles import get_role_strategy_section
 
 # =============================================================================
 # STRATEGY GENERATION PROMPTS
@@ -20,80 +21,40 @@ COMMON_STRATEGY_OUTPUT_FORMAT = """
 
 
 # =============================================================================
-# ROLE-SPECIFIC STRATEGY PROMPTS
+# DYNAMIC STRATEGY PROMPT GENERATOR
 # =============================================================================
 
-SEER_STRATEGY_SYSTEM_PROMPT = f"""\
-You are the 占い師 (Seer).
+def get_strategy_system_prompt(role: str) -> str:
+    """
+    指定された役職に対応する戦略生成用システムプロンプトを返す。
+    
+    Args:
+        role: 役職名 (villager, seer, werewolf, madman)
+    
+    Returns:
+        役職固有の戦略システムプロンプト
+    """
+    role_strategy = get_role_strategy_section(role)
+    
+    return f"""\
 {ONE_NIGHT_WEREWOLF_RULES}
 
-## ROLE STRATEGY
-- **Truth**: You know the true role of one player.
-- **Goal**: Persuade the village to trust your result.
-- **Parameters**:
-  - `aggression_level`: High when attacking liars.
-  - `value_focus`: "logic" (contradictions) or "trust" (appearing stable).
-- **Actions**:
-  - `co`: Reveal your result immediately (High Priority).
-  - `vote_inducement`: Lead the vote against liars.
-
+{role_strategy}
 ## OUTPUT FORMAT (JSON ONLY)
 {COMMON_STRATEGY_OUTPUT_FORMAT}
 """
 
-WEREWOLF_STRATEGY_SYSTEM_PROMPT = f"""\
-You are 人狼 (Werewolf).
-{ONE_NIGHT_WEREWOLF_RULES}
 
-## ROLE STRATEGY
-- **Goal**: SURVIVE.
-- **Parameters**:
-  - `aggression_level`: Variable. Too high = suspicious, too low = weak.
-  - `doubt_level`: Fake suspicion to fit in.
-- **Actions**:
-  - `co` (FAKE): Claim Seer/Villager to misdirect.
-  - `agree`: Support potential allies (Madman).
-  - `question`: Deflect suspicion.
+# =============================================================================
+# LEGACY ROLE-SPECIFIC PROMPTS (Deprecated - Use get_strategy_system_prompt)
+# =============================================================================
+# 下位互換性のため維持。新規コードは get_strategy_system_prompt() を使用すること。
 
-## OUTPUT FORMAT (JSON ONLY)
-{COMMON_STRATEGY_OUTPUT_FORMAT}
-"""
+SEER_STRATEGY_SYSTEM_PROMPT = get_strategy_system_prompt("seer")
+WEREWOLF_STRATEGY_SYSTEM_PROMPT = get_strategy_system_prompt("werewolf")
+MADMAN_STRATEGY_SYSTEM_PROMPT = get_strategy_system_prompt("madman")
+VILLAGER_STRATEGY_SYSTEM_PROMPT = get_strategy_system_prompt("villager")
 
-MADMAN_STRATEGY_SYSTEM_PROMPT = f"""\
-You are 狂人 (Madman).
-{ONE_NIGHT_WEREWOLF_RULES}
-
-## ROLE STRATEGY
-- **Goal**: Help the Werewolf win.
-- **Parameters**:
-  - `aggression_level`: Can be erratic or high to disrupt.
-  - `value_focus`: "emotion" or "aggression" to create chaos.
-- **Actions**:
-  - `co` (FAKE): Counter-claim Seer (High Priority).
-  - `disagree`: Create conflict.
-  - `vote_inducement`: Push for bad execution.
-
-## OUTPUT FORMAT (JSON ONLY)
-{COMMON_STRATEGY_OUTPUT_FORMAT}
-"""
-
-VILLAGER_STRATEGY_SYSTEM_PROMPT = f"""\
-You are 村人 (Villager).
-{ONE_NIGHT_WEREWOLF_RULES}
-
-## ROLE STRATEGY
-- **Goal**: Find the Werewolf.
-- **Parameters**:
-  - `aggression_level`: Moderate. Rise if someone is clearly lying.
-  - `value_focus`: "logic" (deduction).
-- **Actions**:
-  - `agree` / `disagree`: Validate claims.
-  - `question`: Clarify suspicion.
-  - `vote_inducement`: When confident.
-
-## OUTPUT FORMAT (JSON ONLY)
-{COMMON_STRATEGY_OUTPUT_FORMAT}
-"""
 
 # =============================================================================
 # REVIEW & REFINE
@@ -124,3 +85,4 @@ Input: original_strategy, review_reason, fix_instruction
 Output: Corrected JSON using common format.
 {COMMON_STRATEGY_OUTPUT_FORMAT}
 """
+
