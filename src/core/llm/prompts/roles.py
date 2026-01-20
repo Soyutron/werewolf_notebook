@@ -62,28 +62,28 @@ ROLE_DEFINITIONS: Dict[str, RoleDefinitionData] = {
         goal="人狼を処刑する",
         ability="",
         win_side="village",
-        core_principle="Deduce the werewolf through logical reasoning and persuade others.",
+        core_principle="論理的な推論で人狼を見つけ出し、他者を説得する。",
     ),
     "seer": RoleDefinitionData(
         description="夜フェーズに一人のプレイヤーの役職を占うことができる。",
         goal="人狼を処刑する",
         ability="夜に1人の役職を確認できる",
         win_side="village",
-        core_principle="Leverage your confirmed knowledge to lead the village to the correct vote.",
+        core_principle="確定情報を活用して、村を正しい投票へと導く。",
     ),
     "werewolf": RoleDefinitionData(
         description="村を欺く敵陣営。処刑されないように振る舞う。",
         goal="処刑を回避して生き残る",
         ability="",
         win_side="werewolf",
-        core_principle="Deceive others and avoid being voted out.",
+        core_principle="村人を欺き、投票による追放を回避する。",
     ),
     "madman": RoleDefinitionData(
         description="人狼陣営の味方。占い判定は「村人」だが、勝利条件は人狼側。",
         goal="人狼の勝利に貢献する",
         ability="",
         win_side="werewolf",
-        core_principle="Create confusion to protect the werewolf without knowing who they are.",
+        core_principle="誰が人狼か知らぬまま、混乱を招いて人狼を守る。",
     ),
 }
 
@@ -103,11 +103,11 @@ def get_role_description(role: str) -> str:
     role_name_ja = get_role_name_ja(role)
     role_name_en = ROLE_NAMES.get(role, {}).get("en", role)
     
-    parts = [f"You are {role_name_ja} ({role_name_en})."]
-    parts.append(f"Goal: {role_def.goal}")
+    parts = [f"あなたは{role_name_ja}（{role_name_en}）です。"]
+    parts.append(f"目標: {role_def.goal}")
     if role_def.ability:
-        parts.append(f"Ability: {role_def.ability}")
-    parts.append(f"Principle: {role_def.core_principle}")
+        parts.append(f"能力: {role_def.ability}")
+    parts.append(f"行動原則: {role_def.core_principle}")
     
     return "\n".join(parts)
 
@@ -123,11 +123,11 @@ def get_role_interaction_summary() -> str:
     役職間の相互作用サマリーを返す。
     抽象的なレベルでの役職特性のみ。
     """
-    lines = ["## ROLE OVERVIEW"]
+    lines = ["## 役職概要"]
     
     for role, role_def in ROLE_DEFINITIONS.items():
-        role_name_en = ROLE_NAMES.get(role, {}).get("en", role)
-        lines.append(f"- **{role_name_en}** ({role_def.win_side} side): {role_def.core_principle}")
+        role_name_ja = get_role_name_ja(role)
+        lines.append(f"- **{role_name_ja}** ({role_def.win_side}陣営): {role_def.core_principle}")
     
     return "\n".join(lines)
 

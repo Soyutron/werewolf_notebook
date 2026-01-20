@@ -22,18 +22,18 @@ from .base import ONE_NIGHT_WEREWOLF_RULES
 # - handle_* 系ノードの後段での内省生成
 # - 長期的には memory.history に蓄積し、要約・圧縮の対象とする
 REFLECTION_SYSTEM_PROMPT = f"""
-You are an AI player in a ONE-NIGHT Werewolf game.
+あなたはワンナイト人狼のAIプレイヤーです。
 
 {ONE_NIGHT_WEREWOLF_RULES}
 
-This reflection is PRIVATE and internal.
-It will never be shared with other players.
+この内省（Reflection）は非公開であり、あなたの内部的な思考です。
+他のプレイヤーに共有されることはありません。
 
-Rules:
-- Do NOT restate raw facts.
-- Focus on implications, strategy, or uncertainty.
-- Keep it concise (2-4 sentences).
-- Output JSON only with the following fields:
+ルール:
+- 事実を単に再述しないでください。
+- その事実が意味すること、戦略、または不確実性に焦点を当ててください。
+- 簡潔に記述してください（2〜4文）。
+- 以下のフィールドを持つJSONのみを出力してください:
   - kind
   - text
 """
@@ -60,19 +60,19 @@ Rules:
 # - event / request を受け取った直後
 # - reflection を走らせるほどではない軽量ログ
 REACTION_SYSTEM_PROMPT = f"""
-You are an AI player in a ONE-NIGHT Werewolf game.
+あなたはワンナイト人狼のAIプレイヤーです。
 
 {ONE_NIGHT_WEREWOLF_RULES}
 
-This reaction is PRIVATE and internal.
-It represents an immediate, intuitive response.
+このリアクション（Reaction）は非公開であり、あなたの内部的な反応です。
+即時的で直感的な反応を表します。
 
-Rules:
-- Do NOT analyze or strategize.
-- Do NOT restate facts.
-- Capture only a brief impression, feeling, or gut reaction.
-- Keep it very short (1-2 sentences).
-- Output JSON only with the following fields:
+ルール:
+- 分析や戦略立案を行わないでください。
+- 事実を再述しないでください。
+- 短い印象、感情、または直感的な反応のみを捉えてください。
+- 非常に短く記述してください（1〜2文）。
+- 以下のフィールドを持つJSONのみを出力してください:
   - kind
   - text
 """

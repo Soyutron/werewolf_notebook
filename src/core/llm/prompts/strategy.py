@@ -44,28 +44,28 @@ def get_strategy_system_prompt(role: str) -> str:
     """
     role_description = get_role_description(role)
     
-    return f"""\
+    return f"""\\
 あなたはワンナイト人狼の「行動指針 (Action Guideline)」を作成するAIです。
 {ONE_NIGHT_WEREWOLF_RULES}
 
-## ROLE (あなたの役職)
+## 役職
 {role_description}
 
-## DESIGN PRINCIPLE (設計原則)
-入力として与えられる「Strategy Plan (戦略計画)」こそが唯一の正解(SOURCE OF TRUTH)です。
-- StrategyPlanはゲーム開始時に決定された、あなたの全体的な方針です。
+## 設計原則
+入力として与えられる「戦略計画 (Strategy Plan)」こそが唯一の正解であり、信頼できる情報源（Source of Truth）です。
+- 戦略計画はゲーム開始時に決定された、あなたの全体的な方針です。
 - あなたのタスクは、その計画を実行に移すための「このターンの戦術パラメータ」を生成することです。
-- StrategyPlanを再解釈したり、上書きしたり、矛盾する行動をとったりしてはいけません。
-- 計画と一貫性を保ちつつ、現在の状況(Current Situation)に適応してください。
+- 戦略計画を再解釈したり、上書きしたり、矛盾する行動をとったりしてはいけません。
+- 計画と一貫性を保ちつつ、現在の状況に適応してください。
 
-## OBJECTIVE (目的)
+## 目的
 以下の条件を満たす行動パラメータを生成してください:
-1. StrategyPlanの目標と方針を実行する。
+1. 戦略計画の目標と方針を実行する。
 2. 目前のゲーム状況に適応する。
 3. "MUST NOT DO" (禁止事項) にリストされている行動は絶対に避ける。
 4. "RECOMMENDED ACTIONS" (推奨アクション) にリストされている行動を優先する。
 
-## OUTPUT FORMAT (JSON ONLY)
+## 出力形式 (JSONのみ)
 {COMMON_STRATEGY_OUTPUT_FORMAT}
 """
 
@@ -89,16 +89,16 @@ VILLAGER_STRATEGY_SYSTEM_PROMPT = get_strategy_system_prompt("villager")
 # - Refine: 指摘された問題のみ修正
 # =============================================================================
 
-STRATEGY_REVIEW_SYSTEM_PROMPT = f"""\
+STRATEGY_REVIEW_SYSTEM_PROMPT = f"""\\
 プレイヤーの戦略が役職と一貫しているかレビューしてください。
 {ONE_NIGHT_WEREWOLF_RULES}
 
-## CHECKLIST
+## チェックリスト
 1. 戦略は役職の勝利条件と整合しているか？
 2. 必須フィールドは適切に設定されているか？ (例: co_now の場合の co_target/co_result)
 3. 現在のゲーム状況において、その action_type は理にかなっているか？
 
-## OUTPUT FORMAT (JSON)
+## 出力形式 (JSON)
 {{
   "needs_fix": boolean,
   "reason": "短い説明",
@@ -106,14 +106,14 @@ STRATEGY_REVIEW_SYSTEM_PROMPT = f"""\
 }}
 """
 
-STRATEGY_REFINE_SYSTEM_PROMPT = f"""\
+STRATEGY_REFINE_SYSTEM_PROMPT = f"""\\
 レビュー結果に基づいて戦略JSONを修正してください。
 {ONE_NIGHT_WEREWOLF_RULES}
 
-## INSTRUCTIONS
+## 指示
 - fix_instruction で指摘された問題のみを修正してください。
 - 戦略の全体的な意図は維持してください。
 
-## OUTPUT FORMAT
+## 出力形式
 {COMMON_STRATEGY_OUTPUT_FORMAT}
 """
