@@ -9,6 +9,8 @@
 
 from typing import Optional
 
+from src.core.llm.prompts.roles import get_role_name_ja
+
 from src.core.llm.client import LLMClient
 from src.core.memory.log_summary import LogSummaryOutput
 from src.core.types import GameEvent
@@ -59,8 +61,11 @@ def _format_events_for_summary(events: list[GameEvent]) -> str:
             lines.append(f"[GM→{speaker}] {text}")
         elif event.event_type == "divine_result":
             target = event.payload.get("target", "?")
-            result = event.payload.get("result", "?")
-            lines.append(f"[占い結果] {target} = {result}")
+            # payloadには "role" (実体) または "result" (互換性) が入っている
+            result_role = event.payload.get("role") or event.payload.get("result", "?")
+            # 日本語名に変換（変換できない場合はそのまま）
+            result_ja = get_role_name_ja(result_role)
+            lines.append(f"[占い結果] {target} = {result_ja}")
         elif event.event_type == "phase_start":
             phase = event.payload.get("phase", "?")
             lines.append(f"[フェーズ開始] {phase}")

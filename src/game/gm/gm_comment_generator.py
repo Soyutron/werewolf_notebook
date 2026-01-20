@@ -4,7 +4,13 @@ from typing import Optional, Union
 from src.core.llm.client import LLMClient
 from src.core.llm.prompts import GM_COMMENT_SYSTEM_PROMPT
 from src.core.memory.gm_comment import GMComment
-from src.core.memory.gm_plan import GMProgressionPlan
+from src.core.memory.gm_plan import (
+    GMProgressionPlan,
+    GMStrategyPlan,
+    GMMilestonePlan,
+    GMMilestoneStatus,
+    GMPolicyWeights,
+)
 from src.core.types import PlayerName, GameEvent
 from src.config.llm import create_gm_comment_llm
 
@@ -32,11 +38,24 @@ class GMCommentGenerator:
         players: list[PlayerName],
         log_summary: str = "",
 
+        # New decomposed inputs
+        strategy_plan: Optional["GMStrategyPlan"] = None,
+        milestone_plan: Optional["GMMilestonePlan"] = None,
+        milestone_status: Optional["GMMilestoneStatus"] = None,
+        policy_weights: Optional["GMPolicyWeights"] = None,
+        
+        # Legacy support (optional)
         progression_plan: Optional[GMProgressionPlan] = None,
     ) -> Optional[GMComment]:
         """
         直近の public_event をもとに GM コメントを生成する。
         """
+        # 互換性維持: progression_plan が渡された場合、そこから値を取り出す
+        if progression_plan:
+            strategy_plan = progression_plan.strategy_plan
+            milestone_plan = progression_plan.milestone_plan
+            milestone_status = progression_plan.milestone_status
+            policy_weights = progression_plan.policy_weights
 
         # 発言回数と直前発言者を集計
         speak_counts = {p: 0 for p in players}
@@ -72,7 +91,10 @@ class GMCommentGenerator:
             last_speaker=last_speaker,
             log_summary=log_summary,
 
-            progression_plan=progression_plan,
+            strategy_plan=strategy_plan,
+            milestone_plan=milestone_plan,
+            milestone_status=milestone_status,
+            policy_weights=policy_weights,
         )
 
         try:
@@ -156,7 +178,11 @@ class GMCommentGenerator:
         speak_counts: dict[PlayerName, int],
         last_speaker: Optional[PlayerName],
         log_summary: str = "",
-        progression_plan: Optional[GMProgressionPlan] = None,
+        
+        strategy_plan: Optional["GMStrategyPlan"] = None,
+        milestone_plan: Optional["GMMilestonePlan"] = None,
+        milestone_status: Optional["GMMilestoneStatus"] = None,
+        policy_weights: Optional["GMPolicyWeights"] = None,
     ) -> str:
         """
         GM 用 user prompt を構築する。
@@ -200,18 +226,29 @@ class GMCommentGenerator:
         plan_section = ""
         policy_section = ""
         
-        if progression_plan:
-            # 概要とマイルストーン
-            plan_summary = progression_plan.get_summary_markdown()
+        if strategy_plan:
+            # 概要
+            plan_lines = []
+            plan_lines.append(f"# GM Strategy: {strategy_plan.main_objective}")
+            
+            # マイルストーン
+            if milestone_plan and milestone_status:
+                plan_lines.append("\n## Milestones Status")
+                for ms in milestone_plan.milestones:
+                    status = milestone_status.status.get(ms.id, "unknown")
+                    plan_lines.append(f"- [{status}] {ms.description} (ID: {ms.id})")
+            
+            plan_summary = "\n".join(plan_lines)
             plan_section = f"""
 ==============================
 進行計画
 ==============================
 {plan_summary}
 """
+
+        if policy_weights:
             # ポリシー (介入度合いなど)
-            # プロンプト全体への指示として追加、または情報として提示
-            w = progression_plan.policy_weights
+            w = policy_weights
             policy_section = f"""
 # 現在の行動指針 (Policy Weights)
 - 介入レベル: {w.intervention_level} (1:静観 - 5:強制)

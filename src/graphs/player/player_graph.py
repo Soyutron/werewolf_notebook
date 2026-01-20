@@ -107,14 +107,15 @@ def build_player_graph():
     graph.add_edge("strategy_generate", "speak_generate")
 
     # speak_generate → speak_review_router
-    graph.add_conditional_edges(
-        "speak_generate",
-        speak_review_router_node,
-        {
-            "commit": "speak_commit",  # 発言確定
-            "refine": "speak_refine",  # 発言修正
-        },
-    )
+    graph.add_edge("speak_generate", "speak_commit")
+    # graph.add_conditional_edges(
+    #     "speak_generate",
+    #     speak_review_router_node,
+    #     {
+    #         "commit": "speak_commit",  # 発言確定
+    #         "refine": "speak_refine",  # 発言修正
+    #     },
+    # )
 
     # speak_refine → speak_review_router（ループ）
     graph.add_conditional_edges(
