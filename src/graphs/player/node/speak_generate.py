@@ -24,8 +24,13 @@ def speak_generate_node(state: PlayerState) -> PlayerState:
         print("[speak_generate_node] No request found, skipping")
         return state
 
+    # 戦略が存在するか確認（本来は strategy_generate_node で生成されているべき）
+    if internal.pending_strategy is None:
+        print(f"[speak_generate_node] WARNING: No strategy available for speech generation. Strategy consistency may be compromised.")
+
     # 戦略を発言生成に渡す
-    # 戦略がない場合も動作するようにOptionalとして渡す
+    # Strategy が渡されることで、strategy_plan_generator.py → strategy_generator.py の
+    # 戦略フローが speak_generator.py まで一貫して適用される
     speak = speak_generator.generate(
         memory=memory,
         observed=request,

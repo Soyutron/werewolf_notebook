@@ -12,9 +12,16 @@ class StrategyGenerator:
     """
     プレイヤーの議論フェーズごとの行動指針（Local Strategy）を生成するクラス。
 
+    設計原則:
+    - StrategyPlan（全体戦略計画）は strategy_plan_generator.py が唯一の生成元
+    - 本クラスは StrategyPlan を入力として受け取り、現在の状況に応じた
+      具体的な行動指針（Action Guideline）のみを生成する
+    - 独自に戦略を再解釈・再生成することは禁止
+    - 戦略の一貫性は StrategyPlan によって担保される
+
     責務:
     - Action Guideline (Day): 議論フェーズごとの行動指針を生成
-    - 戦略計画書 (StrategyPlan) を判断の一次情報として使用する。
+    - StrategyPlan を判断の一次情報として使用し、そこから逸脱しない
     """
 
     def __init__(self, llm: LLMClient):
@@ -32,6 +39,10 @@ class StrategyGenerator:
         # plan が指定されていない場合は memory から取得
         if plan is None:
             plan = memory.strategy_plan
+        
+        # StrategyPlan が存在しない場合は警告（本来はNight Phaseで生成されているべき）
+        if plan is None:
+            print(f"[StrategyGenerator] WARNING: No StrategyPlan available for {memory.self_name}. Acting with degraded strategy.")
         
         role = memory.self_role
         system_prompt = get_strategy_system_prompt(role)
@@ -62,22 +73,30 @@ class StrategyGenerator:
         strategy_section = ""
         if plan:
             must_not_do_text = "\n".join(f"- {item}" for item in plan.must_not_do)
+            recommended_actions_text = "\n".join(f"- {item}" for item in plan.recommended_actions) if plan.recommended_actions else "- (No specific recommendations)"
             strategy_section = f"""
 ==============================
-YOUR STRATEGIC PLAN
+YOUR STRATEGIC PLAN (SOURCE OF TRUTH)
 ==============================
+This plan was decided at the start of the game. Your action guideline MUST align with this plan.
+Do NOT reinterpret or override this strategy.
+
 [Objective]
-- Goal: {plan.initial_goal} (Victory: {plan.victory_condition})
-- Defeat Impact: {plan.defeat_condition}
+- Goal: {plan.initial_goal}
+- Victory Condition: {plan.victory_condition}
+- Defeat Condition: {plan.defeat_condition}
 
 [Policy]
 - Behavior: {plan.role_behavior}
-- CO Policy: {plan.co_policy} (Intended CO: {plan.intended_co_role})
+- CO Policy: {plan.co_policy} (Intended CO Role: {plan.intended_co_role})
+
+[RECOMMENDED ACTIONS]
+{recommended_actions_text}
 
 [MUST NOT DO]
 {must_not_do_text}
 
-Act according to this plan while adapting to the immediate situation.
+Generate an action guideline that EXECUTES this plan based on the current situation.
 """
         else:
             strategy_section = "(No strategic plan available. Act based on role.)"

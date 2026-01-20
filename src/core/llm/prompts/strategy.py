@@ -45,15 +45,25 @@ def get_strategy_system_prompt(role: str) -> str:
     role_description = get_role_description(role)
     
     return f"""\
-You are making a strategic decision in ONE-NIGHT Werewolf.
+You are generating an ACTION GUIDELINE for ONE-NIGHT Werewolf.
 {ONE_NIGHT_WEREWOLF_RULES}
 
 ## ROLE
 {role_description}
 
+## DESIGN PRINCIPLE
+Your Strategic Plan (provided in the prompt) is the SOURCE OF TRUTH.
+- The StrategyPlan was decided at game start and defines your overall approach
+- Your task is to generate tactical parameters for THIS TURN that EXECUTE the plan
+- Do NOT reinterpret, override, or contradict the StrategyPlan
+- Adapt to the CURRENT SITUATION while staying consistent with the plan
+
 ## OBJECTIVE
-Decide your next action to achieve your goal.
-Consider the current game state and choose parameters that reflect your intended approach.
+Generate action parameters that:
+1. Execute your StrategyPlan's goals and policies
+2. Adapt to the immediate game situation
+3. Avoid all actions listed in "MUST NOT DO"
+4. Prioritize actions listed in "RECOMMENDED ACTIONS"
 
 ## OUTPUT FORMAT (JSON ONLY)
 {COMMON_STRATEGY_OUTPUT_FORMAT}

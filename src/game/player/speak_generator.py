@@ -17,10 +17,17 @@ class SpeakGenerator:
     PlayerMemory と新しく観測した GameEvent / PlayerRequest から
     公開発言（Speak）を生成するクラス。
 
-    設計方針:
+    設計原則:
+    - Strategy（行動指針）は strategy_generator.py が strategy_plan_generator.py の
+      StrategyPlan に基づいて生成したものを入力として受け取る
+    - 本クラスは Strategy を忠実に実行する発言を生成する責務のみを持つ
+    - 独自に戦略を再解釈・再生成することは禁止
+    - belief_analysis は戦略判断のためではなく、発言の具体性向上のための
+      参考情報としてのみ使用する
+
+    責務:
     - 発言内容のみを生成する（state は変更しない）
-    - 戦略（Strategy）が与えられた場合は、戦略に従った発言を生成する
-    - 内省（Reflection）とは責務を分離
+    - Strategy が与えられた場合は、戦略パラメータを忠実に実行する発言を生成する
     - LLM が失敗しても None を返す
     """
 
@@ -37,9 +44,15 @@ class SpeakGenerator:
         """
         発言を1件生成する。
 
-        strategy が与えられた場合は、戦略に従った発言を生成する。
+        strategy は strategy_generator.py から渡される行動指針。
+        戦略が与えられた場合は、そのパラメータを忠実に実行する発言を生成する。
+        戦略なしで呼ばれた場合は警告を出力し、基本的な発言を生成する。
         失敗した場合は None を返す。
         """
+        # Strategy が存在しない場合は警告（本来は strategy_generator.py から渡されるべき）
+        if strategy is None:
+            print(f"[SpeakGenerator] WARNING: No Strategy provided for {memory.self_name}. Generating without strategic guidance.")
+        
         prompt = self._build_prompt(memory, observed, strategy)
 
         try:
@@ -65,13 +78,13 @@ class SpeakGenerator:
         """
         発言生成用の user prompt を構築する。
 
-        戦略が与えられた場合は、戦略のコンテキストをプロンプトに含める。
+        戦略が与えられた場合は、戦略のパラメータを忠実に実行する発言を生成する。
         co_decision が co_now の場合は CO を強制する。
         
-        設計方針:
-        - log_summary: 議論経緯と観測結果の要約（重複回避のため単一ソース）
-        - belief_analysis: 役職推定の分析情報（推論用に整形済み）
-        - 上記2つのみを使用し、同一情報の重複提供を避ける
+        設計原則:
+        - Strategy: 行動指針として最優先で従う（strategy_plan_generator.py → strategy_generator.py 由来）
+        - log_summary: 議論経緯と観測結果の要約（発言の具体性向上のため）
+        - belief_analysis: 役職推定の参考情報（戦略判断には使用しない）
         """
         # 公開情報の抽出（ターゲット未発言チェック用）
         public_speeches = [
@@ -79,33 +92,12 @@ class SpeakGenerator:
             if e.event_type == "speak"
         ]
         
-        # 発言済みプレイヤーの集合
+        # 発言済みプレイヤーの集合（ターゲットの発言有無チェック用）
         speakers = {e.payload.get('player') for e in public_speeches if e.payload.get('player')}
         
-        # 議論開始直後かどうかの判定（発言数が少ない場合）
-        is_early_game = len(public_speeches) < 2
-        
-        # 状況に応じた追加指示
-        phase_instruction = ""
-        if is_early_game:
-            phase_instruction = """
-==============================
-PHASE: EARLY GAME (Discussion just started)
-==============================
-- There is NOT enough information to find contradictions yet.
-- Recommended actions:
-    - Ask a question
-    - State your own role clearly (if beneficial)
-    - Prompt others to speak
-"""
-        else:
-            phase_instruction = """
-==============================
-PHASE: MID/LATE GAME
-==============================
-- Compare statements to find contradictions.
-- If you find a logical conflict, ATTACK it.
-"""
+        # 注意: 独自にフェーズ判定や戦略的推奨を行わない
+        # Strategyのパラメータを忠実に実行することに集中する
+        # フェーズに応じた戦略判断はstrategy_generator.pyで既に行われている
 
         # 役職推定分析セクションの構築（推論用に整形済み）
         belief_analysis = build_belief_analysis_section(memory)
@@ -163,10 +155,11 @@ DO NOT skip the CO. DO NOT hint. STATE IT CLEARLY but CALMLY.
 
             strategy_section = f"""
 ==============================
-STRATEGY PARAMETERS (EXECUTE THIS)
+STRATEGY PARAMETERS (EXECUTE THIS - DO NOT REINTERPRET)
 ==============================
 
-You must generate speech based on these parameters:
+Your action is determined by these parameters. Execute them faithfully.
+Do NOT make independent strategic decisions - the strategy has already been decided.
 
 1. [ACTION] Type: {strategy.action_type}
    - Target: {strategy.target_player or "(None)"} {target_warning}
@@ -179,6 +172,7 @@ You must generate speech based on these parameters:
 
 3. [GOAL]
    Achieve the action type with the specified tone.
+   Generate speech that EXECUTES these parameters.
 """
 
         # 自己言及禁止のガード
@@ -196,7 +190,6 @@ YOU ARE {self_name}
 {anti_self_ref_section}
 {co_enforcement_section}
 {strategy_section}
-{phase_instruction}
 
 ==============================
 GAME LOG SUMMARY
@@ -211,11 +204,11 @@ Your analysis of other players' likely roles:
 {belief_analysis}
 
 When generating your speech:
-1. Refer to the log summary for discussion context and observations
-2. Use the belief analysis to inform your strategic reasoning
-3. Generate speech consistent with your strategy parameters
+1. EXECUTE the strategy parameters faithfully - do not reinterpret or override them
+2. Use the log summary for context to make your speech concrete and relevant
+3. Use belief analysis as reference information only (not for strategic decisions)
 
-Generate a public statement. Output JSON only.
+Generate a public statement that executes the given strategy. Output JSON only.
 """
 
 
