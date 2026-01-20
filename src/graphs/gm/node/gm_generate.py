@@ -23,6 +23,7 @@ def gm_generate_node(state: GMGraphState) -> GMGraphState:
         public_events=context,
         players=players,
         log_summary=internal.log_summary,
+        progression_plan=internal.progression_plan,
     )
 
     # 生成に失敗した場合は何もしない

@@ -30,6 +30,7 @@ class GMCommentGenerator:
         public_events: list[GameEvent],
         players: list[PlayerName],
         log_summary: str = "",
+        progression_plan: str = "",
     ) -> Optional[GMComment]:
         """
         直近の public_event をもとに GM コメントを生成する。
@@ -68,6 +69,7 @@ class GMCommentGenerator:
             speak_counts=speak_counts,
             last_speaker=last_speaker,
             log_summary=log_summary,
+            progression_plan=progression_plan,
         )
 
         try:
@@ -151,6 +153,7 @@ class GMCommentGenerator:
         speak_counts: dict[PlayerName, int],
         last_speaker: Optional[PlayerName],
         log_summary: str = "",
+        progression_plan: str = "",
     ) -> str:
         """
         GM 用 user prompt を構築する。
@@ -190,8 +193,19 @@ class GMCommentGenerator:
 {log_summary}
 """
 
+        # 進行計画セクション
+        plan_section = ""
+        if progression_plan:
+            plan_section = f"""
+==============================
+進行計画（夜フェーズで策定）
+==============================
+{progression_plan}
+"""
+
         return f"""
 {opening_text}
+{plan_section}
 {log_summary_section}
 
 発言状況:
