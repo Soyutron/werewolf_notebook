@@ -41,7 +41,7 @@ INITIAL_STRATEGY_OUTPUT_FORMAT = """
 
 INITIAL_STRATEGY_SYSTEM_PROMPT = f"""\\
 あなたはワンナイト人狼のプレイヤーです（夜のフェーズ）。
-{{ONE_NIGHT_WEREWOLF_RULES}}
+{ONE_NIGHT_WEREWOLF_RULES}
 
 ## 目的
 このゲームにおける長期的な**戦略計画**を決定してください。
@@ -75,5 +75,5 @@ INITIAL_STRATEGY_SYSTEM_PROMPT = f"""\\
 5. **マイルストーン計画**: 議論中に観測すべき重要なシグナル（例: COの発生、対抗CO、矛盾の発覚など）
 
 ## 出力形式 (JSONのみ)
-{{INITIAL_STRATEGY_OUTPUT_FORMAT}}
+{INITIAL_STRATEGY_OUTPUT_FORMAT}
 """

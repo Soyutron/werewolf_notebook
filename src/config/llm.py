@@ -42,6 +42,7 @@ USE_GEMINI = True
 # Gemini API 設定
 # 使用するモデル名（gemini-2.0-flash, gemini-1.5-pro など）
 GEMINI_MODEL = "gemini-2.5-flash-lite"
+GEMINI_MODEL_2 = "gemini-2.5-flash"
 
 
 # =========================================================
@@ -180,7 +181,7 @@ def create_speak_llm() -> LLMClient[Speak]:
 
     if USE_GEMINI:
         # Gemini API を使用
-        return GeminiLangChainClient(model=GEMINI_MODEL, output_model=Speak)
+        return GeminiLangChainClient(model=GEMINI_MODEL_2, output_model=Speak)
 
     if USE_VLLM:
         # 実運用用
