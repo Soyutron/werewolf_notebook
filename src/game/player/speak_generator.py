@@ -118,11 +118,6 @@ PHASE: MID/LATE GAME
         # 役職推定分析セクションの構築
         belief_analysis = build_belief_analysis_section(memory)
 
-        recent_reflections_list = memory.history[-10:]
-        recent_reflections = "\n".join(
-            str(r) for r in reversed(recent_reflections_list)
-        )
-
         # 要約済みログを使用
         log_summary = memory.log_summary if memory.log_summary else "(No events summarized yet)"
 
@@ -234,9 +229,6 @@ When speaking, you SHOULD:
 2. Explain what each role possibility means for the village
 3. State your voting recommendation based on this analysis
 
-
-Recent thoughts:
-{recent_reflections}
 
 Recent observation:
 Type: {observed_type}

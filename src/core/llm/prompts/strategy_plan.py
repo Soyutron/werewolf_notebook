@@ -9,6 +9,9 @@ INITIAL_STRATEGY_OUTPUT_FORMAT = """
   "must_not_do": [
     "List of actions or situations to strictly avoid (e.g., 'Contradicting myself', 'staying too silent')"
   ],
+  "recommended_actions": [
+    "List of recommended actions to achieve the strategic goal (e.g., 'Ask probing questions', 'Guide votes toward suspicious players')"
+  ],
   "co_policy": "immediate" | "wait_and_see" | "counter_co",
   "intended_co_role": "seer" | "villager" | "werewolf" | "madman" | null
 }}
@@ -40,6 +43,7 @@ You must clearly define:
 1. **Victory Condition**: How exactly do you win?
 2. **Defeat Condition**: What specific scenarios cause you to lose?
 3. **MUST NOT DO**: What actions will ruin your game? (e.g. "Contradicting my own CO", "Voting for a confirmed human")
+4. **RECOMMENDED ACTIONS**: What actions will help you achieve your goal? (e.g. "Ask probing questions", "Build trust by agreeing with logical points")
 
 Select a CO policy consistent with your role (e.g., Seer usually "immediate", Villager "no_co").
 

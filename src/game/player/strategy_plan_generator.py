@@ -39,7 +39,7 @@ Your role is: {memory.self_role}
 Players in this game: {', '.join(memory.players)}
 
 Think about your initial strategy carefully.
-Consider your victory conditions and what you must avoid.
+Consider your victory conditions, what actions you must avoid, and what actions are recommended to achieve your goal.
 """
 
 

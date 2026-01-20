@@ -25,6 +25,10 @@ class StrategyPlan(BaseModel):
         default=[],
         description="絶対に避けるべき行動や展開のリスト（例: ['矛盾した発言をする', '寡黙になりすぎる']）"
     )
+    recommended_actions: List[str] = Field(
+        default=[],
+        description="戦略を達成するために推奨される行動のリスト（例: ['積極的に質問を投げかける', '疑わしいプレイヤーに投票を誘導する']）"
+    )
     co_policy: Literal["immediate", "wait_and_see", "no_co", "counter_co"] = Field(
         description="CO（カミングアウト）に関する基本方針"
     )
