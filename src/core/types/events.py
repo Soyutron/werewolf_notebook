@@ -30,6 +30,7 @@ GameEventType = Literal[
     "night_started",  # 夜フェーズ開始
     "night_action",  # 夜に能力が使われた（占い・役職確認など）
     "divine_result",  # 占い結果
+    "role_swapped",  # 怪盗による役職交換結果
     "day_started",  # 昼フェーズ開始
     "gm_comment",  # GMコメント
     "speak",  # 誰かが発言した（昼フェーズの会話ログ）

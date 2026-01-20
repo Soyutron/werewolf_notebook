@@ -100,7 +100,16 @@ class Dispatcher:
         # - 実際の行動（発言・投票・夜行動など）を発生させる
         # - event と同一 step で同時に存在してよい
         if decision.requests:
-            for player, request in decision.requests.items():
+            # 夜フェーズ（use_ability）の場合は能力の優先度順に処理
+            # 占い師 → 怪盗 → その他 の順で実行することで、
+            # 占い結果確定後に役職交換が行われる
+            requests_list = list(decision.requests.items())
+            
+            # 能力の優先度でソート（use_ability の場合のみ）
+            if requests_list and requests_list[0][1].request_type == "use_ability":
+                requests_list = self._sort_by_ability_priority(requests_list, session)
+            
+            for player, request in requests_list:
                 output = session.run_player_turn(
                     player=player,
                     input=PlayerInput(
@@ -124,3 +133,50 @@ class Dispatcher:
         #   event（出来事）とは区別して WorldState に直接反映する
         if decision.next_phase is not None:
             session.world_state.phase = decision.next_phase
+
+    def _sort_by_ability_priority(
+        self,
+        requests_list: list,
+        session: "GameSession",
+    ) -> list:
+        """
+        能力使用リクエストを優先度順にソートする。
+
+        夜フェーズにおいて、能力の実行順序を保証するために使用。
+        
+        優先度:
+        1. seer (占い師): 情報取得系 - 最優先
+        2. thief (怪盗): 役職変更系 - 情報取得後
+        3. werewolf, none: その他 - 最後
+
+        Args:
+            requests_list: (player_name, request) のタプルリスト
+            session: GameSession（役職情報参照用）
+
+        Returns:
+            優先度順にソートされたリスト
+        """
+        # 能力タイプごとの優先度
+        ABILITY_PRIORITY = {
+            "seer": 1,
+            "thief": 2,
+            "werewolf": 3,
+            "none": 3,
+        }
+
+        def get_priority(item):
+            player, _request = item
+            # プレイヤーの役職を取得
+            role_name = session.assigned_roles.get(player)
+            if not role_name:
+                return 3
+            
+            # 役職から能力タイプを取得
+            role_def = session.definition.roles.get(role_name)
+            if not role_def:
+                return 3
+            
+            ability_type = role_def.ability_type
+            return ABILITY_PRIORITY.get(ability_type, 3)
+
+        return sorted(requests_list, key=get_priority)

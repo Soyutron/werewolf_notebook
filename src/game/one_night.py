@@ -26,7 +26,7 @@ ONE_NIGHT_GAME_DEFINITION = GameDefinition(
     },
     role_distribution=[
         "villager",
-        "villager",
+        "thief",
         "seer",
         "werewolf",
         "madman",

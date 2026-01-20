@@ -29,6 +29,7 @@ from src.core.types import (
     NoAbility,
     SeerAbility,
     WerewolfAbility,
+    ThiefAbility,
     GameEvent,
 )
 
@@ -160,6 +161,33 @@ class ActionResolver:
             case WerewolfAbility():
                 # 人狼の夜行動（将来：襲撃対象など）
                 # 今は副作用なしでもOK
+                session.gm_internal.night_pending.remove(player)
+                return
+
+            case ThiefAbility(target=target):
+                # 怪盗の役職交換能力
+                # 怪盗と対象の役職を交換する
+                thief_role = self.assigned_roles[player]
+                target_role = self.assigned_roles[target]
+                
+                # assigned_roles を更新（GM の真実情報）
+                self.assigned_roles[player] = target_role
+                self.assigned_roles[target] = thief_role
+                
+                # 怪盗本人に役職交換結果を通知
+                # （対象プレイヤーは自分の役職が変わったことを知らない）
+                session.run_player_turn(
+                    player=player,
+                    input=PlayerInput(
+                        event=GameEvent(
+                            event_type="role_swapped",
+                            payload={
+                                "target": target,
+                                "new_role": target_role,
+                            },
+                        )
+                    ),
+                )
                 session.gm_internal.night_pending.remove(player)
                 return
 

@@ -8,6 +8,7 @@ from src.graphs.player.observe_event.divine_result import handle_divine_result
 from src.graphs.player.observe_event.day_started import handle_day_started
 from src.graphs.player.observe_event.vote_started import handle_vote_started
 from src.graphs.player.observe_event.interpret_speech import handle_interpret_speech
+from src.graphs.player.observe_event.role_swapped import handle_role_swapped
 from src.graphs.player.node.reflection_node import reflection_node
 from src.graphs.player.node.reaction_node import reaction_node
 from src.graphs.player.phase_router import phase_router
@@ -72,6 +73,7 @@ def build_player_graph():
     graph.add_node("interpret_speech", handle_interpret_speech)
     graph.add_node("vote_started", handle_vote_started)
     graph.add_node("vote", handle_vote)
+    graph.add_node("role_swapped", handle_role_swapped)
     graph.add_node("reflection", reflection_node)
     graph.add_node("reaction", reaction_node)
 
@@ -96,6 +98,7 @@ def build_player_graph():
     graph.add_edge("reflection", END)
     graph.add_edge("interpret_speech", END)
     graph.add_edge("vote", END)
+    graph.add_edge("role_swapped", END)
 
     # === Night Phase Edge ===
     # night_started -> END (夜は行動決定して思考終了、戦略生成はまだしない)

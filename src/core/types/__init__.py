@@ -41,6 +41,7 @@ from src.core.types.player import (
     NoAbility,
     SeerAbility,
     WerewolfAbility,
+    ThiefAbility,
     AbilityResult,
     Vote,
 )
@@ -83,6 +84,7 @@ __all__ = [
     "NoAbility",
     "SeerAbility",
     "WerewolfAbility",
+    "ThiefAbility",
     "AbilityResult",
     "Vote",
     # phases

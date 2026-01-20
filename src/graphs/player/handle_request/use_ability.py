@@ -4,6 +4,7 @@ from src.core.types import (
     NoAbility,
     WerewolfAbility,
     SeerAbility,
+    ThiefAbility,
 )
 import random
 
@@ -33,6 +34,8 @@ def handle_use_ability(state: PlayerState) -> PlayerState:
         return handle_seer_ability(state)
     elif ability_type == "werewolf":
         return handle_werewolf_ability(state)
+    elif ability_type == "thief":
+        return handle_thief_ability(state)
     else:
         # ability_type == "none" または未知の能力タイプは能力なしとして扱う
         return handle_no_ability(state)
@@ -66,5 +69,28 @@ def handle_no_ability(state: PlayerState) -> PlayerState:
     state["output"] = PlayerOutput(
         action="use_ability",
         payload=NoAbility(kind="none"),
+    )
+    return state
+
+
+def handle_thief_ability(state: PlayerState) -> PlayerState:
+    """
+    怪盗の能力ハンドラ。
+
+    自分以外のプレイヤー1名をランダムに選択し、
+    役職交換の対象とする。
+    
+    実際の役職交換処理は ActionResolver で実行される。
+    """
+    self_name = state["memory"].self_name
+    players = state["memory"].players
+
+    # 自分以外を候補にする
+    candidates = [p for p in players if p != self_name]
+    target = random.choice(candidates) if candidates else None
+
+    state["output"] = PlayerOutput(
+        action="use_ability",
+        payload=ThiefAbility(kind="thief", target=target),
     )
     return state

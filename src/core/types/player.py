@@ -36,6 +36,7 @@ __all__ = [
     "NoAbility",
     "SeerAbility",
     "WerewolfAbility",
+    "ThiefAbility",
     "AbilityResult",
     "Vote",
 ]
@@ -233,10 +234,24 @@ class WerewolfAbility(BaseModel):
     kind: Literal["werewolf"]
 
 
+class ThiefAbility(BaseModel):
+    """
+    怪盗の夜行動結果。
+
+    - target に指定されたプレイヤーと役職を交換した、という事実を表す
+    - 実際の交換処理は ActionResolver 側で実行される
+    - 交換後、怪盗は相手の役職を持つ（勝利条件も変わる）
+    """
+
+    kind: Literal["thief"]
+    target: PlayerName
+
+
 AbilityResult = Union[
     NoAbility,
     SeerAbility,
     WerewolfAbility,
+    ThiefAbility,
 ]
 
 
