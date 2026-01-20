@@ -60,31 +60,32 @@ class SpeakRefiner:
     ) -> str:
         """
         リファイン用のプロンプトを構築する。
+        
+        設計方針:
+        - log_summary: 議論経緯の参照（事実確認用）
+        - belief_analysis: 信念との整合性確保用
+        - review feedback: 修正指示の単一ソース
+        - ターゲット未発言チェックのみ individual check を維持
         """
-        # 自己言及禁止のガード（最上位に配置）
         self_name = memory.self_name
         valid_partners = [p for p in memory.players if p != self_name]
         
-        # --- 公開情報の抽出 (SpeakGeneratorと同じロジック) ---
+        # ターゲット未発言チェック用に発言者を抽出
         public_speeches = [
             e for e in memory.observed_events 
             if e.event_type == "speak"
         ]
         speakers = {e.payload.get('player') for e in public_speeches if e.payload.get('player')}
-        
-        public_history_text = "\n".join(
-            f"- {e.payload.get('player')}: {e.payload.get('text')}"
-            for e in public_speeches
-        )
 
-        # --- Belief分析セクションの構築 ---
+        # 要約済みログを使用（事実確認の単一ソース）
+        log_summary = memory.log_summary if memory.log_summary else "(No events summarized yet)"
+
+        # 役職推定分析セクションの構築（整合性確保用）
         belief_analysis = build_belief_analysis_section(memory)
-
 
         # ターゲット未発言の警告と戦略の無効化
         target_warning = ""
         strategy_text = f"""
-Strategy to follow:
 - Action: {strategy.action_type}
 - Target: {strategy.target_player or "(None)"}
 - Style: {strategy.style_instruction}
@@ -95,61 +96,43 @@ Strategy to follow:
         if strategy.target_player and strategy.target_player not in speakers:
             target_warning = f"""
 !!! WARNING: TARGET '{strategy.target_player}' HAS NOT SPOKEN !!!
-- The Strategy above claims they said something, but they are SILENT.
-- The Strategy is BASED ON HALLUCINATION. IGNORE IT.
-- NEW GOAL: Simply state that {strategy.target_player} hasn't spoken yet.
 - REMOVE any quotes attributed to them.
+- NEW GOAL: Point out that {strategy.target_player} hasn't spoken yet.
 """
-            # 戦略テキストを上書きして誤誘導を防ぐ
             strategy_text = f"""
-Strategy to follow (MODIFIED SAFE MODE):
 - Action: Question Silence
 - Target: {strategy.target_player}
-- Instruction: {strategy.target_player} has not spoken. Point this out carefully.
+- Instruction: Point out their silence carefully.
 """
 
         return f"""
 ==============================
-CRITICAL: YOU ARE {self_name}
+YOU ARE {self_name}
 ==============================
 
-- You are speaking as {self_name}
 - Use first-person (私/俺/僕)
 - NEVER say "{self_name}さん" or refer to yourself in third person
-- NEVER use vague pronouns ("彼", "彼女", "あの人", "そいつ"). ALWAYS use specific names.
+- NEVER use vague pronouns ("彼", "彼女", "あの人", "そいつ")
 
 Player: {self_name}
 Role: {memory.self_role}
 Valid Partners: {valid_partners}
 
+==============================
+STRATEGY
+==============================
 {target_warning}
 {strategy_text}
 
 ==============================
-PUBLIC FACTS (CHECK THIS)
+GAME LOG SUMMARY
 ==============================
-The following is the ONLY objective history.
-If a player is not listed here, they have NOT spoken.
-{public_history_text if public_history_text else "(No one has spoken)"}
+{log_summary}
 
 ==============================
-ROLE BELIEF CONTEXT (FOR CONSISTENCY)
+ROLE BELIEF ANALYSIS
 ==============================
-
-Your current beliefs about other players:
 {belief_analysis}
-
-When refining, ensure:
-1. Speech is CONSISTENT with your beliefs
-   - If you trust X, treat their claim with respect.
-   - If you suspect X, do not validate them.
-2. Speech is ROLE-APPROPRIATE
-
-3. Maintain role-based conviction
-   - 人狼: Be careful not to expose yourself or help village
-   - 占い師: Be confident about your divination result
-   - 狂人: Create confusion, not clarity
-   - 村人: Analyze based on facts, don't blindly trust
 
 ==============================
 REFINEMENT TASK
@@ -166,7 +149,7 @@ Refine the speech to:
 1. Address the fix instruction
 2. Maintain belief consistency
 3. Ensure role-appropriate behavior
-4. Remove any hallucinations (quotes from silent players)
+4. Remove any hallucinations
 
 Apply minimal changes otherwise.
 Output JSON only.

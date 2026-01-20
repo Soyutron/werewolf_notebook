@@ -55,98 +55,78 @@ class SpeakReviewer:
     ) -> str:
         """
         レビュー用のプロンプトを構築する。
+        
+        設計方針:
+        - log_summary: 議論経緯の参照（事実確認用）
+        - belief_analysis: 信念との整合性チェック用
+        - レビュー責務に必要な情報のみを提供
         """
         self_name = memory.self_name
         
-        # --- 公開情報の抽出 ---
-        public_speeches = [
-            e for e in memory.observed_events 
-            if e.event_type == "speak"
-        ]
-        public_history_text = "\n".join(
-            f"- {e.payload.get('player')}: {e.payload.get('text')}"
-            for e in public_speeches
-        )
+        # 要約済みログを使用（事実確認の単一ソース）
+        log_summary = memory.log_summary if memory.log_summary else "(No events summarized yet)"
 
-        # --- Belief分析セクションの構築 ---
+        # 役職推定分析セクションの構築（整合性チェック用）
         belief_analysis = build_belief_analysis_section(memory)
-
 
         return f"""
 ==============================
-SPEAKER IDENTITY CHECK
+SPEAKER IDENTITY: {self_name}
 ==============================
-
-The speaker is: {self_name}
-
-Check for HALLUCINATIONS (FACTUAL ERRORS) [PRIORITY 1]:
-- Does the speech quote/reference a player who is NOT in the Public Facts below?
-- If YES, this is INVALID and needs_fix = true.
-- Reason MUST mention "Hallucination".
-
-Check for SELF-REFERENCE violations:
-- Does the speech contain "{self_name}さん" or "{self_name}は"? (Your OWN name)
-- Does the speech refer to the speaker in third person?
-- If YES to any, this is INVALID and needs_fix = true
-- NOTE: Using OTHER players' names is CORRECT and NOT a violation.
-
-Check for AMBIGUOUS PRONOUNS:
-- Does the speech use "彼", "彼女", "あの人", "そいつ"?
-- If YES, this is INVALID and needs_fix = true (must use explicit names).
 
 Player: {self_name}
 Role: {memory.self_role}
 
 ==============================
-PUBLIC FACTS (CHECK THIS)
-==============================
-{public_history_text if public_history_text else "(No one has spoken)"}
-
-==============================
-ROLE BELIEF CONSISTENCY CHECK
+REVIEW CHECKLIST
 ==============================
 
-Your current beliefs about other players:
+1. HALLUCINATIONS (FACTUAL ERRORS) [PRIORITY 1]:
+   - Does the speech reference a player/event NOT in the log summary?
+   - If YES → needs_fix = true, reason must mention "Hallucination"
+
+2. SELF-REFERENCE VIOLATIONS:
+   - Does the speech contain "{self_name}さん" or "{self_name}は"?
+   - Does the speech refer to self in third person?
+   - If YES → needs_fix = true
+
+3. AMBIGUOUS PRONOUNS:
+   - Does the speech use "彼", "彼女", "あの人", "そいつ"?
+   - If YES → needs_fix = true (must use explicit names)
+
+4. BELIEF CONTRADICTIONS:
+   - Does the speech contradict your beliefs below?
+   - If YES → needs_fix = true
+
+5. ROLE-INAPPROPRIATE BEHAVIOR:
+   - 占い師: Should share facts, NOT hide results
+   - 人狼: Should blend in, NOT expose self
+   - 狂人: Should create confusion, NOT help village
+   - 村人: Should analyze facts, NOT make false claims
+   - If contradicts role incentives → needs_fix = true
+
+==============================
+GAME LOG SUMMARY
+==============================
+{log_summary}
+
+==============================
+ROLE BELIEF ANALYSIS
+==============================
 {belief_analysis}
-
-Check for BELIEF CONTRADICTION:
-- If belief says "Xさん: 人狼(70%) or 狂人(20%)" but speech says "Xは信頼できる" → INCONSISTENT
-- If belief says "Xさん: 村人(80%)" but speech strongly accuses X → SUSPICIOUS LOGIC
-- If speech contradicts your own beliefs, set needs_fix = true.
-
-==============================
-ROLE-APPROPRIATE BEHAVIOR CHECK
-==============================
-
-
-
-Check for ROLE-INAPPROPRIATE BEHAVIOR:
-- 占い師: Should share facts and organize information, NOT hide divination results
-- 人狼: Should blend in or misdirect, NOT expose themselves or help village
-- 狂人: Should create chaos, NOT help village directly or reveal wolf
-- 村人: Should analyze and question, NOT make false claims
-
-If speech contradicts player's role incentives, set needs_fix = true.
 
 ==============================
 STRATEGY ALIGNMENT
 ==============================
-
-Strategy this speech should follow:
 - Action: {strategy.action_type}
 - Target: {strategy.target_player or "(None)"}
 - Style: {strategy.style_instruction}
 - Focus: {strategy.value_focus}
 
-
-Speech to review:
+==============================
+SPEECH TO REVIEW
+==============================
 "{speak.text}"
-
-Review this speech for:
-1. Factual errors (hallucination)
-2. Self-reference violations
-3. Belief contradictions
-4. Role-inappropriate behavior
 
 Output JSON only.
 """
