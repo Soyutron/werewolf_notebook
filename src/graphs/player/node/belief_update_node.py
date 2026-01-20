@@ -1,5 +1,6 @@
 from src.core.types import PlayerState, RoleProb
 from src.game.player.belief_generator import believe_generator
+from src.core.roles import get_all_role_names
 
 
 def belief_update_node(state: PlayerState) -> PlayerState:
@@ -49,7 +50,7 @@ def belief_update_node(state: PlayerState) -> PlayerState:
             available_roles = list(next(iter(new_beliefs.values())).probs.keys())
         else:
             # フォールバック: デフォルトの役職リスト
-            available_roles = ["villager", "seer", "werewolf", "madman"]
+            available_roles = get_all_role_names()
         
         self_probs = {
             role: (1.0 if role == memory.self_role else 0.0)
