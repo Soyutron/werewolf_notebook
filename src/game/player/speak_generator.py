@@ -67,26 +67,23 @@ class SpeakGenerator:
 
         戦略が与えられた場合は、戦略のコンテキストをプロンプトに含める。
         co_decision が co_now の場合は CO を強制する。
+        
+        設計方針:
+        - log_summary: 議論経緯と観測結果の要約（重複回避のため単一ソース）
+        - belief_analysis: 役職推定の分析情報（推論用に整形済み）
+        - 上記2つのみを使用し、同一情報の重複提供を避ける
         """
-        observed_type = observed.__class__.__name__
-
-        # 公開情報の抽出と整理
+        # 公開情報の抽出（ターゲット未発言チェック用）
         public_speeches = [
             e for e in memory.observed_events 
             if e.event_type == "speak"
         ]
         
-        # 発言済みプレイヤーの集合（ターゲット未発言チェック用）
+        # 発言済みプレイヤーの集合
         speakers = {e.payload.get('player') for e in public_speeches if e.payload.get('player')}
         
         # 議論開始直後かどうかの判定（発言数が少ない場合）
-        # 設定: 他者の発言が2つ未満なら「序盤」とみなす
         is_early_game = len(public_speeches) < 2
-        
-        public_history_text = "\n".join(
-            f"- {e.payload.get('player')}: {e.payload.get('text')}"
-            for e in public_speeches
-        )
         
         # 状況に応じた追加指示
         phase_instruction = ""
@@ -110,15 +107,10 @@ PHASE: MID/LATE GAME
 - If you find a logical conflict, ATTACK it.
 """
 
-        role_beliefs_text = "\n".join(
-            f"- {player}: {belief.probs}"
-            for player, belief in memory.role_beliefs.items()
-        )
-
-        # 役職推定分析セクションの構築
+        # 役職推定分析セクションの構築（推論用に整形済み）
         belief_analysis = build_belief_analysis_section(memory)
 
-        # 要約済みログを使用
+        # 要約済みログを使用（議論経緯と観測結果の単一ソース）
         log_summary = memory.log_summary if memory.log_summary else "(No events summarized yet)"
 
         # 戦略コンテキストの構築
@@ -212,27 +204,16 @@ GAME LOG SUMMARY
 {log_summary}
 
 ==============================
-YOUR PRIVATE BELIEFS (Hidden)
-==============================
-These are your internal thoughts. Do NOT treat them as public facts.
-{role_beliefs_text}
-
-==============================
-ROLE BELIEF ANALYSIS (USE THIS IN YOUR SPEECH)
+ROLE BELIEF ANALYSIS
 ==============================
 
 Your analysis of other players' likely roles:
 {belief_analysis}
 
-When speaking, you SHOULD:
-1. Mention the TOP 2 most likely roles for suspicious players
-2. Explain what each role possibility means for the village
-3. State your voting recommendation based on this analysis
-
-
-Recent observation:
-Type: {observed_type}
-Details: {observed.model_dump()}
+When generating your speech:
+1. Refer to the log summary for discussion context and observations
+2. Use the belief analysis to inform your strategic reasoning
+3. Generate speech consistent with your strategy parameters
 
 Generate a public statement. Output JSON only.
 """
