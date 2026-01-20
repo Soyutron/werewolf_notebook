@@ -1,9 +1,10 @@
 # src/game/gm/gm_comment_generator.py
-from typing import Optional
+from typing import Optional, Union
 
 from src.core.llm.client import LLMClient
 from src.core.llm.prompts import GM_COMMENT_SYSTEM_PROMPT
 from src.core.memory.gm_comment import GMComment
+from src.core.memory.gm_plan import GMProgressionPlan
 from src.core.types import PlayerName, GameEvent
 from src.config.llm import create_gm_comment_llm
 
@@ -30,7 +31,8 @@ class GMCommentGenerator:
         public_events: list[GameEvent],
         players: list[PlayerName],
         log_summary: str = "",
-        progression_plan: str = "",
+
+        progression_plan: Optional[GMProgressionPlan] = None,
     ) -> Optional[GMComment]:
         """
         直近の public_event をもとに GM コメントを生成する。
@@ -69,6 +71,7 @@ class GMCommentGenerator:
             speak_counts=speak_counts,
             last_speaker=last_speaker,
             log_summary=log_summary,
+
             progression_plan=progression_plan,
         )
 
@@ -153,7 +156,7 @@ class GMCommentGenerator:
         speak_counts: dict[PlayerName, int],
         last_speaker: Optional[PlayerName],
         log_summary: str = "",
-        progression_plan: str = "",
+        progression_plan: Optional[GMProgressionPlan] = None,
     ) -> str:
         """
         GM 用 user prompt を構築する。
@@ -195,17 +198,34 @@ class GMCommentGenerator:
 
         # 進行計画セクション
         plan_section = ""
+        policy_section = ""
+        
         if progression_plan:
+            # 概要とマイルストーン
+            plan_summary = progression_plan.get_summary_markdown()
             plan_section = f"""
 ==============================
-進行計画（夜フェーズで策定）
+進行計画
 ==============================
-{progression_plan}
+{plan_summary}
+"""
+            # ポリシー (介入度合いなど)
+            # プロンプト全体への指示として追加、または情報として提示
+            w = progression_plan.policy_weights
+            policy_section = f"""
+# 現在の行動指針 (Policy Weights)
+- 介入レベル: {w.intervention_level} (1:静観 - 5:強制)
+- ペーシング: {w.pacing_speed} (1:遅い - 5:速い)
+- ユーモア: {w.humor_level} (1:真面目 - 5:冗談)
+- 注目プレイヤー: {w.focus_player if w.focus_player else "なし"}
+
+この指針に従って発言・介入を行ってください。
 """
 
         return f"""
 {opening_text}
 {plan_section}
+{policy_section}
 {log_summary_section}
 
 発言状況:

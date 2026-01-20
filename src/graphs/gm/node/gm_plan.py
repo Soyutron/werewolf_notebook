@@ -24,12 +24,12 @@ def gm_plan_node(state: GMGraphState) -> GMGraphState:
     generator = GMPlanGenerator(llm)
 
     # 計画生成
-    plan_text = generator.generate(world_state, game_def)
+    plan = generator.generate(world_state, game_def)
 
     # State 更新
-    internal.progression_plan = plan_text
+    internal.progression_plan = plan
     
     # デバッグログ
-    print(f"--- GM Progression Plan Generated ---\n{plan_text}\n-------------------------------------")
+    print(f"--- GM Progression Plan Generated ---\n{plan.get_summary_markdown()}\n-------------------------------------")
 
     return state

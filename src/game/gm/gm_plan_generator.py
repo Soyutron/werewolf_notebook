@@ -11,7 +11,7 @@ class GMPlanGenerator:
     def __init__(self, llm: LLMClient[GMProgressionPlan]):
         self.llm = llm
 
-    def generate(self, world_state: WorldState, game_def: GameDefinition) -> str:
+    def generate(self, world_state: WorldState, game_def: GameDefinition) -> GMProgressionPlan:
         """
         現在の WorldState と役職構成（定義）に基づき、進行計画を生成する。
         GM は個別の役職割り当てを知らない。
@@ -41,4 +41,4 @@ class GMPlanGenerator:
             prompt=user_content,
         )
 
-        return response.content
+        return response

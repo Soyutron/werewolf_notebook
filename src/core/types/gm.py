@@ -16,6 +16,7 @@ from src.core.types.roles import RoleName, RoleDefinition, Side
 from src.core.types.player import PlayerName
 from src.core.memory.gm_comment_review import GMCommentReviewResult
 from src.core.memory.gm_comment import GMComment
+from src.core.memory.gm_plan import GMProgressionPlan
 
 __all__ = [
     "GameDecision",
@@ -157,7 +158,7 @@ class GMInternalState(BaseModel):
     last_summarized_event_index: int = 0
     # 最後に要約したイベントのインデックス
 
-    progression_plan: str = ""
+    progression_plan: Optional[GMProgressionPlan] = None
     # ゲーム全体の進行計画（夜フェーズで生成）
 
 
