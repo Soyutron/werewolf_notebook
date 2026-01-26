@@ -23,6 +23,11 @@ from src.app.repositories import SessionRepository
 router = APIRouter(prefix="/api/game", tags=["game"])
 
 
+def _get_session_id(request: Request) -> str | None:
+    """Cookie優先でセッションIDを取得し、無ければヘッダー X-Session-Id を見る"""
+    return request.cookies.get("session_id") or request.headers.get("X-Session-Id")
+
+
 @router.post("/start", response_model=GameStartResponse)
 async def start_game(request: Request):
     """
@@ -39,7 +44,7 @@ async def start_game(request: Request):
             result = GameService.run_night(session_id=session_id)
             pprint(f"[GameController] Night response prepared successfully")
 
-            return session_id, GameStartResponse(**result)
+            return session_id, GameStartResponse(session_id=session_id, **result)
 
         except Exception as e:
             error_detail = traceback.format_exc()
@@ -94,7 +99,7 @@ async def get_game_state(request: Request):
     """
     try:
         # Cookie からセッション ID を取得
-        session_id = request.cookies.get("session_id")
+        session_id = _get_session_id(request)
 
         if not session_id:
             raise HTTPException(
@@ -121,7 +126,7 @@ async def get_game_state(request: Request):
                 },
             )
 
-        return GameStartResponse(**result)
+        return GameStartResponse(session_id=session_id, **result)
 
     except HTTPException:
         raise
@@ -149,7 +154,7 @@ async def run_day(request: Request, day_steps: int = 1):
 
     async def run_day_with_timeout():
         try:
-            session_id = request.cookies.get("session_id")
+            session_id = _get_session_id(request)
             if not session_id:
                 raise HTTPException(
                     status_code=400,
@@ -172,7 +177,7 @@ async def run_day(request: Request, day_steps: int = 1):
                     },
                 )
 
-            return session_id, GameStartResponse(**result)
+            return session_id, GameStartResponse(session_id=session_id, **result)
 
         except HTTPException:
             raise
@@ -222,7 +227,7 @@ async def add_speak(request: Request, speak_data: SpeakRequest):
     Cookie から session_id を取得し、Redis から復元したセッションで実行する。
     """
     try:
-        session_id = request.cookies.get("session_id")
+        session_id = _get_session_id(request)
         if not session_id:
             raise HTTPException(
                 status_code=400,
@@ -249,7 +254,8 @@ async def add_speak(request: Request, speak_data: SpeakRequest):
                 },
             )
 
-        response = JSONResponse(content=result)
+        response_model = GameStartResponse(session_id=session_id, **result)
+        response = JSONResponse(content=response_model.model_dump())
         response.set_cookie(
             key="session_id",
             value=session_id,

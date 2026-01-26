@@ -12,6 +12,7 @@ from pydantic import BaseModel
 
 class GameStartResponse(BaseModel):
     """ゲーム開始レスポンス"""
+    session_id: str
     definition: Dict[str, Any]
     world_state: Dict[str, Any]
     player_states: Dict[str, Dict[str, Any]]
