@@ -12,6 +12,7 @@ from src.graphs.gm.node.night_phase import night_phase_node
 from src.graphs.gm.node.day_phase_entry import day_phase_entry_node
 from src.graphs.gm.node.day_phase_router import day_phase_router_node
 from src.graphs.gm.node.vote_phase import vote_phase_node
+from src.graphs.gm.node.result_phase import result_phase_node
 from src.graphs.gm.phase_router import phase_router
 from src.graphs.gm.node.gm_generate import gm_generate_node
 from src.graphs.gm.node.gm_commit import gm_commit_node
@@ -72,7 +73,7 @@ def build_gm_graph():
     graph.add_node("gm_commit", gm_commit_node)
     graph.add_node("gm_refine", gm_refine_node)
     graph.add_node("vote", vote_phase_node)
-    # graph.add_node("result", result_phase_node)
+    graph.add_node("result", result_phase_node)
 
     # START から phase に応じて分岐
     graph.add_conditional_edges(START, phase_router)
@@ -112,6 +113,7 @@ def build_gm_graph():
     # 1ノードで終了
     # "night" (gm_plan) -> "night_action" -> END is already defined above
     graph.add_edge("vote", END)
+    graph.add_edge("result", END)
     graph.add_edge("gm_commit", END)
 
     return graph.compile()

@@ -131,6 +131,10 @@ class GMInternalState(BaseModel):
     # ・役職や行動内容はここには含めない
     # ・あくまで「進行管理」のみを目的とする
 
+    votes: Dict[PlayerName, PlayerName] = Field(default_factory=dict)
+    # 投票結果の集計用
+    # { "投票者": "投票先" }
+
     discussion_turn: int = 0  # 発言回数
     max_discussion_turn: int = 30  # 上限
     min_discussion_turn: int = 10  # 下限
@@ -198,3 +202,9 @@ class GMGraphState(TypedDict):
     game_def: GameDefinition
     # ゲームの定義情報（役職構成など）
     # GM は個別の役職割り当てを知らず、この定義と公開イベントのみから判断を行う。
+
+    assigned_roles: Dict[PlayerName, RoleName]
+    # 【追加】GM のみが知る真実の役職割り当て。
+    # Result フェーズで勝敗判定を行うために必要。
+    # 通常の思考プロセスでは（公平性のため）参照すべきではないが、
+    # システム的な正解判定のために State に含める。

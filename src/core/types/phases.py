@@ -75,10 +75,10 @@ class GameResult(BaseModel):
     # 勝利した陣営
     # 例: "village", "werewolf"
 
-    executed_player: PlayerName | None
+    executed_players: List[PlayerName]
     # 最終的に処刑（または敗北条件に関与）したプレイヤー
-    # ワンナイト人狼等で処刑が存在しない場合は None
-
+    # ワンナイト人狼等で処刑が存在しない場合は空リスト
+    
     roles: dict[PlayerName, RoleName]
     # 全プレイヤーの最終役職一覧（完全公開）
     # result フェーズでのみ公開される

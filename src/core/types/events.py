@@ -38,6 +38,7 @@ GameEventType = Literal[
     "vote",  # 投票が行われた（誰が誰に投票したか）
     "reveal",  # 全役職公開（ゲーム終了・勝敗確定）
     "phase_start",  # フェーズ開始
+    "game_end",  # ゲーム終了（勝者と結果の詳細）
 ]
 
 

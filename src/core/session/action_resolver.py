@@ -225,8 +225,20 @@ class ActionResolver:
     ) -> None:
         """
         投票アクションを解釈する。
-        （現時点では未実装のプレースホルダ）
         """
+        target = output.payload["target"]
+        session.gm_internal.votes[player] = target
+        
+        # 投票イベントを積む（全員に公開）
+        event = GameEvent(
+            event_type="vote",
+            payload={
+                "voter": player,
+                "target": target,
+            },
+        )
+        session.world_state.pending_events.append(event)
+
         session.gm_internal.vote_pending.remove(player)
         return
 

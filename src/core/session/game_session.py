@@ -295,6 +295,7 @@ class GameSession:
             decision=GameDecision(),
             internal=self.gm_internal,
             game_def=self.definition,
+            assigned_roles=self.assigned_roles,
         )
 
         # --- GMGraph を 1 ステップ実行 ---
