@@ -38,6 +38,8 @@ def handle_role_swapped(state: PlayerState) -> PlayerState:
     # 怪盗は交換後の役職として扱われる
     old_role = memory.self_role
     memory.self_role = new_role
+    
+    print(f"[DEBUG] handle_role_swapped: {memory.self_name} role changed from {old_role} to {new_role} (swapped with {target})")
 
     # -------------------------
     # 2. 観測イベントの保存

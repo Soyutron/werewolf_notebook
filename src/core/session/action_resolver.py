@@ -170,9 +170,13 @@ class ActionResolver:
                 thief_role = self.assigned_roles[player]
                 target_role = self.assigned_roles[target]
                 
+                print(f"[DEBUG] ActionResolver ThiefAbility: {player}(was {thief_role}) swaps with {target}(was {target_role})")
+                
                 # assigned_roles を更新（GM の真実情報）
                 self.assigned_roles[player] = target_role
                 self.assigned_roles[target] = thief_role
+                
+                print(f"[DEBUG] ActionResolver: After swap - {player} is now {target_role}, {target} is now {thief_role}")
                 
                 # 怪盗本人に役職交換結果を通知
                 # （対象プレイヤーは自分の役職が変わったことを知らない）

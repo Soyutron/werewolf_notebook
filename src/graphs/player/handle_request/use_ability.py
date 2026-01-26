@@ -93,4 +93,5 @@ def handle_thief_ability(state: PlayerState) -> PlayerState:
         action="use_ability",
         payload=ThiefAbility(kind="thief", target=target),
     )
+    print(f"[DEBUG] handle_thief_ability: {state['memory'].self_name} selected target={target}")
     return state
